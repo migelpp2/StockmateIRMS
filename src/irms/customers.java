@@ -34,6 +34,9 @@ public class customers extends javax.swing.JFrame {
     public customers() {
         initComponents();
         setLocationRelativeTo(null);
+        styleTable();
+        loadDebts();
+        autoSearchDebts();
         
     }
     
@@ -59,7 +62,7 @@ public class customers extends javax.swing.JFrame {
 
         String sql =
             "SELECT u.utang_id, c.customer_name, COALESCE(c.contact_number, '') AS contact_number, " +
-            "u.total_amount, u.amount_paid, u.status " +
+            "COALESCE(c.address, '') AS address, u.total_amount, u.amount_paid, u.status " +
             "FROM utang u " +
             "INNER JOIN customers c ON u.customer_id = c.customer_id " +
             "ORDER BY u.utang_id DESC";
@@ -79,6 +82,7 @@ public class customers extends javax.swing.JFrame {
                     rs.getInt("utang_id"),
                     rs.getString("customer_name"),
                     rs.getString("contact_number"),
+                    rs.getString("address"),
                     String.format("₱%.2f", totalDebt),
                     String.format("₱%.2f", amountPaid),
                     rs.getString("status")
@@ -102,12 +106,13 @@ public class customers extends javax.swing.JFrame {
 
         String sql =
             "SELECT u.utang_id, c.customer_name, COALESCE(c.contact_number, '') AS contact_number, " +
-            "u.total_amount, u.amount_paid, u.status " +
+            "COALESCE(c.address, '') AS address, u.total_amount, u.amount_paid, u.status " +
             "FROM utang u " +
             "INNER JOIN customers c ON u.customer_id = c.customer_id " +
             "WHERE CAST(u.utang_id AS CHAR) LIKE ? " +
             "   OR c.customer_name LIKE ? " +
             "   OR COALESCE(c.contact_number, '') LIKE ? " +
+            "   OR COALESCE(c.address, '') LIKE ? " +
             "   OR u.status LIKE ? " +
             "ORDER BY u.utang_id DESC";
 
@@ -122,6 +127,7 @@ public class customers extends javax.swing.JFrame {
             pst.setString(2, like);
             pst.setString(3, like);
             pst.setString(4, like);
+            pst.setString(5, like);
 
             try (ResultSet rs = pst.executeQuery()) {
                 while (rs.next()) {
@@ -132,6 +138,7 @@ public class customers extends javax.swing.JFrame {
                         rs.getInt("utang_id"),
                         rs.getString("customer_name"),
                         rs.getString("contact_number"),
+                        rs.getString("address"),
                         String.format("₱%.2f", totalDebt),
                         String.format("₱%.2f", amountPaid),
                         rs.getString("status")
@@ -178,7 +185,7 @@ public class customers extends javax.swing.JFrame {
         });
     }
 
-    private int getOrCreateCustomer(Connection conn, String fullName, String contactNumber) throws SQLException {
+    private int getOrCreateCustomer(Connection conn, String fullName, String contactNumber, String address) throws SQLException {
         String findSql = "SELECT customer_id FROM customers WHERE customer_name = ? AND COALESCE(contact_number, '') = ?";
         try (PreparedStatement pst = conn.prepareStatement(findSql)) {
             pst.setString(1, fullName);
@@ -186,15 +193,25 @@ public class customers extends javax.swing.JFrame {
 
             try (ResultSet rs = pst.executeQuery()) {
                 if (rs.next()) {
-                    return rs.getInt("customer_id");
+                    int customerId = rs.getInt("customer_id");
+
+                    String updateSql = "UPDATE customers SET address = ? WHERE customer_id = ?";
+                    try (PreparedStatement up = conn.prepareStatement(updateSql)) {
+                        up.setString(1, address == null || address.trim().isEmpty() ? null : address.trim());
+                        up.setInt(2, customerId);
+                        up.executeUpdate();
+                    }
+
+                    return customerId;
                 }
             }
         }
 
-        String insertSql = "INSERT INTO customers (customer_name, contact_number) VALUES (?, ?)";
+        String insertSql = "INSERT INTO customers (customer_name, contact_number, address) VALUES (?, ?, ?)";
         try (PreparedStatement pst = conn.prepareStatement(insertSql, PreparedStatement.RETURN_GENERATED_KEYS)) {
             pst.setString(1, fullName);
             pst.setString(2, contactNumber);
+            pst.setString(3, address == null || address.trim().isEmpty() ? null : address.trim());
 
             pst.executeUpdate();
 
@@ -231,6 +248,7 @@ public class customers extends javax.swing.JFrame {
     private void showAddDebtDialog() {
         JTextField txtName = new JTextField();
         JTextField txtPhone = new JTextField();
+        JTextField txtAddress = new JTextField();
         JTextField txtAmount = new JTextField();
         JTextField txtRemarks = new JTextField();
 
@@ -239,6 +257,8 @@ public class customers extends javax.swing.JFrame {
         panel.add(txtName);
         panel.add(new JLabel("Phone Number:"));
         panel.add(txtPhone);
+        panel.add(new JLabel("Address:"));
+        panel.add(txtAddress);
         panel.add(new JLabel("Debt Amount:"));
         panel.add(txtAmount);
         panel.add(new JLabel("Remarks (Optional):"));
@@ -258,6 +278,7 @@ public class customers extends javax.swing.JFrame {
 
         String fullName = txtName.getText().trim();
         String phone = txtPhone.getText().trim();
+        String address = txtAddress.getText().trim();
         String amountText = txtAmount.getText().trim();
         String remarks = txtRemarks.getText().trim();
 
@@ -280,7 +301,7 @@ public class customers extends javax.swing.JFrame {
         }
 
         try (Connection conn = MySQLConnect.getConnection()) {
-            int customerId = getOrCreateCustomer(conn, fullName, phone);
+            int customerId = getOrCreateCustomer(conn, fullName, phone, address);
 
             if (customerId == -1) {
                 JOptionPane.showMessageDialog(this, "Could not create or find customer.");
@@ -448,7 +469,8 @@ public class customers extends javax.swing.JFrame {
         try (Connection conn = MySQLConnect.getConnection()) {
             String debtSql =
                 "SELECT u.utang_id, c.customer_name, COALESCE(c.contact_number, '') AS contact_number, " +
-                "u.utang_date, u.total_amount, u.amount_paid, u.remaining_balance, u.status, COALESCE(u.remarks, '') AS remarks " +
+                "COALESCE(c.address, '') AS address, u.utang_date, u.total_amount, u.amount_paid, " +
+                "u.remaining_balance, u.status, COALESCE(u.remarks, '') AS remarks " +
                 "FROM utang u " +
                 "INNER JOIN customers c ON u.customer_id = c.customer_id " +
                 "WHERE u.utang_id = ?";
@@ -463,6 +485,7 @@ public class customers extends javax.swing.JFrame {
                         details.append("Debt ID: ").append(rs.getInt("utang_id")).append("\n");
                         details.append("Customer Name: ").append(rs.getString("customer_name")).append("\n");
                         details.append("Phone Number: ").append(rs.getString("contact_number")).append("\n");
+                        details.append("Address: ").append(rs.getString("address")).append("\n");
                         details.append("Debt Date: ").append(rs.getString("utang_date")).append("\n");
                         details.append("Original Debt: ₱").append(rs.getBigDecimal("total_amount")).append("\n");
                         details.append("Amount Paid: ₱").append(rs.getBigDecimal("amount_paid")).append("\n");
@@ -520,6 +543,34 @@ public class customers extends javax.swing.JFrame {
             JOptionPane.showMessageDialog(this, "View details error: " + e.getMessage());
         }
     }
+    
+    private int getSelectedCustomerId() {
+        int row = jTable1.getSelectedRow();
+        if (row == -1) {
+            return -1;
+        }
+
+        int utangId = Integer.parseInt(jTable1.getValueAt(row, 0).toString());
+
+        String sql = "SELECT customer_id FROM utang WHERE utang_id = ?";
+
+        try (Connection conn = MySQLConnect.getConnection();
+             PreparedStatement pst = conn.prepareStatement(sql)) {
+
+            pst.setInt(1, utangId);
+
+            try (ResultSet rs = pst.executeQuery()) {
+                if (rs.next()) {
+                    return rs.getInt("customer_id");
+                }
+            }
+
+        } catch (SQLException e) {
+            JOptionPane.showMessageDialog(this, "Get customer error: " + e.getMessage());
+        }
+
+        return -1;
+    }
 
     /**
      * This method is called from within the constructor to initialize the form.
@@ -542,6 +593,7 @@ public class customers extends javax.swing.JFrame {
         btnAddDebt = new javax.swing.JButton();
         btnRecordPayment = new javax.swing.JButton();
         btnDetails = new javax.swing.JButton();
+        btnEdit = new javax.swing.JButton();
         btnHome = new javax.swing.JButton();
         btnSales = new javax.swing.JButton();
         btnCustomers = new javax.swing.JButton();
@@ -558,17 +610,17 @@ public class customers extends javax.swing.JFrame {
 
         jTable1.setModel(new javax.swing.table.DefaultTableModel(
             new Object [][] {
-                {null, null, null, null, null, null},
-                {null, null, null, null, null, null},
-                {null, null, null, null, null, null},
-                {null, null, null, null, null, null}
+                {null, null, null, null, null, null, null},
+                {null, null, null, null, null, null, null},
+                {null, null, null, null, null, null, null},
+                {null, null, null, null, null, null, null}
             },
             new String [] {
-                "Debt ID", "Customer Name", "Phone Number", "Total Debt", "Amount Paid", "Status"
+                "Debt ID", "Customer Name", "Phone Number", "Address", "Total Debt", "Amount Paid", "Status"
             }
         ) {
             boolean[] canEdit = new boolean [] {
-                true, true, true, true, true, false
+                false, true, true, true, true, true, false
             };
 
             public boolean isCellEditable(int rowIndex, int columnIndex) {
@@ -628,6 +680,13 @@ public class customers extends javax.swing.JFrame {
             }
         });
 
+        btnEdit.setText("Edit Customer");
+        btnEdit.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnEditActionPerformed(evt);
+            }
+        });
+
         javax.swing.GroupLayout jPanel1Layout = new javax.swing.GroupLayout(jPanel1);
         jPanel1.setLayout(jPanel1Layout);
         jPanel1Layout.setHorizontalGroup(
@@ -639,7 +698,9 @@ public class customers extends javax.swing.JFrame {
                 .addComponent(btnRecordPayment, javax.swing.GroupLayout.PREFERRED_SIZE, 148, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addGap(18, 18, 18)
                 .addComponent(btnDetails, javax.swing.GroupLayout.PREFERRED_SIZE, 148, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(175, 175, 175)
+                .addGap(18, 18, 18)
+                .addComponent(btnEdit, javax.swing.GroupLayout.PREFERRED_SIZE, 148, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(38, 38, 38)
                 .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(jPanel1Layout.createSequentialGroup()
                         .addGap(9, 9, 9)
@@ -647,7 +708,7 @@ public class customers extends javax.swing.JFrame {
                     .addComponent(jLabel3))
                 .addGap(18, 18, 18)
                 .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(jLabel5, javax.swing.GroupLayout.DEFAULT_SIZE, 159, Short.MAX_VALUE)
+                    .addComponent(jLabel5, javax.swing.GroupLayout.DEFAULT_SIZE, 130, Short.MAX_VALUE)
                     .addComponent(jLabel4, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
                 .addContainerGap())
         );
@@ -669,7 +730,8 @@ public class customers extends javax.swing.JFrame {
                         .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                             .addComponent(btnAddDebt, javax.swing.GroupLayout.PREFERRED_SIZE, 35, javax.swing.GroupLayout.PREFERRED_SIZE)
                             .addComponent(btnRecordPayment, javax.swing.GroupLayout.PREFERRED_SIZE, 35, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addComponent(btnDetails, javax.swing.GroupLayout.PREFERRED_SIZE, 35, javax.swing.GroupLayout.PREFERRED_SIZE))))
+                            .addComponent(btnDetails, javax.swing.GroupLayout.PREFERRED_SIZE, 35, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(btnEdit, javax.swing.GroupLayout.PREFERRED_SIZE, 35, javax.swing.GroupLayout.PREFERRED_SIZE))))
                 .addContainerGap(28, Short.MAX_VALUE))
         );
 
@@ -870,6 +932,79 @@ public class customers extends javax.swing.JFrame {
         this.dispose();
     }//GEN-LAST:event_btnReportsActionPerformed
 
+    private void btnEditActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnEditActionPerformed
+        // TODO add your handling code here:
+            int row = jTable1.getSelectedRow();
+
+        if (row == -1) {
+            JOptionPane.showMessageDialog(this, "Please select a customer debt record first.");
+            return;
+        }
+
+        int customerId = getSelectedCustomerId();
+
+        if (customerId == -1) {
+            JOptionPane.showMessageDialog(this, "Customer not found.");
+            return;
+        }
+
+        String currentName = jTable1.getValueAt(row, 1).toString();
+        String currentPhone = jTable1.getValueAt(row, 2).toString();
+        String currentAddress = jTable1.getValueAt(row, 3).toString();
+
+        JTextField txtName = new JTextField(currentName);
+        JTextField txtPhone = new JTextField(currentPhone);
+        JTextField txtAddress = new JTextField(currentAddress);
+
+        JPanel panel = new JPanel(new GridLayout(0, 1, 8, 8));
+        panel.add(new JLabel("Customer Name:"));
+        panel.add(txtName);
+        panel.add(new JLabel("Phone Number:"));
+        panel.add(txtPhone);
+        panel.add(new JLabel("Address:"));
+        panel.add(txtAddress);
+
+        int result = JOptionPane.showConfirmDialog(
+                this,
+                panel,
+                "Edit Customer",
+                JOptionPane.OK_CANCEL_OPTION,
+                JOptionPane.PLAIN_MESSAGE
+        );
+
+        if (result != JOptionPane.OK_OPTION) {
+            return;
+        }
+
+        String newName = txtName.getText().trim();
+        String newPhone = txtPhone.getText().trim();
+        String newAddress = txtAddress.getText().trim();
+
+        if (newName.isEmpty()) {
+            JOptionPane.showMessageDialog(this, "Customer name is required.");
+            return;
+        }
+
+        String sql = "UPDATE customers SET customer_name = ?, contact_number = ?, address = ? WHERE customer_id = ?";
+
+        try (Connection conn = MySQLConnect.getConnection();
+             PreparedStatement pst = conn.prepareStatement(sql)) {
+
+            pst.setString(1, newName);
+            pst.setString(2, newPhone.isEmpty() ? null : newPhone);
+            pst.setString(3, newAddress.isEmpty() ? null : newAddress);
+            pst.setInt(4, customerId);
+
+            pst.executeUpdate();
+
+            JOptionPane.showMessageDialog(this, "Customer updated successfully.");
+            loadDebts();
+
+        } catch (SQLException e) {
+            JOptionPane.showMessageDialog(this, "Edit customer error: " + e.getMessage());
+        }
+    }//GEN-LAST:event_btnEditActionPerformed
+
     /**
      * @param args the command line arguments
      */
@@ -912,6 +1047,7 @@ public class customers extends javax.swing.JFrame {
     private javax.swing.JButton btnCategory;
     private javax.swing.JButton btnCustomers;
     private javax.swing.JButton btnDetails;
+    private javax.swing.JButton btnEdit;
     private javax.swing.JButton btnHome;
     private javax.swing.JButton btnProducts;
     private javax.swing.JButton btnRecordPayment;
