@@ -29,6 +29,12 @@ public class MainFrame extends javax.swing.JFrame {
      */
     public MainFrame() {
         initComponents();
+        lblBackground.setIcon(new javax.swing.ImageIcon(
+            getClass().getResource("/irms/resources/background/Home.png")
+        ));
+        actionbar.setIcon(new javax.swing.ImageIcon(
+            getClass().getResource("/irms/resources/background/action bar.png")
+        ));
         setLocationRelativeTo(null);
         applyRoleAccess();
         openHomePanel();

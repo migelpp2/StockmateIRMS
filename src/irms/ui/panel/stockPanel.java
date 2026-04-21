@@ -32,6 +32,9 @@ public class stockPanel extends javax.swing.JPanel {
      */
     public stockPanel() {
         initComponents();
+        lblBackground.setIcon(new javax.swing.ImageIcon(
+            getClass().getResource("/irms/resources/background/Stock List.png")
+        ));
         lblTotalProductsValue = new javax.swing.JLabel("0");
         lblLowStockValue = new javax.swing.JLabel("0");
         lblNoStockValue = new javax.swing.JLabel("0");

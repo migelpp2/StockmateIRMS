@@ -23,7 +23,9 @@ public class adminHomePanel extends javax.swing.JPanel {
      */
     public adminHomePanel() {
         initComponents();
-//        styleDashboardCards();
+        lblBackground.setIcon(new javax.swing.ImageIcon(
+            getClass().getResource("/irms/resources/background/Home.png")
+        ));
         loadDashboardData();
     }
     
@@ -180,11 +182,9 @@ public class adminHomePanel extends javax.swing.JPanel {
         pnlWelcome = new irms.ui.components.RoundedPanel();
         lblWelcome = new javax.swing.JLabel();
         lblSubheading = new javax.swing.JLabel();
-        lblIcon = new javax.swing.JLabel();
         pnlProductsNumber = new irms.ui.components.RoundedPanel();
         lblTotalProduct = new javax.swing.JLabel();
         lblProductsText = new javax.swing.JLabel();
-        lblIcon1 = new javax.swing.JLabel();
         pnlQuickAction = new irms.ui.components.RoundedPanel();
         btnViewStocks = new javax.swing.JButton();
         btnReports = new javax.swing.JButton();
@@ -199,15 +199,12 @@ public class adminHomePanel extends javax.swing.JPanel {
         lblTotalProduct1 = new javax.swing.JLabel();
         lblWithDebtText = new javax.swing.JLabel();
         lblCustomerText = new javax.swing.JLabel();
-        lblIcon4 = new javax.swing.JLabel();
         pnlTodaySales = new irms.ui.components.RoundedPanel();
         lblTotalProduct2 = new javax.swing.JLabel();
         lblTodaySalesText = new javax.swing.JLabel();
-        lblIcon3 = new javax.swing.JLabel();
         pnlLowStock = new irms.ui.components.RoundedPanel();
         lblTotalProduct3 = new javax.swing.JLabel();
         lblLowStockText = new javax.swing.JLabel();
-        lblIcon2 = new javax.swing.JLabel();
         lblBackground = new javax.swing.JLabel();
 
         setBackground(new java.awt.Color(255, 255, 255));
@@ -227,9 +224,6 @@ public class adminHomePanel extends javax.swing.JPanel {
         lblSubheading.setText("Inventory and Sales Overview");
         pnlWelcome.add(lblSubheading, new org.netbeans.lib.awtextra.AbsoluteConstraints(83, 72, -1, -1));
 
-        lblIcon.setIcon(new javax.swing.ImageIcon(getClass().getResource("/irms/icons/home icon.png"))); // NOI18N
-        pnlWelcome.add(lblIcon, new org.netbeans.lib.awtextra.AbsoluteConstraints(10, 30, -1, -1));
-
         add(pnlWelcome, new org.netbeans.lib.awtextra.AbsoluteConstraints(10, 170, 530, 130));
 
         pnlProductsNumber.setBackground(new java.awt.Color(198, 214, 165));
@@ -245,24 +239,21 @@ public class adminHomePanel extends javax.swing.JPanel {
         lblProductsText.setText("Products");
         pnlProductsNumber.add(lblProductsText, new org.netbeans.lib.awtextra.AbsoluteConstraints(140, 60, -1, -1));
 
-        lblIcon1.setIcon(new javax.swing.ImageIcon(getClass().getResource("/irms/icons/products icon.png"))); // NOI18N
-        pnlProductsNumber.add(lblIcon1, new org.netbeans.lib.awtextra.AbsoluteConstraints(10, 30, -1, -1));
-
         add(pnlProductsNumber, new org.netbeans.lib.awtextra.AbsoluteConstraints(10, 310, 260, 110));
 
         pnlQuickAction.setBackground(new java.awt.Color(214, 223, 208));
         pnlQuickAction.setOpaque(false);
         pnlQuickAction.setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
 
-        btnViewStocks.setIcon(new javax.swing.ImageIcon(getClass().getResource("/irms/icons/stock movement icon.png"))); // NOI18N
+        btnViewStocks.setText("Stocks");
         btnViewStocks.addActionListener(this::btnViewStocksActionPerformed);
         pnlQuickAction.add(btnViewStocks, new org.netbeans.lib.awtextra.AbsoluteConstraints(200, 90, 131, 91));
 
-        btnReports.setIcon(new javax.swing.ImageIcon(getClass().getResource("/irms/icons/reports icon.png"))); // NOI18N
+        btnReports.setText("Reports");
         btnReports.addActionListener(this::btnReportsActionPerformed);
         pnlQuickAction.add(btnReports, new org.netbeans.lib.awtextra.AbsoluteConstraints(340, 90, 131, 91));
 
-        btnNewSales.setIcon(new javax.swing.ImageIcon(getClass().getResource("/irms/icons/price tag icon.png"))); // NOI18N
+        btnNewSales.setText("Sales");
         btnNewSales.addActionListener(this::btnNewSalesActionPerformed);
         pnlQuickAction.add(btnNewSales, new org.netbeans.lib.awtextra.AbsoluteConstraints(50, 90, 131, 91));
 
@@ -314,9 +305,6 @@ public class adminHomePanel extends javax.swing.JPanel {
         lblCustomerText.setText("Customers ");
         pnlCustomerDebt.add(lblCustomerText, new org.netbeans.lib.awtextra.AbsoluteConstraints(140, 50, -1, -1));
 
-        lblIcon4.setIcon(new javax.swing.ImageIcon(getClass().getResource("/irms/icons/customers icon.png"))); // NOI18N
-        pnlCustomerDebt.add(lblIcon4, new org.netbeans.lib.awtextra.AbsoluteConstraints(10, 30, -1, -1));
-
         add(pnlCustomerDebt, new org.netbeans.lib.awtextra.AbsoluteConstraints(820, 310, 260, 110));
 
         pnlTodaySales.setBackground(new java.awt.Color(156, 189, 219));
@@ -332,9 +320,6 @@ public class adminHomePanel extends javax.swing.JPanel {
         lblTodaySalesText.setText("Today Sales");
         pnlTodaySales.add(lblTodaySalesText, new org.netbeans.lib.awtextra.AbsoluteConstraints(130, 60, -1, -1));
 
-        lblIcon3.setIcon(new javax.swing.ImageIcon(getClass().getResource("/irms/icons/price tag icon.png"))); // NOI18N
-        pnlTodaySales.add(lblIcon3, new org.netbeans.lib.awtextra.AbsoluteConstraints(10, 30, -1, -1));
-
         add(pnlTodaySales, new org.netbeans.lib.awtextra.AbsoluteConstraints(550, 310, 260, 110));
 
         pnlLowStock.setBackground(new java.awt.Color(230, 205, 126));
@@ -349,9 +334,6 @@ public class adminHomePanel extends javax.swing.JPanel {
         lblLowStockText.setForeground(new java.awt.Color(45, 45, 45));
         lblLowStockText.setText("Low Stock");
         pnlLowStock.add(lblLowStockText, new org.netbeans.lib.awtextra.AbsoluteConstraints(140, 60, -1, -1));
-
-        lblIcon2.setIcon(new javax.swing.ImageIcon(getClass().getResource("/irms/icons/stocks icon.png"))); // NOI18N
-        pnlLowStock.add(lblIcon2, new org.netbeans.lib.awtextra.AbsoluteConstraints(10, 30, -1, -1));
 
         add(pnlLowStock, new org.netbeans.lib.awtextra.AbsoluteConstraints(280, 310, 260, 110));
 
@@ -381,11 +363,6 @@ public class adminHomePanel extends javax.swing.JPanel {
     private javax.swing.JButton btnViewStocks;
     private javax.swing.JLabel lblBackground;
     private javax.swing.JLabel lblCustomerText;
-    private javax.swing.JLabel lblIcon;
-    private javax.swing.JLabel lblIcon1;
-    private javax.swing.JLabel lblIcon2;
-    private javax.swing.JLabel lblIcon3;
-    private javax.swing.JLabel lblIcon4;
     private javax.swing.JLabel lblLowStockText;
     private javax.swing.JLabel lblOverview1;
     private javax.swing.JLabel lblOverview2;

@@ -35,6 +35,9 @@ public class brandPanel extends javax.swing.JPanel {
      */
     public brandPanel() {
         initComponents();
+        lblBackground.setIcon(new javax.swing.ImageIcon(
+            getClass().getResource("/irms/resources/background/Brand.png")
+        ));
         loadBrands();
         autoSearchBrands();
         styleTable();

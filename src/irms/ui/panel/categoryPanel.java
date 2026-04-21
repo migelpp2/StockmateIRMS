@@ -24,6 +24,9 @@ public class categoryPanel extends javax.swing.JPanel {
      */
     public categoryPanel() {
         initComponents();
+        lblBackground.setIcon(new javax.swing.ImageIcon(
+            getClass().getResource("/irms/resources/background/Category List.png")
+        ));
         txtSearch.setEditable(true);
         loadCategories();
         autoSearchCategory();

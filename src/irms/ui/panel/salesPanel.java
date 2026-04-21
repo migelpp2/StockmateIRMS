@@ -30,6 +30,9 @@ public class salesPanel extends javax.swing.JPanel {
      */
     public salesPanel() {
         initComponents();
+        lblBackground.setIcon(new javax.swing.ImageIcon(
+            getClass().getResource("/irms/resources/background/Sales List.png")
+        ));
 //        applyRoleAccess();
     
         lblSubT.setText("Change: ₱0.00");

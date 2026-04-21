@@ -32,6 +32,9 @@ public class productsPanel extends javax.swing.JPanel {
      */
     public productsPanel() {
         initComponents();
+        lblBackground.setIcon(new javax.swing.ImageIcon(
+            getClass().getResource("/irms/resources/background/Product List.png")
+        ));
         txtSearch.setEditable(true);
     txtSearch.setEnabled(true);
     txtSearch.setFocusable(true);

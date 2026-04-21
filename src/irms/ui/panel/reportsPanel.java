@@ -24,6 +24,9 @@ public class reportsPanel extends javax.swing.JPanel {
      */
     public reportsPanel() {
         initComponents();
+        lblBackground.setIcon(new javax.swing.ImageIcon(
+            getClass().getResource("/irms/resources/background/Reports.png")
+        ));
         jLabel1.setText("VAT Collected");
         cmbReportType.setModel(new javax.swing.DefaultComboBoxModel<>(
                 new String[]{"Daily", "Weekly", "Monthly"}

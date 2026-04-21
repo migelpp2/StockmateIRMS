@@ -34,6 +34,9 @@ public class customerPanel extends javax.swing.JPanel {
      */
     public customerPanel() {
         initComponents();
+        lblBackground.setIcon(new javax.swing.ImageIcon(
+            getClass().getResource("/irms/resources/background/Customer Debt Panel.png")
+        ));
         styleTable();
         loadDebts();
         autoSearchDebts();

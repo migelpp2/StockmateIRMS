@@ -27,6 +27,9 @@ public class stockMovementPanel extends javax.swing.JPanel {
      */
     public stockMovementPanel() {
         initComponents();
+        lblBackground.setIcon(new javax.swing.ImageIcon(
+            getClass().getResource("/irms/resources/background/Stock List.png")
+        ));
         loadHistory();
         autoSearchHistory();
         styleTable();
