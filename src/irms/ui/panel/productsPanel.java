@@ -39,12 +39,9 @@ public class productsPanel extends javax.swing.JPanel {
     txtSearch.setEnabled(true);
     txtSearch.setFocusable(true);
 
-    attachTableSelectionHandlers();
-
     loadProducts();
     autoSearchProducts();
     styleProductTable();
-    updateActionButtons();
     }
     
     private int getCategoryIdByName(Connection conn, String categoryName) throws SQLException {
@@ -135,7 +132,6 @@ public class productsPanel extends javax.swing.JPanel {
                 rs.getString("status")
         });
         }
-        updateActionButtons();
 
     } catch (SQLException e) {
         JOptionPane.showMessageDialog(this, "Load error: " + e.getMessage());
@@ -192,7 +188,6 @@ public class productsPanel extends javax.swing.JPanel {
             });
             }
         }
-        updateActionButtons();
 
     } catch (SQLException e) {
         JOptionPane.showMessageDialog(this, "Search error: " + e.getMessage());
@@ -243,54 +238,6 @@ public class productsPanel extends javax.swing.JPanel {
         header.setForeground(new Color(54, 67, 20));
         header.setReorderingAllowed(false);
     }
-    
-    private void updateActionButtons() {
-    int row = jTable1.getSelectedRow();
-
-    if (row == -1 || jTable1.getRowCount() == 0) {
-        btnActivate.setEnabled(false);
-        btnDeactivate.setEnabled(false);
-        return;
-    }
-
-    Object statusValue = jTable1.getValueAt(row, 7);
-
-    if (statusValue == null) {
-        btnActivate.setEnabled(false);
-        btnDeactivate.setEnabled(false);
-        return;
-    }
-
-    String status = statusValue.toString().trim();
-
-    if ("ACTIVE".equalsIgnoreCase(status)) {
-        btnActivate.setEnabled(false);
-        btnDeactivate.setEnabled(true);
-    } else if ("INACTIVE".equalsIgnoreCase(status)) {
-        btnActivate.setEnabled(true);
-        btnDeactivate.setEnabled(false);
-    } else {
-        btnActivate.setEnabled(false);
-        btnDeactivate.setEnabled(false);
-    }
-    }
-    private void attachTableSelectionHandlers() {
-    jTable1.addMouseListener(new java.awt.event.MouseAdapter() {
-        @Override
-        public void mouseClicked(java.awt.event.MouseEvent evt) {
-            updateActionButtons();
-        }
-    });
-
-    jTable1.getSelectionModel().addListSelectionListener(new javax.swing.event.ListSelectionListener() {
-        @Override
-        public void valueChanged(javax.swing.event.ListSelectionEvent e) {
-            if (!e.getValueIsAdjusting()) {
-                updateActionButtons();
-            }
-        }
-    });
-}
     /**
      * This method is called from within the constructor to initialize the form.
      * WARNING: Do NOT modify this code. The content of this method is always
@@ -305,9 +252,8 @@ public class productsPanel extends javax.swing.JPanel {
         txtSearch = new javax.swing.JTextField();
         btnAdd = new javax.swing.JButton();
         btnEdit = new javax.swing.JButton();
-        btnDeactivate = new javax.swing.JButton();
-        btnActivate = new javax.swing.JButton();
         jLabel1 = new javax.swing.JLabel();
+        btnDelete = new javax.swing.JButton();
         lblBackground = new javax.swing.JLabel();
 
         setBackground(new java.awt.Color(200, 212, 222));
@@ -333,23 +279,19 @@ public class productsPanel extends javax.swing.JPanel {
 
         btnAdd.setText("ADD PRODUCT");
         btnAdd.addActionListener(this::btnAddActionPerformed);
-        add(btnAdd, new org.netbeans.lib.awtextra.AbsoluteConstraints(900, 260, 130, 40));
+        add(btnAdd, new org.netbeans.lib.awtextra.AbsoluteConstraints(900, 260, 150, 40));
 
         btnEdit.setText("EDIT PRODUCT");
         btnEdit.addActionListener(this::btnEditActionPerformed);
-        add(btnEdit, new org.netbeans.lib.awtextra.AbsoluteConstraints(900, 300, 130, 40));
-
-        btnDeactivate.setText("DEACTIVATE PRODUCT");
-        btnDeactivate.addActionListener(this::btnDeactivateActionPerformed);
-        add(btnDeactivate, new org.netbeans.lib.awtextra.AbsoluteConstraints(900, 400, 180, 40));
-
-        btnActivate.setText("ACTIVATE PRODUCT");
-        btnActivate.addActionListener(this::btnActivateActionPerformed);
-        add(btnActivate, new org.netbeans.lib.awtextra.AbsoluteConstraints(900, 360, 180, 40));
+        add(btnEdit, new org.netbeans.lib.awtextra.AbsoluteConstraints(900, 310, 150, 40));
 
         jLabel1.setFont(new java.awt.Font("Segoe UI", 0, 14)); // NOI18N
         jLabel1.setText("Search:");
         add(jLabel1, new org.netbeans.lib.awtextra.AbsoluteConstraints(30, 160, 60, 30));
+
+        btnDelete.setText("DELETE PRODUCT");
+        btnDelete.addActionListener(this::btnDeleteActionPerformed);
+        add(btnDelete, new org.netbeans.lib.awtextra.AbsoluteConstraints(900, 360, 150, 40));
 
         lblBackground.setIcon(new javax.swing.ImageIcon(getClass().getResource("/irms/design/Product List.png"))); // NOI18N
         add(lblBackground, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 0, -1, -1));
@@ -473,7 +415,9 @@ public class productsPanel extends javax.swing.JPanel {
             "(category_id, brand_id, product_name, cost_price, selling_price, unit_type, unit_label, status) " +
             "VALUES (?, ?, ?, ?, ?, ?, ?, 'ACTIVE')";
 
-            try (PreparedStatement pst = conn.prepareStatement(insertSql)) {
+            int newProductId = 0;
+
+            try (PreparedStatement pst = conn.prepareStatement(insertSql, PreparedStatement.RETURN_GENERATED_KEYS)) {
                 pst.setInt(1, categoryId);
                 pst.setInt(2, brandId);
                 pst.setString(3, productName);
@@ -482,6 +426,23 @@ public class productsPanel extends javax.swing.JPanel {
                 pst.setString(6, unitType);
                 pst.setString(7, unitLabel);
                 pst.executeUpdate();
+
+                try (ResultSet rs = pst.getGeneratedKeys()) {
+                    if (rs.next()) {
+                        newProductId = rs.getInt(1);
+                    }
+                }
+            }
+
+            String stockSql = "INSERT INTO stocks (product_id, quantity, unit_price, reorder_level, stock_date, stock_time) " +
+                              "VALUES (?, ?, ?, ?, CURDATE(), CURTIME())";
+
+            try (PreparedStatement pstStock = conn.prepareStatement(stockSql)) {
+                pstStock.setInt(1, newProductId);
+                pstStock.setBigDecimal(2, BigDecimal.ZERO);
+                pstStock.setBigDecimal(3, sellingPrice);
+                pstStock.setBigDecimal(4, new BigDecimal("5.00"));
+                pstStock.executeUpdate();
             }
 
             JOptionPane.showMessageDialog(this, "Product added successfully!");
@@ -665,28 +626,22 @@ public class productsPanel extends javax.swing.JPanel {
         }
     }//GEN-LAST:event_btnEditActionPerformed
 
-    private void btnDeactivateActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnDeactivateActionPerformed
+    private void btnDeleteActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnDeleteActionPerformed
         // TODO add your handling code here:
         int row = jTable1.getSelectedRow();
 
         if (row == -1) {
-            JOptionPane.showMessageDialog(this, "Please select a product to deactivate.");
+            JOptionPane.showMessageDialog(this, "Please select a product to delete.");
             return;
         }
 
         int productId = Integer.parseInt(jTable1.getValueAt(row, 0).toString());
         String productName = jTable1.getValueAt(row, 1).toString();
-        String currentStatus = jTable1.getValueAt(row, 7).toString();
-
-        if ("INACTIVE".equalsIgnoreCase(currentStatus)) {
-            JOptionPane.showMessageDialog(this, "This product is already inactive.");
-            return;
-        }
 
         int confirm = JOptionPane.showConfirmDialog(
             this,
-            "Deactivate product: " + productName + "?",
-            "Confirm Deactivate",
+            "Delete product: " + productName + "?",
+            "Confirm Delete",
             JOptionPane.YES_NO_OPTION
         );
 
@@ -695,73 +650,55 @@ public class productsPanel extends javax.swing.JPanel {
         }
 
         try (Connection conn = MySQLConnect.getConnection()) {
-            String sql = "UPDATE products SET status = 'INACTIVE' WHERE product_id = ?";
+            conn.setAutoCommit(false);
 
-            try (PreparedStatement pst = conn.prepareStatement(sql)) {
+            String checkSaleItemsSql = "SELECT COUNT(*) FROM sale_items WHERE product_id = ?";
+            try (PreparedStatement pst = conn.prepareStatement(checkSaleItemsSql)) {
+                pst.setInt(1, productId);
+
+                try (ResultSet rs = pst.executeQuery()) {
+                    if (rs.next() && rs.getInt(1) > 0) {
+                        JOptionPane.showMessageDialog(
+                            this,
+                            "Cannot delete product.\nThis product already has sales records."
+                        );
+                        return;
+                    }
+                }
+            }
+
+            String deleteStockMovementsSql = "DELETE FROM stock_movements WHERE product_id = ?";
+            try (PreparedStatement pst = conn.prepareStatement(deleteStockMovementsSql)) {
                 pst.setInt(1, productId);
                 pst.executeUpdate();
             }
 
-            JOptionPane.showMessageDialog(this, "Product deactivated successfully!");
-            loadProducts();
-            updateActionButtons();
-
-        } catch (SQLException e) {
-            JOptionPane.showMessageDialog(this, "Deactivate error: " + e.getMessage());
-        }
-    }//GEN-LAST:event_btnDeactivateActionPerformed
-
-    private void btnActivateActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnActivateActionPerformed
-        // TODO add your handling code here:
-        int row = jTable1.getSelectedRow();
-
-        if (row == -1) {
-            JOptionPane.showMessageDialog(this, "Please select a product to activate.");
-            return;
-        }
-
-        int productId = Integer.parseInt(jTable1.getValueAt(row, 0).toString());
-        String productName = jTable1.getValueAt(row, 1).toString();
-        String currentStatus = jTable1.getValueAt(row, 7).toString();
-
-        if ("ACTIVE".equalsIgnoreCase(currentStatus)) {
-            JOptionPane.showMessageDialog(this, "This product is already active.");
-            return;
-        }
-
-        int confirm = JOptionPane.showConfirmDialog(
-            this,
-            "Activate product: " + productName + "?",
-            "Confirm Activate",
-            JOptionPane.YES_NO_OPTION
-        );
-
-        if (confirm != JOptionPane.YES_OPTION) {
-            return;
-        }
-
-        try (Connection conn = MySQLConnect.getConnection()) {
-            String sql = "UPDATE products SET status = 'ACTIVE' WHERE product_id = ?";
-
-            try (PreparedStatement pst = conn.prepareStatement(sql)) {
+            String deleteStocksSql = "DELETE FROM stocks WHERE product_id = ?";
+            try (PreparedStatement pst = conn.prepareStatement(deleteStocksSql)) {
                 pst.setInt(1, productId);
                 pst.executeUpdate();
             }
 
-            JOptionPane.showMessageDialog(this, "Product activated successfully!");
+            String deleteProductSql = "DELETE FROM products WHERE product_id = ?";
+            try (PreparedStatement pst = conn.prepareStatement(deleteProductSql)) {
+                pst.setInt(1, productId);
+                pst.executeUpdate();
+            }
+
+            conn.commit();
+
+            JOptionPane.showMessageDialog(this, "Product deleted successfully!");
             loadProducts();
-            updateActionButtons();
 
         } catch (SQLException e) {
-            JOptionPane.showMessageDialog(this, "Activate error: " + e.getMessage());
+            JOptionPane.showMessageDialog(this, "Delete error: " + e.getMessage());
         }
-    }//GEN-LAST:event_btnActivateActionPerformed
+    }//GEN-LAST:event_btnDeleteActionPerformed
 
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
-    private javax.swing.JButton btnActivate;
     private javax.swing.JButton btnAdd;
-    private javax.swing.JButton btnDeactivate;
+    private javax.swing.JButton btnDelete;
     private javax.swing.JButton btnEdit;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JScrollPane jScrollPane1;
