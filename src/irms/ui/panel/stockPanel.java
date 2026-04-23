@@ -380,8 +380,7 @@ public class stockPanel extends javax.swing.JPanel {
 
         String sql = "SELECT product_name " +
                      "FROM products " +
-                     "WHERE status = 'ACTIVE' " +
-                     "AND product_name LIKE ? " +
+                     "WHERE product_name LIKE ? " +
                      "ORDER BY product_name";
 
         try (Connection conn = MySQLConnect.getConnection();
