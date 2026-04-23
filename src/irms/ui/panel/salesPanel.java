@@ -114,6 +114,7 @@ public class salesPanel extends javax.swing.JPanel {
             "LEFT JOIN brands b ON p.brand_id = b.brand_id " +
             "INNER JOIN stocks s ON p.product_id = s.product_id " +
             "WHERE p.status = 'ACTIVE' " +
+            "AND s.quantity > 0 " +
             "ORDER BY p.product_name";
 
         try (Connection conn = MySQLConnect.getConnection();
@@ -154,6 +155,7 @@ public class salesPanel extends javax.swing.JPanel {
             "LEFT JOIN brands b ON p.brand_id = b.brand_id " +
             "INNER JOIN stocks s ON p.product_id = s.product_id " +
             "WHERE p.status = 'ACTIVE' " +
+            "AND s.quantity > 0 " +
             "AND (p.product_name LIKE ? OR COALESCE(b.brand_name, '') LIKE ?) " +
             "ORDER BY p.product_name";
 
@@ -615,6 +617,157 @@ public class salesPanel extends javax.swing.JPanel {
         header.setForeground(new java.awt.Color(54, 67, 20));
         header.setReorderingAllowed(false);
     }
+    
+    private BigDecimal showCashDenominationDialog(BigDecimal totalDue) {
+        java.awt.Window parentWindow = javax.swing.SwingUtilities.getWindowAncestor(this);
+        javax.swing.JDialog dialog;
+
+        if (parentWindow instanceof java.awt.Frame) {
+            dialog = new javax.swing.JDialog((java.awt.Frame) parentWindow, "Cash Payment", true);
+        } else {
+            dialog = new javax.swing.JDialog();
+            dialog.setModal(true);
+            dialog.setTitle("Cash Payment");
+        }
+
+        dialog.setSize(520, 520);
+        dialog.setLayout(new java.awt.BorderLayout(10, 10));
+        dialog.setLocationRelativeTo(this);
+
+        final BigDecimal[] cashReceived = {BigDecimal.ZERO};
+
+        javax.swing.JLabel lblTitle = new javax.swing.JLabel("Select Customer Cash", javax.swing.SwingConstants.CENTER);
+        lblTitle.setFont(new java.awt.Font("Segoe UI", java.awt.Font.BOLD, 18));
+        lblTitle.setBorder(javax.swing.BorderFactory.createEmptyBorder(10, 10, 5, 10));
+
+        javax.swing.JLabel lblTotalDue = new javax.swing.JLabel("Total Due: ₱" + totalDue.setScale(2, RoundingMode.HALF_UP), javax.swing.SwingConstants.CENTER);
+        lblTotalDue.setFont(new java.awt.Font("Segoe UI", java.awt.Font.BOLD, 16));
+
+        javax.swing.JLabel lblCashValue = new javax.swing.JLabel("Cash Received: ₱0.00", javax.swing.SwingConstants.CENTER);
+        lblCashValue.setFont(new java.awt.Font("Segoe UI", java.awt.Font.BOLD, 16));
+
+        javax.swing.JLabel lblChangeValue = new javax.swing.JLabel("Change: ₱0.00", javax.swing.SwingConstants.CENTER);
+        lblChangeValue.setFont(new java.awt.Font("Segoe UI", java.awt.Font.PLAIN, 15));
+
+        java.awt.event.ActionListener updateLabels = e -> {
+            lblCashValue.setText("Cash Received: ₱" + cashReceived[0].setScale(2, RoundingMode.HALF_UP));
+            BigDecimal change = cashReceived[0].subtract(totalDue);
+            if (change.compareTo(BigDecimal.ZERO) < 0) {
+                lblChangeValue.setText("Remaining: ₱" + change.abs().setScale(2, RoundingMode.HALF_UP));
+            } else {
+                lblChangeValue.setText("Change: ₱" + change.setScale(2, RoundingMode.HALF_UP));
+            }
+        };
+
+        javax.swing.JPanel infoPanel = new javax.swing.JPanel(new java.awt.GridLayout(3, 1, 5, 5));
+        infoPanel.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 10, 0, 10));
+        infoPanel.add(lblTotalDue);
+        infoPanel.add(lblCashValue);
+        infoPanel.add(lblChangeValue);
+
+        javax.swing.JPanel denominationPanel = new javax.swing.JPanel(new java.awt.GridLayout(0, 4, 8, 8));
+        denominationPanel.setBorder(javax.swing.BorderFactory.createEmptyBorder(10, 10, 10, 10));
+
+        String[] denominations = {
+            "0.25", "0.50", "1", "5",
+            "10", "20", "50", "100",
+            "200", "500", "1000"
+        };
+
+        for (String value : denominations) {
+            javax.swing.JButton btn = new javax.swing.JButton("₱" + value);
+            btn.setFont(new java.awt.Font("Segoe UI", java.awt.Font.BOLD, 14));
+            btn.addActionListener(e -> {
+                cashReceived[0] = cashReceived[0].add(new BigDecimal(value));
+                updateLabels.actionPerformed(null);
+            });
+            denominationPanel.add(btn);
+        }
+
+        javax.swing.JPanel bottomPanel = new javax.swing.JPanel(new java.awt.FlowLayout(java.awt.FlowLayout.CENTER, 10, 10));
+        javax.swing.JButton btnClear = new javax.swing.JButton("Clear");
+        javax.swing.JButton btnExact = new javax.swing.JButton("Exact");
+        javax.swing.JButton btnCustom = new javax.swing.JButton("Custom");
+        javax.swing.JButton btnConfirm = new javax.swing.JButton("Confirm");
+        javax.swing.JButton btnCancel = new javax.swing.JButton("Cancel");
+
+        btnClear.addActionListener(e -> {
+            cashReceived[0] = BigDecimal.ZERO;
+            updateLabels.actionPerformed(null);
+        });
+
+        btnExact.addActionListener(e -> {
+            cashReceived[0] = totalDue;
+            updateLabels.actionPerformed(null);
+        });
+
+        btnCustom.addActionListener(e -> {
+            String input = JOptionPane.showInputDialog(dialog, "Enter custom amount:", cashReceived[0].setScale(2, RoundingMode.HALF_UP).toPlainString());
+            if (input == null) {
+                return;
+            }
+
+            input = input.trim();
+
+            if (input.isEmpty()) {
+                JOptionPane.showMessageDialog(dialog, "Amount is required.");
+                return;
+            }
+
+            try {
+                cashReceived[0] = new BigDecimal(input).setScale(2, RoundingMode.HALF_UP);
+                if (cashReceived[0].compareTo(BigDecimal.ZERO) < 0) {
+                    JOptionPane.showMessageDialog(dialog, "Amount cannot be negative.");
+                    cashReceived[0] = BigDecimal.ZERO;
+                }
+                updateLabels.actionPerformed(null);
+            } catch (NumberFormatException ex) {
+                JOptionPane.showMessageDialog(dialog, "Invalid amount.");
+            }
+        });
+
+        final BigDecimal[] confirmedValue = {null};
+
+        btnConfirm.addActionListener(e -> {
+            if (cashReceived[0].compareTo(totalDue) < 0) {
+                JOptionPane.showMessageDialog(dialog, "Insufficient cash.");
+                return;
+            }
+            confirmedValue[0] = cashReceived[0].setScale(2, RoundingMode.HALF_UP);
+            dialog.dispose();
+        });
+
+        btnCancel.addActionListener(e -> dialog.dispose());
+
+        bottomPanel.add(btnClear);
+        bottomPanel.add(btnExact);
+        bottomPanel.add(btnCustom);
+        bottomPanel.add(btnConfirm);
+        bottomPanel.add(btnCancel);
+
+        dialog.add(lblTitle, java.awt.BorderLayout.NORTH);
+        dialog.add(infoPanel, java.awt.BorderLayout.BEFORE_FIRST_LINE);
+        dialog.add(denominationPanel, java.awt.BorderLayout.CENTER);
+        dialog.add(bottomPanel, java.awt.BorderLayout.SOUTH);
+
+        updateLabels.actionPerformed(null);
+        dialog.setVisible(true);
+
+        return confirmedValue[0];
+    }
+    
+    private String getLoggedInCashierFirstName() {
+        if (session.fullname != null && !session.fullname.trim().isEmpty()) {
+            String[] parts = session.fullname.trim().split("\\s+");
+            return parts[0];
+        }
+
+        if (session.username != null && !session.username.trim().isEmpty()) {
+            return session.username.trim();
+        }
+
+        return "-";
+    }
 
     /**
      * This method is called from within the constructor to initialize the form.
@@ -643,15 +796,15 @@ public class salesPanel extends javax.swing.JPanel {
 
         setBackground(new java.awt.Color(200, 212, 222));
         setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
-        add(searchbar, new org.netbeans.lib.awtextra.AbsoluteConstraints(80, 160, 280, 30));
+        add(searchbar, new org.netbeans.lib.awtextra.AbsoluteConstraints(110, 210, 280, 30));
 
         jLabel1.setFont(new java.awt.Font("Segoe UI", 0, 14)); // NOI18N
         jLabel1.setText("Search:");
-        add(jLabel1, new org.netbeans.lib.awtextra.AbsoluteConstraints(20, 160, 60, 30));
+        add(jLabel1, new org.netbeans.lib.awtextra.AbsoluteConstraints(50, 210, 60, 30));
 
         lblCart1.setFont(new java.awt.Font("sansserif", 0, 24)); // NOI18N
         lblCart1.setText("Products");
-        add(lblCart1, new org.netbeans.lib.awtextra.AbsoluteConstraints(50, 200, 227, -1));
+        add(lblCart1, new org.netbeans.lib.awtextra.AbsoluteConstraints(50, 170, 227, -1));
 
         tblProducts.setModel(new javax.swing.table.DefaultTableModel(
             new Object [][] {
@@ -666,7 +819,7 @@ public class salesPanel extends javax.swing.JPanel {
         ));
         jScrollPane2.setViewportView(tblProducts);
 
-        add(jScrollPane2, new org.netbeans.lib.awtextra.AbsoluteConstraints(50, 240, 490, 447));
+        add(jScrollPane2, new org.netbeans.lib.awtextra.AbsoluteConstraints(50, 250, 490, 440));
 
         btnAddToCart.setFont(new java.awt.Font("Segoe UI", 0, 14)); // NOI18N
         btnAddToCart.setText("Add to Cart");
@@ -675,7 +828,7 @@ public class salesPanel extends javax.swing.JPanel {
 
         lblCart.setFont(new java.awt.Font("sansserif", 0, 24)); // NOI18N
         lblCart.setText("Cart");
-        add(lblCart, new org.netbeans.lib.awtextra.AbsoluteConstraints(570, 200, 227, -1));
+        add(lblCart, new org.netbeans.lib.awtextra.AbsoluteConstraints(570, 170, 227, -1));
 
         tblCart.setModel(new javax.swing.table.DefaultTableModel(
             new Object [][] {
@@ -690,15 +843,15 @@ public class salesPanel extends javax.swing.JPanel {
         ));
         jScrollPane3.setViewportView(tblCart);
 
-        add(jScrollPane3, new org.netbeans.lib.awtextra.AbsoluteConstraints(570, 240, 490, 400));
+        add(jScrollPane3, new org.netbeans.lib.awtextra.AbsoluteConstraints(570, 210, 490, 430));
 
         lblSubT.setFont(new java.awt.Font("Segoe UI", 1, 14)); // NOI18N
         lblSubT.setText("Change:");
-        add(lblSubT, new org.netbeans.lib.awtextra.AbsoluteConstraints(860, 650, -1, -1));
+        add(lblSubT, new org.netbeans.lib.awtextra.AbsoluteConstraints(860, 650, 190, -1));
 
         lblTotal.setFont(new java.awt.Font("Segoe UI", 1, 14)); // NOI18N
-        lblTotal.setText(" Total:");
-        add(lblTotal, new org.netbeans.lib.awtextra.AbsoluteConstraints(870, 670, -1, -1));
+        lblTotal.setText("    Total:");
+        add(lblTotal, new org.netbeans.lib.awtextra.AbsoluteConstraints(860, 670, 190, -1));
 
         btnClearCart.setFont(new java.awt.Font("Segoe UI", 0, 14)); // NOI18N
         btnClearCart.setText("Clear Cart");
@@ -833,39 +986,21 @@ public class salesPanel extends javax.swing.JPanel {
             BigDecimal vatableSales = computeVatableSales(grossTotal);
             BigDecimal vatAmount = computeVatAmount(grossTotal);
 
-            String cashInput = JOptionPane.showInputDialog(this, "Enter cash amount:");
-            if (cashInput == null) {
-                return;
-            }
+            BigDecimal cashReceived = showCashDenominationDialog(grossTotal);
 
-            cashInput = cashInput.trim();
-
-            if (cashInput.isEmpty()) {
-                JOptionPane.showMessageDialog(this, "Cash amount is required.");
-                return;
-            }
-
-            BigDecimal cashReceived;
-
-            try {
-                cashReceived = new BigDecimal(cashInput).setScale(2, RoundingMode.HALF_UP);
-            } catch (NumberFormatException e) {
-                JOptionPane.showMessageDialog(this, "Invalid cash amount.");
-                return;
-            }
-
-            if (cashReceived.compareTo(grossTotal) < 0) {
-                JOptionPane.showMessageDialog(this, "Insufficient cash.");
+            if (cashReceived == null) {
                 return;
             }
 
             BigDecimal changeAmount = cashReceived.subtract(grossTotal).setScale(2, RoundingMode.HALF_UP);
             lblSubT.setText(String.format("Change: ₱%.2f", changeAmount));
 
-            String saleSql = "INSERT INTO sales (subtotal, total, vatable_sales, vat_amount, cash_received, change_amount, notes) " +
-                             "VALUES (?, ?, ?, ?, ?, ?, ?)";
+            String saleSql = "INSERT INTO sales (subtotal, total, vatable_sales, vat_amount, cash_received, change_amount, cashier_name, notes) " +
+                    "VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
 
             int saleId = 0;
+
+            String firstName = getLoggedInCashierFirstName();
 
             try (PreparedStatement pstSale = conn.prepareStatement(saleSql, PreparedStatement.RETURN_GENERATED_KEYS)) {
                 pstSale.setBigDecimal(1, grossTotal);
@@ -874,7 +1009,8 @@ public class salesPanel extends javax.swing.JPanel {
                 pstSale.setBigDecimal(4, vatAmount);
                 pstSale.setBigDecimal(5, cashReceived);
                 pstSale.setBigDecimal(6, changeAmount);
-                pstSale.setString(7, "VAT Sale");
+                pstSale.setString(7, firstName);
+                pstSale.setString(8, "VAT Sale");
                 pstSale.executeUpdate();
 
                 try (ResultSet rs = pstSale.getGeneratedKeys()) {

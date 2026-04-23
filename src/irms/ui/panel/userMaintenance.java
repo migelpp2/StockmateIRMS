@@ -319,13 +319,19 @@ public class userMaintenance extends javax.swing.JFrame {
 
     private void btnAddActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnAddActionPerformed
         // TODO add your handling code here:
-        JTextField txtFullName = new JTextField();
+        JTextField txtFirstName = new JTextField();
+        JTextField txtMiddleName = new JTextField();
+        JTextField txtLastName = new JTextField();
         JTextField txtUsernameField = new JTextField();
         JPasswordField txtPassword = new JPasswordField();
 
         JPanel panel = new JPanel(new GridLayout(0, 1, 5, 5));
-        panel.add(new JLabel("Full Name:"));
-        panel.add(txtFullName);
+        panel.add(new JLabel("First Name:"));
+        panel.add(txtFirstName);
+        panel.add(new JLabel("Middle Name:"));
+        panel.add(txtMiddleName);
+        panel.add(new JLabel("Last Name:"));
+        panel.add(txtLastName);
         panel.add(new JLabel("Username:"));
         panel.add(txtUsernameField);
         panel.add(new JLabel("Password:"));
@@ -343,13 +349,14 @@ public class userMaintenance extends javax.swing.JFrame {
             return;
         }
 
-        String fullName = txtFullName.getText().trim();
+        String firstName = txtFirstName.getText().trim();
+        String middleName = txtMiddleName.getText().trim();
+        String lastName = txtLastName.getText().trim();
         String username = txtUsernameField.getText().trim();
         String password = new String(txtPassword.getPassword()).trim();
-        String role = "CASHIER";
 
-        if (fullName.isEmpty() || username.isEmpty() || password.isEmpty()) {
-            JOptionPane.showMessageDialog(this, "Please fill all fields.");
+        if (firstName.isEmpty() || lastName.isEmpty() || username.isEmpty() || password.isEmpty()) {
+            JOptionPane.showMessageDialog(this, "Please fill all required fields.");
             return;
         }
 
@@ -358,14 +365,25 @@ public class userMaintenance extends javax.swing.JFrame {
             return;
         }
 
-        String sql = "INSERT INTO users (full_name, username, password, role) VALUES (?, ?, ?, 'CASHIER')";
+        String fullName;
+        if (middleName.isEmpty()) {
+            fullName = firstName + " " + lastName;
+        } else {
+            fullName = firstName + " " + middleName + " " + lastName;
+        }
+
+        String sql = "INSERT INTO users (first_name, middle_name, last_name, full_name, username, password, role) " +
+                     "VALUES (?, ?, ?, ?, ?, ?, 'CASHIER')";
 
         try (Connection conn = MySQLConnect.getConnection();
              PreparedStatement pst = conn.prepareStatement(sql)) {
 
-            pst.setString(1, fullName);
-            pst.setString(2, username);
-            pst.setString(3, password);
+            pst.setString(1, firstName);
+            pst.setString(2, middleName.isEmpty() ? null : middleName);
+            pst.setString(3, lastName);
+            pst.setString(4, fullName);
+            pst.setString(5, username);
+            pst.setString(6, password);
             pst.executeUpdate();
 
             JOptionPane.showMessageDialog(this, "User added successfully.");

@@ -48,8 +48,6 @@ public class reportsPanel extends javax.swing.JPanel {
     }
     
     private void refreshReport() {
-        txtDate.setText(java.time.LocalDate.now().toString());
-        cmbReportType.setSelectedItem("Daily");
         generateReport();
     }
 
@@ -323,6 +321,7 @@ public class reportsPanel extends javax.swing.JPanel {
         btnRefresh.setForeground(new java.awt.Color(255, 255, 255));
         btnRefresh.setText("Refresh");
         btnRefresh.setBorder(null);
+        btnRefresh.addActionListener(this::btnRefreshActionPerformed);
         add(btnRefresh, new org.netbeans.lib.awtextra.AbsoluteConstraints(850, 170, 140, 40));
 
         btnGenerate.setBackground(new java.awt.Color(72, 92, 13));
@@ -395,6 +394,10 @@ public class reportsPanel extends javax.swing.JPanel {
         // TODO add your handling code here:
         generateReport();
     }//GEN-LAST:event_txtDateActionPerformed
+
+    private void btnRefreshActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnRefreshActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_btnRefreshActionPerformed
 
 
     // Variables declaration - do not modify//GEN-BEGIN:variables

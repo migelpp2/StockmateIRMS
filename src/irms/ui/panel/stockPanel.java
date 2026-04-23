@@ -367,20 +367,76 @@ public class stockPanel extends javax.swing.JPanel {
         }
     }
 
-    private void fillProductCombo(JComboBox<String> cmbProduct) {
-        String sql = "SELECT product_name FROM products WHERE status = 'ACTIVE' ORDER BY product_name";
+    private void fillProductCombo(JComboBox<String> cmbProduct, String keyword) {
+        cmbProduct.removeAllItems();
+
+        String sql = "SELECT product_name " +
+                     "FROM products " +
+                     "WHERE status = 'ACTIVE' " +
+                     "AND product_name LIKE ? " +
+                     "ORDER BY product_name";
 
         try (Connection conn = MySQLConnect.getConnection();
-             PreparedStatement pst = conn.prepareStatement(sql);
-             ResultSet rs = pst.executeQuery()) {
+             PreparedStatement pst = conn.prepareStatement(sql)) {
 
-            while (rs.next()) {
-                cmbProduct.addItem(rs.getString("product_name"));
+            pst.setString(1, "%" + keyword + "%");
+
+            try (ResultSet rs = pst.executeQuery()) {
+                while (rs.next()) {
+                    cmbProduct.addItem(rs.getString("product_name"));
+                }
             }
 
         } catch (SQLException e) {
             JOptionPane.showMessageDialog(this, "Product combo error: " + e.getMessage());
         }
+    }
+    
+    private void fillProductCombo(JComboBox<String> cmbProduct) {
+        fillProductCombo(cmbProduct, "");
+    }
+    
+    private BigDecimal calculateReorderLevel(int productId, String unitLabel) {
+        String sql =
+            "SELECT COALESCE(SUM(si.quantity), 0) / 30 AS avg_daily_usage " +
+            "FROM sale_items si " +
+            "INNER JOIN sales s ON si.sale_id = s.sale_id " +
+            "WHERE si.product_id = ? " +
+            "AND s.sale_date >= DATE_SUB(CURDATE(), INTERVAL 30 DAY)";
+
+        BigDecimal leadTimeDays = new BigDecimal("3");
+        BigDecimal safetyStock = unitLabel.equalsIgnoreCase("kg")
+                ? new BigDecimal("1.00")
+                : new BigDecimal("5");
+
+        try (Connection conn = MySQLConnect.getConnection();
+             PreparedStatement pst = conn.prepareStatement(sql)) {
+
+            pst.setInt(1, productId);
+
+            try (ResultSet rs = pst.executeQuery()) {
+                if (rs.next()) {
+                    BigDecimal avgDailyUsage = rs.getBigDecimal("avg_daily_usage");
+
+                    if (avgDailyUsage == null) {
+                        avgDailyUsage = BigDecimal.ZERO;
+                    }
+
+                    BigDecimal reorderLevel = avgDailyUsage.multiply(leadTimeDays).add(safetyStock);
+
+                    if (unitLabel.equalsIgnoreCase("kg")) {
+                        return reorderLevel.setScale(2, java.math.RoundingMode.HALF_UP);
+                    } else {
+                        return new BigDecimal(reorderLevel.setScale(0, java.math.RoundingMode.CEILING).toPlainString());
+                    }
+                }
+            }
+
+        } catch (SQLException e) {
+            JOptionPane.showMessageDialog(this, "Reorder level calculation error: " + e.getMessage());
+        }
+
+        return safetyStock;
     }
     
     public void styleTable() {
@@ -528,35 +584,71 @@ public class stockPanel extends javax.swing.JPanel {
     private void btnAddActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnAddActionPerformed
         // TODO add your handling code here:
         JComboBox<String> cmbProduct = new JComboBox<>();
-        fillProductCombo(cmbProduct);
-
+        JTextField txtProductSearch = new JTextField();
         JLabel lblUnitDisplayTitle = new JLabel("Unit:");
         JLabel lblUnitDisplayValue = new JLabel("-");
-
         JTextField txtQty = new JTextField();
-        JTextField txtReorder = new JTextField("5");
 
-        if (cmbProduct.getItemCount() > 0) {
+        fillProductCombo(cmbProduct);
+
+        if (cmbProduct.getItemCount() > 0 && cmbProduct.getSelectedItem() != null) {
             int firstProductId = getProductIdByName(cmbProduct.getSelectedItem().toString());
             lblUnitDisplayValue.setText(getProductUnitLabelById(firstProductId));
         }
+
+        txtProductSearch.getDocument().addDocumentListener(new DocumentListener() {
+            private void filterNow() {
+                String keyword = txtProductSearch.getText().trim();
+                Object previousSelection = cmbProduct.getSelectedItem();
+
+                fillProductCombo(cmbProduct, keyword);
+
+                if (previousSelection != null) {
+                    cmbProduct.setSelectedItem(previousSelection);
+                }
+
+                if (cmbProduct.getSelectedItem() != null) {
+                    int selectedProductId = getProductIdByName(cmbProduct.getSelectedItem().toString());
+                    lblUnitDisplayValue.setText(getProductUnitLabelById(selectedProductId));
+                } else {
+                    lblUnitDisplayValue.setText("-");
+                }
+            }
+
+            @Override
+            public void insertUpdate(DocumentEvent e) {
+                filterNow();
+            }
+
+            @Override
+            public void removeUpdate(DocumentEvent e) {
+                filterNow();
+            }
+
+            @Override
+            public void changedUpdate(DocumentEvent e) {
+                filterNow();
+            }
+        });
 
         cmbProduct.addActionListener(e -> {
             if (cmbProduct.getSelectedItem() != null) {
                 int selectedProductId = getProductIdByName(cmbProduct.getSelectedItem().toString());
                 lblUnitDisplayValue.setText(getProductUnitLabelById(selectedProductId));
+            } else {
+                lblUnitDisplayValue.setText("-");
             }
         });
 
         JPanel panel = new JPanel(new java.awt.GridLayout(0, 1, 5, 5));
+        panel.add(new JLabel("Search Product:"));
+        panel.add(txtProductSearch);
         panel.add(new JLabel("Product:"));
         panel.add(cmbProduct);
         panel.add(lblUnitDisplayTitle);
         panel.add(lblUnitDisplayValue);
         panel.add(new JLabel("Stock:"));
         panel.add(txtQty);
-        panel.add(new JLabel("Reorder Level:"));
-        panel.add(txtReorder);
 
         int result = JOptionPane.showConfirmDialog(this, panel, "Add Stock", JOptionPane.OK_CANCEL_OPTION);
 
@@ -566,9 +658,8 @@ public class stockPanel extends javax.swing.JPanel {
 
         String productName = cmbProduct.getSelectedItem() == null ? "" : cmbProduct.getSelectedItem().toString();
         String qtyText = txtQty.getText().trim();
-        String reorderText = txtReorder.getText().trim();
 
-        if (productName.isEmpty() || qtyText.isEmpty() || reorderText.isEmpty()) {
+        if (productName.isEmpty() || qtyText.isEmpty()) {
             JOptionPane.showMessageDialog(this, "Please fill all fields.");
             return;
         }
@@ -580,13 +671,12 @@ public class stockPanel extends javax.swing.JPanel {
         }
 
         BigDecimal quantity;
-        BigDecimal reorderLevel;
         BigDecimal unitPrice;
         String unitLabel = getProductUnitLabelById(productId);
+        BigDecimal reorderLevel = calculateReorderLevel(productId, unitLabel);
 
         try {
             quantity = new BigDecimal(qtyText);
-            reorderLevel = new BigDecimal(reorderText);
         } catch (NumberFormatException e) {
             JOptionPane.showMessageDialog(this, "Invalid number format.");
             return;
@@ -600,7 +690,6 @@ public class stockPanel extends javax.swing.JPanel {
         }
 
         if (quantity.compareTo(BigDecimal.ZERO) <= 0 ||
-            reorderLevel.compareTo(BigDecimal.ZERO) < 0 ||
             unitPrice.compareTo(BigDecimal.ZERO) < 0) {
             JOptionPane.showMessageDialog(this, "Stock must be greater than 0 and values cannot be negative.");
             return;
@@ -613,10 +702,10 @@ public class stockPanel extends javax.swing.JPanel {
 
         String checkSql = "SELECT quantity FROM stocks WHERE product_id = ?";
         String updateSql = "UPDATE stocks " +
-        "SET quantity = quantity + ?, unit_price = ?, reorder_level = ?, stock_date = CURDATE(), stock_time = CURTIME() " +
-        "WHERE product_id = ?";
+                "SET quantity = quantity + ?, unit_price = ?, reorder_level = ?, stock_date = CURDATE(), stock_time = CURTIME() " +
+                "WHERE product_id = ?";
         String insertSql = "INSERT INTO stocks (product_id, quantity, unit_price, reorder_level, stock_date, stock_time) " +
-        "VALUES (?, ?, ?, ?, CURDATE(), CURTIME())";
+                "VALUES (?, ?, ?, ?, CURDATE(), CURTIME())";
 
         try (Connection conn = MySQLConnect.getConnection()) {
 

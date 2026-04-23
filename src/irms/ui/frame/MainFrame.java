@@ -216,7 +216,7 @@ public class MainFrame extends javax.swing.JFrame {
 
         actionbar.setIcon(new javax.swing.ImageIcon(getClass().getResource("/irms/design/action bar.png"))); // NOI18N
         actionbar.setText("actionBar");
-        getContentPane().add(actionbar, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 10, 240, -1));
+        getContentPane().add(actionbar, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 10, 240, 770));
 
         mainContentPanel.setBackground(new java.awt.Color(200, 212, 222));
         mainContentPanel.setPreferredSize(new java.awt.Dimension(1130, 768));
@@ -229,10 +229,10 @@ public class MainFrame extends javax.swing.JFrame {
         );
         mainContentPanelLayout.setVerticalGroup(
             mainContentPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 780, Short.MAX_VALUE)
+            .addGap(0, 810, Short.MAX_VALUE)
         );
 
-        getContentPane().add(mainContentPanel, new org.netbeans.lib.awtextra.AbsoluteConstraints(250, 0, -1, 780));
+        getContentPane().add(mainContentPanel, new org.netbeans.lib.awtextra.AbsoluteConstraints(250, -20, -1, 810));
 
         pnlBackground.setBackground(new java.awt.Color(200, 212, 222));
         pnlBackground.setPreferredSize(new java.awt.Dimension(1366, 768));
