@@ -56,7 +56,7 @@ public class userMaintenance extends javax.swing.JFrame {
     private void setupTable() {
         DefaultTableModel model = new DefaultTableModel(
             new Object[][]{},
-            new String[]{"User ID", "Full Name", "Username", "Role"}
+            new String[]{"User ID", "First Name", "Middle Name", "Last Name", "Username", "Role"}
         ) {
             @Override
             public boolean isCellEditable(int row, int column) {
@@ -72,7 +72,7 @@ public class userMaintenance extends javax.swing.JFrame {
         DefaultTableModel model = (DefaultTableModel) tblUsers.getModel();
         model.setRowCount(0);
 
-        String sql = "SELECT user_id, full_name, username, role FROM users ORDER BY user_id";
+        String sql = "SELECT user_id, first_name, middle_name, last_name, username, role FROM users ORDER BY user_id";
 
         try (Connection conn = MySQLConnect.getConnection();
              PreparedStatement pst = conn.prepareStatement(sql);
@@ -81,7 +81,9 @@ public class userMaintenance extends javax.swing.JFrame {
             while (rs.next()) {
                 model.addRow(new Object[]{
                     rs.getInt("user_id"),
-                    rs.getString("full_name"),
+                    rs.getString("first_name"),
+                    rs.getString("middle_name") == null ? "" : rs.getString("middle_name"),
+                    rs.getString("last_name"),
                     rs.getString("username"),
                     rs.getString("role")
                 });
@@ -91,15 +93,16 @@ public class userMaintenance extends javax.swing.JFrame {
             JOptionPane.showMessageDialog(this, "Load users error: " + e.getMessage());
         }
     }
-
     private void searchUsers(String keyword) {
         DefaultTableModel model = (DefaultTableModel) tblUsers.getModel();
         model.setRowCount(0);
 
-        String sql = "SELECT user_id, full_name, username, role " +
+        String sql = "SELECT user_id, first_name, middle_name, last_name, username, role " +
                      "FROM users " +
                      "WHERE CAST(user_id AS CHAR) LIKE ? " +
-                     "   OR full_name LIKE ? " +
+                     "   OR first_name LIKE ? " +
+                     "   OR middle_name LIKE ? " +
+                     "   OR last_name LIKE ? " +
                      "   OR username LIKE ? " +
                      "   OR role LIKE ? " +
                      "ORDER BY user_id";
@@ -112,12 +115,16 @@ public class userMaintenance extends javax.swing.JFrame {
             pst.setString(2, like);
             pst.setString(3, like);
             pst.setString(4, like);
+            pst.setString(5, like);
+            pst.setString(6, like);
 
             try (ResultSet rs = pst.executeQuery()) {
                 while (rs.next()) {
                     model.addRow(new Object[]{
                         rs.getInt("user_id"),
-                        rs.getString("full_name"),
+                        rs.getString("first_name"),
+                        rs.getString("middle_name") == null ? "" : rs.getString("middle_name"),
+                        rs.getString("last_name"),
                         rs.getString("username"),
                         rs.getString("role")
                     });
@@ -216,15 +223,23 @@ public class userMaintenance extends javax.swing.JFrame {
 
         tblUsers.setModel(new javax.swing.table.DefaultTableModel(
             new Object [][] {
-                {null, null, null, null},
-                {null, null, null, null},
-                {null, null, null, null},
-                {null, null, null, null}
+                {null, null, null, null, null, null},
+                {null, null, null, null, null, null},
+                {null, null, null, null, null, null},
+                {null, null, null, null, null, null}
             },
             new String [] {
-                "User ID", "Full Name", "Username", "Role"
+                "User ID", "First Name", "Middle Name", "Last Name", "Username", "Role"
             }
-        ));
+        ) {
+            boolean[] canEdit = new boolean [] {
+                false, false, true, true, true, true
+            };
+
+            public boolean isCellEditable(int rowIndex, int columnIndex) {
+                return canEdit [columnIndex];
+            }
+        });
         jScrollPane1.setViewportView(tblUsers);
 
         lblSearch.setFont(new java.awt.Font("Segoe UI", 0, 14)); // NOI18N
@@ -405,11 +420,13 @@ public class userMaintenance extends javax.swing.JFrame {
 
         int userId = Integer.parseInt(tblUsers.getValueAt(row, 0).toString());
 
-        String currentFullName = "";
+        String currentFirstName = "";
+        String currentMiddleName = "";
+        String currentLastName = "";
         String currentUsername = "";
         String currentRole = "";
 
-        String sql = "SELECT full_name, username, role FROM users WHERE user_id = ?";
+        String sql = "SELECT first_name, middle_name, last_name, username, role FROM users WHERE user_id = ?";
 
         try (Connection conn = MySQLConnect.getConnection();
              PreparedStatement pst = conn.prepareStatement(sql)) {
@@ -418,7 +435,9 @@ public class userMaintenance extends javax.swing.JFrame {
 
             try (ResultSet rs = pst.executeQuery()) {
                 if (rs.next()) {
-                    currentFullName = rs.getString("full_name");
+                    currentFirstName = rs.getString("first_name");
+                    currentMiddleName = rs.getString("middle_name") == null ? "" : rs.getString("middle_name");
+                    currentLastName = rs.getString("last_name");
                     currentUsername = rs.getString("username");
                     currentRole = rs.getString("role");
                 }
@@ -429,13 +448,19 @@ public class userMaintenance extends javax.swing.JFrame {
             return;
         }
 
-        JTextField txtFullName = new JTextField(currentFullName);
+        JTextField txtFirstName = new JTextField(currentFirstName);
+        JTextField txtMiddleName = new JTextField(currentMiddleName);
+        JTextField txtLastName = new JTextField(currentLastName);
         JTextField txtUsernameField = new JTextField(currentUsername);
         JPasswordField txtPassword = new JPasswordField();
 
         JPanel panel = new JPanel(new GridLayout(0, 1, 5, 5));
-        panel.add(new JLabel("Full Name:"));
-        panel.add(txtFullName);
+        panel.add(new JLabel("First Name:"));
+        panel.add(txtFirstName);
+        panel.add(new JLabel("Middle Name:"));
+        panel.add(txtMiddleName);
+        panel.add(new JLabel("Last Name:"));
+        panel.add(txtLastName);
         panel.add(new JLabel("Username:"));
         panel.add(txtUsernameField);
         panel.add(new JLabel("New Password:"));
@@ -453,12 +478,14 @@ public class userMaintenance extends javax.swing.JFrame {
             return;
         }
 
-        String fullName = txtFullName.getText().trim();
+        String firstName = txtFirstName.getText().trim();
+        String middleName = txtMiddleName.getText().trim();
+        String lastName = txtLastName.getText().trim();
         String username = txtUsernameField.getText().trim();
         String password = new String(txtPassword.getPassword()).trim();
 
-        if (fullName.isEmpty() || username.isEmpty()) {
-            JOptionPane.showMessageDialog(this, "Full name and username are required.");
+        if (firstName.isEmpty() || lastName.isEmpty() || username.isEmpty()) {
+            JOptionPane.showMessageDialog(this, "First name, last name, and username are required.");
             return;
         }
 
@@ -467,26 +494,36 @@ public class userMaintenance extends javax.swing.JFrame {
             return;
         }
 
+        String fullName;
+        if (middleName.isEmpty()) {
+            fullName = firstName + " " + lastName;
+        } else {
+            fullName = firstName + " " + middleName + " " + lastName;
+        }
+
         String updateSql;
         boolean updatePassword = !password.isEmpty();
 
         if (updatePassword) {
-            updateSql = "UPDATE users SET full_name = ?, username = ?, password = ? WHERE user_id = ?";
+            updateSql = "UPDATE users SET first_name = ?, middle_name = ?, last_name = ?, full_name = ?, username = ?, password = ? WHERE user_id = ?";
         } else {
-            updateSql = "UPDATE users SET full_name = ?, username = ? WHERE user_id = ?";
+            updateSql = "UPDATE users SET first_name = ?, middle_name = ?, last_name = ?, full_name = ?, username = ? WHERE user_id = ?";
         }
 
         try (Connection conn = MySQLConnect.getConnection();
              PreparedStatement pst = conn.prepareStatement(updateSql)) {
 
-            pst.setString(1, fullName);
-            pst.setString(2, username);
+            pst.setString(1, firstName);
+            pst.setString(2, middleName.isEmpty() ? null : middleName);
+            pst.setString(3, lastName);
+            pst.setString(4, fullName);
+            pst.setString(5, username);
 
             if (updatePassword) {
-                pst.setString(3, password);
-                pst.setInt(4, userId);
+                pst.setString(6, password);
+                pst.setInt(7, userId);
             } else {
-                pst.setInt(3, userId);
+                pst.setInt(6, userId);
             }
 
             pst.executeUpdate();
@@ -509,9 +546,12 @@ public class userMaintenance extends javax.swing.JFrame {
         }
 
         int userId = Integer.parseInt(tblUsers.getValueAt(row, 0).toString());
-        String fullName = tblUsers.getValueAt(row, 1).toString();
-        String role = tblUsers.getValueAt(row, 3).toString();
-
+        String firstName = tblUsers.getValueAt(row, 1).toString();
+        String middleName = tblUsers.getValueAt(row, 2).toString();
+        String lastName = tblUsers.getValueAt(row, 3).toString();
+        String fullName = firstName + (middleName.isEmpty() ? " " : " " + middleName + " ") + lastName;
+        String role = tblUsers.getValueAt(row, 5).toString();
+        
         if (userId == session.userId) {
             JOptionPane.showMessageDialog(this, "You cannot delete your own account while logged in.");
             return;

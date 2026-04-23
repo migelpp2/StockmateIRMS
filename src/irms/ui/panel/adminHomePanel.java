@@ -88,7 +88,7 @@ public class adminHomePanel extends javax.swing.JPanel {
     }
 
     private int getTotalProductsCount() {
-        String sql = "SELECT COUNT(*) FROM products WHERE status = 'ACTIVE'";
+        String sql = "SELECT COUNT(*) FROM products";
 
         try (Connection conn = MySQLConnect.getConnection();
              PreparedStatement pst = conn.prepareStatement(sql);

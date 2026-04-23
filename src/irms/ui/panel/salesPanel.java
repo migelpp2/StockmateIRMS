@@ -113,7 +113,6 @@ public class salesPanel extends javax.swing.JPanel {
             "FROM products p " +
             "LEFT JOIN brands b ON p.brand_id = b.brand_id " +
             "INNER JOIN stocks s ON p.product_id = s.product_id " +
-            "WHERE p.status = 'ACTIVE' " +
             "AND s.quantity > 0 " +
             "ORDER BY p.product_name";
 
@@ -154,7 +153,6 @@ public class salesPanel extends javax.swing.JPanel {
             "FROM products p " +
             "LEFT JOIN brands b ON p.brand_id = b.brand_id " +
             "INNER JOIN stocks s ON p.product_id = s.product_id " +
-            "WHERE p.status = 'ACTIVE' " +
             "AND s.quantity > 0 " +
             "AND (p.product_name LIKE ? OR COALESCE(b.brand_name, '') LIKE ?) " +
             "ORDER BY p.product_name";
@@ -768,6 +766,83 @@ public class salesPanel extends javax.swing.JPanel {
 
         return "-";
     }
+    
+    private BigDecimal computeAverageUsageFromSales(Connection conn, int productId, String unitLabel) throws SQLException {
+        String sql = "SELECT COALESCE(SUM(si.quantity), 0) / 30 AS avg_usage " +
+                     "FROM sale_items si " +
+                     "INNER JOIN sales s ON si.sale_id = s.sale_id " +
+                     "WHERE si.product_id = ? " +
+                     "AND DATE(s.sale_date) >= DATE_SUB(CURDATE(), INTERVAL 30 DAY)";
+
+        try (PreparedStatement pst = conn.prepareStatement(sql)) {
+            pst.setInt(1, productId);
+
+            try (ResultSet rs = pst.executeQuery()) {
+                if (rs.next()) {
+                    BigDecimal avgUsage = rs.getBigDecimal("avg_usage");
+                    if (avgUsage == null) {
+                        avgUsage = BigDecimal.ZERO;
+                    }
+
+                    if (unitLabel != null && unitLabel.equalsIgnoreCase("kg")) {
+                        return avgUsage.setScale(2, java.math.RoundingMode.HALF_UP);
+                    } else {
+                        return new BigDecimal(avgUsage.setScale(0, java.math.RoundingMode.CEILING).toPlainString());
+                    }
+                }
+            }
+        }
+
+        return BigDecimal.ZERO;
+    }
+    
+    private void updateProductAverageUsageAndReorderLevel(Connection conn, int productId) throws SQLException {
+        String unitSql = "SELECT unit_label, safety_stock FROM products WHERE product_id = ?";
+
+        String unitLabel = "pc";
+        BigDecimal safetyStock = BigDecimal.ZERO;
+
+        try (PreparedStatement pst = conn.prepareStatement(unitSql)) {
+            pst.setInt(1, productId);
+
+            try (ResultSet rs = pst.executeQuery()) {
+                if (rs.next()) {
+                    unitLabel = rs.getString("unit_label");
+                    if (unitLabel == null || unitLabel.trim().isEmpty()) {
+                        unitLabel = "pc";
+                    }
+
+                    safetyStock = rs.getBigDecimal("safety_stock");
+                    if (safetyStock == null) {
+                        safetyStock = BigDecimal.ZERO;
+                    }
+                }
+            }
+        }
+
+        BigDecimal averageUsage = computeAverageUsageFromSales(conn, productId, unitLabel);
+        BigDecimal reorderLevel = averageUsage.add(safetyStock);
+
+        if (unitLabel.equalsIgnoreCase("kg")) {
+            reorderLevel = reorderLevel.setScale(2, java.math.RoundingMode.HALF_UP);
+        } else {
+            reorderLevel = new BigDecimal(reorderLevel.setScale(0, java.math.RoundingMode.CEILING).toPlainString());
+        }
+
+        String updateProductSql = "UPDATE products SET average_usage = ? WHERE product_id = ?";
+        try (PreparedStatement pst = conn.prepareStatement(updateProductSql)) {
+            pst.setBigDecimal(1, averageUsage);
+            pst.setInt(2, productId);
+            pst.executeUpdate();
+        }
+
+        String updateStockSql = "UPDATE stocks SET reorder_level = ? WHERE product_id = ?";
+        try (PreparedStatement pst = conn.prepareStatement(updateStockSql)) {
+            pst.setBigDecimal(1, reorderLevel);
+            pst.setInt(2, productId);
+            pst.executeUpdate();
+        }
+    }
 
     /**
      * This method is called from within the constructor to initialize the form.
@@ -1059,6 +1134,7 @@ public class salesPanel extends javax.swing.JPanel {
                     newStock,
                     "Sold - Sale ID " + saleId
                 );
+                updateProductAverageUsageAndReorderLevel(conn, productId);
             }
 
             conn.commit();

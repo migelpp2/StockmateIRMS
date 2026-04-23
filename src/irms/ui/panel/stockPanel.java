@@ -12,6 +12,7 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 import javax.swing.DefaultComboBoxModel;
 import javax.swing.JComboBox;
 import javax.swing.JLabel;
@@ -21,6 +22,11 @@ import javax.swing.JTextField;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 import javax.swing.table.DefaultTableModel;
+import javax.swing.JTable;
+import javax.swing.table.DefaultTableCellRenderer;
+import java.awt.Component;
+import java.awt.Color;
+
 /**
  *
  * @author USER
@@ -90,7 +96,7 @@ public class stockPanel extends javax.swing.JPanel {
 
         String sql =
             "SELECT s.stock_id, p.product_name, b.brand_name, s.quantity, s.unit_price, " +
-            "p.unit_label, s.stock_date, s.stock_time, " +
+            "p.unit_label, s.stock_date, s.stock_time, s.reorder_level, " +
             "CASE " +
             "   WHEN s.quantity <= 0 THEN 'OUT OF STOCK' " +
             "   WHEN s.quantity <= s.reorder_level THEN 'LOW STOCK' " +
@@ -112,9 +118,9 @@ public class stockPanel extends javax.swing.JPanel {
 
             while (rs.next()) {
                 String status = rs.getString("stock_status");
-
                 String unitLabel = rs.getString("unit_label");
                 BigDecimal quantity = rs.getBigDecimal("quantity");
+                BigDecimal reorderLevel = rs.getBigDecimal("reorder_level");
 
                 model.addRow(new Object[]{
                     rs.getInt("stock_id"),
@@ -125,6 +131,7 @@ public class stockPanel extends javax.swing.JPanel {
                     String.format("₱%.2f", rs.getBigDecimal("unit_price")),
                     rs.getDate("stock_date"),
                     rs.getTime("stock_time"),
+                    formatWholeOrDecimal(reorderLevel, unitLabel),
                     status
                 });
 
@@ -155,7 +162,7 @@ public class stockPanel extends javax.swing.JPanel {
 
         String sql =
             "SELECT s.stock_id, p.product_name, b.brand_name, s.quantity, s.unit_price, " +
-            "p.unit_label, s.stock_date, s.stock_time, " +
+            "p.unit_label, s.stock_date, s.stock_time, s.reorder_level, " +
             "CASE " +
             "   WHEN s.quantity <= 0 THEN 'OUT OF STOCK' " +
             "   WHEN s.quantity <= s.reorder_level THEN 'LOW STOCK' " +
@@ -165,7 +172,7 @@ public class stockPanel extends javax.swing.JPanel {
             "INNER JOIN products p ON s.product_id = p.product_id " +
             "LEFT JOIN brands b ON p.brand_id = b.brand_id " +
             "LEFT JOIN categories c ON p.category_id = c.category_id " +
-            "WHERE (p.product_name LIKE ? OR b.brand_name LIKE ? OR CAST(s.stock_id AS CHAR) LIKE ?) " +
+            "WHERE (p.product_name LIKE ? OR COALESCE(b.brand_name, '') LIKE ? OR CAST(s.stock_id AS CHAR) LIKE ?) " +
             "AND (? = 'All' OR c.category_name = ?) " +
             "ORDER BY s.stock_id";
 
@@ -184,12 +191,12 @@ public class stockPanel extends javax.swing.JPanel {
                 int totalProducts = 0;
                 int lowStockItems = 0;
                 int noStockItems = 0;
-                
+
                 while (rs.next()) {
                     String status = rs.getString("stock_status");
-
                     String unitLabel = rs.getString("unit_label");
                     BigDecimal quantity = rs.getBigDecimal("quantity");
+                    BigDecimal reorderLevel = rs.getBigDecimal("reorder_level");
 
                     model.addRow(new Object[]{
                         rs.getInt("stock_id"),
@@ -200,6 +207,7 @@ public class stockPanel extends javax.swing.JPanel {
                         String.format("₱%.2f", rs.getBigDecimal("unit_price")),
                         rs.getDate("stock_date"),
                         rs.getTime("stock_time"),
+                        formatWholeOrDecimal(reorderLevel, unitLabel),
                         status
                     });
 
@@ -397,48 +405,17 @@ public class stockPanel extends javax.swing.JPanel {
     }
     
     private BigDecimal calculateReorderLevel(int productId, String unitLabel) {
-        String sql =
-            "SELECT COALESCE(SUM(si.quantity), 0) / 30 AS avg_daily_usage " +
-            "FROM sale_items si " +
-            "INNER JOIN sales s ON si.sale_id = s.sale_id " +
-            "WHERE si.product_id = ? " +
-            "AND s.sale_date >= DATE_SUB(CURDATE(), INTERVAL 30 DAY)";
+        BigDecimal averageUsage = getAverageUsageByProductId(productId);
+        BigDecimal safetyStock = getSafetyStockByProductId(productId);
+        BigDecimal reorderLevel = averageUsage.add(safetyStock);
 
-        BigDecimal leadTimeDays = new BigDecimal("3");
-        BigDecimal safetyStock = unitLabel.equalsIgnoreCase("kg")
-                ? new BigDecimal("1.00")
-                : new BigDecimal("5");
-
-        try (Connection conn = MySQLConnect.getConnection();
-             PreparedStatement pst = conn.prepareStatement(sql)) {
-
-            pst.setInt(1, productId);
-
-            try (ResultSet rs = pst.executeQuery()) {
-                if (rs.next()) {
-                    BigDecimal avgDailyUsage = rs.getBigDecimal("avg_daily_usage");
-
-                    if (avgDailyUsage == null) {
-                        avgDailyUsage = BigDecimal.ZERO;
-                    }
-
-                    BigDecimal reorderLevel = avgDailyUsage.multiply(leadTimeDays).add(safetyStock);
-
-                    if (unitLabel.equalsIgnoreCase("kg")) {
-                        return reorderLevel.setScale(2, java.math.RoundingMode.HALF_UP);
-                    } else {
-                        return new BigDecimal(reorderLevel.setScale(0, java.math.RoundingMode.CEILING).toPlainString());
-                    }
-                }
-            }
-
-        } catch (SQLException e) {
-            JOptionPane.showMessageDialog(this, "Reorder level calculation error: " + e.getMessage());
+        if (unitLabel != null && unitLabel.equalsIgnoreCase("kg")) {
+            return reorderLevel.setScale(2, RoundingMode.HALF_UP);
+        } else {
+            return new BigDecimal(reorderLevel.setScale(0, RoundingMode.CEILING).toPlainString());
         }
-
-        return safetyStock;
     }
-    
+
     public void styleTable() {
         tblStocks.setRowHeight(28);
         tblStocks.setFont(new java.awt.Font("Segoe UI", java.awt.Font.PLAIN, 13));
@@ -453,13 +430,108 @@ public class stockPanel extends javax.swing.JPanel {
         header.setBackground(new java.awt.Color(220, 229, 236));
         header.setForeground(new java.awt.Color(54, 67, 20));
         header.setReorderingAllowed(false);
+
+        tblStocks.getColumnModel().getColumn(9).setCellRenderer(new StatusCellRenderer());
     }
     
+    private BigDecimal getAverageUsageByProductId(int productId) {
+        String sql = "SELECT average_usage FROM products WHERE product_id = ?";
+
+        try (Connection conn = MySQLConnect.getConnection();
+             PreparedStatement pst = conn.prepareStatement(sql)) {
+
+            pst.setInt(1, productId);
+
+            try (ResultSet rs = pst.executeQuery()) {
+                if (rs.next()) {
+                    BigDecimal value = rs.getBigDecimal("average_usage");
+                    return value == null ? BigDecimal.ZERO : value;
+                }
+            }
+
+        } catch (SQLException e) {
+            JOptionPane.showMessageDialog(this, "Average usage lookup error: " + e.getMessage());
+        }
+
+        return BigDecimal.ZERO;
+    }
+
+    private BigDecimal getSafetyStockByProductId(int productId) {
+        String sql = "SELECT safety_stock FROM products WHERE product_id = ?";
+
+        try (Connection conn = MySQLConnect.getConnection();
+             PreparedStatement pst = conn.prepareStatement(sql)) {
+
+            pst.setInt(1, productId);
+
+            try (ResultSet rs = pst.executeQuery()) {
+                if (rs.next()) {
+                    BigDecimal value = rs.getBigDecimal("safety_stock");
+                    return value == null ? BigDecimal.ZERO : value;
+                }
+            }
+
+        } catch (SQLException e) {
+            JOptionPane.showMessageDialog(this, "Safety stock lookup error: " + e.getMessage());
+        }
+
+        return BigDecimal.ZERO;
+    }
+
+    private String formatWholeOrDecimal(BigDecimal value, String unitLabel) {
+        if (value == null) return "0";
+
+        if (unitLabel != null && unitLabel.equalsIgnoreCase("kg")) {
+            return value.setScale(2, RoundingMode.HALF_UP).toPlainString();
+        }
+
+        return String.valueOf(value.intValue());
+    }
+
     private void openPanel(javax.swing.JPanel panel) {
         java.awt.Window window = javax.swing.SwingUtilities.getWindowAncestor(this);
 
         if (window instanceof MainFrame) {
             ((MainFrame) window).showPanel(panel);
+        }
+    }
+    
+    private class StatusCellRenderer extends DefaultTableCellRenderer {
+
+        @Override
+        public Component getTableCellRendererComponent(
+                JTable table, Object value, boolean isSelected,
+                boolean hasFocus, int row, int column) {
+
+            Component c = super.getTableCellRendererComponent(
+                    table, value, isSelected, hasFocus, row, column);
+
+            String status = value == null ? "" : value.toString();
+
+            if (!isSelected) {
+                c.setBackground(Color.WHITE);
+                c.setForeground(Color.BLACK);
+
+                switch (status) {
+                    case "IN STOCK":
+                        c.setBackground(new Color(198, 239, 206));
+                        c.setForeground(new Color(0, 97, 0));
+                        break;
+
+                    case "LOW STOCK":
+                        c.setBackground(new Color(255, 235, 156));
+                        c.setForeground(new Color(156, 101, 0));
+                        break;
+
+                    case "OUT OF STOCK":
+                        c.setBackground(new Color(255, 199, 206));
+                        c.setForeground(new Color(156, 0, 6));
+                        break;
+                }
+            }
+
+            setHorizontalAlignment(CENTER);
+            return c;
         }
     }
 
@@ -520,13 +592,13 @@ public class stockPanel extends javax.swing.JPanel {
 
         tblStocks.setModel(new javax.swing.table.DefaultTableModel(
             new Object [][] {
-                {null, null, null, null, null, null, null, null, null},
-                {null, null, null, null, null, null, null, null, null},
-                {null, null, null, null, null, null, null, null, null},
-                {null, null, null, null, null, null, null, null, null}
+                {null, null, null, null, null, null, null, null, null, null},
+                {null, null, null, null, null, null, null, null, null, null},
+                {null, null, null, null, null, null, null, null, null, null},
+                {null, null, null, null, null, null, null, null, null, null}
             },
             new String [] {
-                "Stock ID", "Product Name", "Brand", "Stock", "Unit Type", "Unit Price", "Date", "Time", "Status"
+                "Stock ID", "Product Name", "Brand", "Stock", "Unit Type", "Unit Price", "Date", "Time", "Reorder Level", "Status"
             }
         ));
         jScrollPane1.setViewportView(tblStocks);
@@ -587,13 +659,27 @@ public class stockPanel extends javax.swing.JPanel {
         JTextField txtProductSearch = new JTextField();
         JLabel lblUnitDisplayTitle = new JLabel("Unit:");
         JLabel lblUnitDisplayValue = new JLabel("-");
+        JLabel lblAverageUsageTitle = new JLabel("Average Usage:");
+        JLabel lblAverageUsageValue = new JLabel("0");
+        JLabel lblSafetyStockTitle = new JLabel("Safety Stock:");
+        JLabel lblSafetyStockValue = new JLabel("0");
+        JLabel lblReorderLevelTitle = new JLabel("Reorder Level:");
+        JLabel lblReorderLevelValue = new JLabel("0");
         JTextField txtQty = new JTextField();
 
         fillProductCombo(cmbProduct);
 
         if (cmbProduct.getItemCount() > 0 && cmbProduct.getSelectedItem() != null) {
             int firstProductId = getProductIdByName(cmbProduct.getSelectedItem().toString());
-            lblUnitDisplayValue.setText(getProductUnitLabelById(firstProductId));
+            String firstUnitLabel = getProductUnitLabelById(firstProductId);
+            BigDecimal firstAverageUsage = getAverageUsageByProductId(firstProductId);
+            BigDecimal firstSafetyStock = getSafetyStockByProductId(firstProductId);
+            BigDecimal firstReorderLevel = calculateReorderLevel(firstProductId, firstUnitLabel);
+
+            lblUnitDisplayValue.setText(firstUnitLabel);
+            lblAverageUsageValue.setText(formatWholeOrDecimal(firstAverageUsage, firstUnitLabel));
+            lblSafetyStockValue.setText(formatWholeOrDecimal(firstSafetyStock, firstUnitLabel));
+            lblReorderLevelValue.setText(formatWholeOrDecimal(firstReorderLevel, firstUnitLabel));
         }
 
         txtProductSearch.getDocument().addDocumentListener(new DocumentListener() {
@@ -609,34 +695,45 @@ public class stockPanel extends javax.swing.JPanel {
 
                 if (cmbProduct.getSelectedItem() != null) {
                     int selectedProductId = getProductIdByName(cmbProduct.getSelectedItem().toString());
-                    lblUnitDisplayValue.setText(getProductUnitLabelById(selectedProductId));
+                    String unitLabel = getProductUnitLabelById(selectedProductId);
+                    BigDecimal averageUsage = getAverageUsageByProductId(selectedProductId);
+                    BigDecimal safetyStock = getSafetyStockByProductId(selectedProductId);
+                    BigDecimal reorderLevel = calculateReorderLevel(selectedProductId, unitLabel);
+
+                    lblUnitDisplayValue.setText(unitLabel);
+                    lblAverageUsageValue.setText(formatWholeOrDecimal(averageUsage, unitLabel));
+                    lblSafetyStockValue.setText(formatWholeOrDecimal(safetyStock, unitLabel));
+                    lblReorderLevelValue.setText(formatWholeOrDecimal(reorderLevel, unitLabel));
                 } else {
                     lblUnitDisplayValue.setText("-");
+                    lblAverageUsageValue.setText("0");
+                    lblSafetyStockValue.setText("0");
+                    lblReorderLevelValue.setText("0");
                 }
             }
 
-            @Override
-            public void insertUpdate(DocumentEvent e) {
-                filterNow();
-            }
-
-            @Override
-            public void removeUpdate(DocumentEvent e) {
-                filterNow();
-            }
-
-            @Override
-            public void changedUpdate(DocumentEvent e) {
-                filterNow();
-            }
+            @Override public void insertUpdate(DocumentEvent e) { filterNow(); }
+            @Override public void removeUpdate(DocumentEvent e) { filterNow(); }
+            @Override public void changedUpdate(DocumentEvent e) { filterNow(); }
         });
 
         cmbProduct.addActionListener(e -> {
             if (cmbProduct.getSelectedItem() != null) {
                 int selectedProductId = getProductIdByName(cmbProduct.getSelectedItem().toString());
-                lblUnitDisplayValue.setText(getProductUnitLabelById(selectedProductId));
+                String unitLabel = getProductUnitLabelById(selectedProductId);
+                BigDecimal averageUsage = getAverageUsageByProductId(selectedProductId);
+                BigDecimal safetyStock = getSafetyStockByProductId(selectedProductId);
+                BigDecimal reorderLevel = calculateReorderLevel(selectedProductId, unitLabel);
+
+                lblUnitDisplayValue.setText(unitLabel);
+                lblAverageUsageValue.setText(formatWholeOrDecimal(averageUsage, unitLabel));
+                lblSafetyStockValue.setText(formatWholeOrDecimal(safetyStock, unitLabel));
+                lblReorderLevelValue.setText(formatWholeOrDecimal(reorderLevel, unitLabel));
             } else {
                 lblUnitDisplayValue.setText("-");
+                lblAverageUsageValue.setText("0");
+                lblSafetyStockValue.setText("0");
+                lblReorderLevelValue.setText("0");
             }
         });
 
@@ -647,6 +744,12 @@ public class stockPanel extends javax.swing.JPanel {
         panel.add(cmbProduct);
         panel.add(lblUnitDisplayTitle);
         panel.add(lblUnitDisplayValue);
+        panel.add(lblAverageUsageTitle);
+        panel.add(lblAverageUsageValue);
+        panel.add(lblSafetyStockTitle);
+        panel.add(lblSafetyStockValue);
+        panel.add(lblReorderLevelTitle);
+        panel.add(lblReorderLevelValue);
         panel.add(new JLabel("Stock:"));
         panel.add(txtQty);
 

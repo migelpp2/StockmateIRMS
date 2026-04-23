@@ -21,6 +21,7 @@ import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.table.JTableHeader;
+import java.math.RoundingMode;
 /**
  *
  * @author USER
@@ -42,6 +43,7 @@ public class productsPanel extends javax.swing.JPanel {
     loadProducts();
     autoSearchProducts();
     styleProductTable();
+    
     }
     
     private int getCategoryIdByName(Connection conn, String categoryName) throws SQLException {
@@ -100,82 +102,32 @@ public class productsPanel extends javax.swing.JPanel {
     
     public void loadProducts() {
         DefaultTableModel model = (DefaultTableModel) jTable1.getModel();
-    model.setRowCount(0);
+        model.setRowCount(0);
 
-    String sql = "SELECT " +
-             "p.product_id, " +
-             "p.product_name, " +
-             "c.category_name, " +
-             "b.brand_name, " +
-             "p.cost_price, " +
-             "p.selling_price, " +
-             "p.unit_type, " +
-             "p.status " +
-             "FROM products p " +
-             "INNER JOIN categories c ON p.category_id = c.category_id " +
-             "LEFT JOIN brands b ON p.brand_id = b.brand_id " +
-             "ORDER BY p.product_id";
+                String sql = "SELECT " +
+                 "p.product_id, " +
+                 "p.product_name, " +
+                 "c.category_name, " +
+                 "b.brand_name, " +
+                 "p.cost_price, " +
+                 "p.selling_price, " +
+                 "p.unit_type, " +
+                 "p.average_usage, " +
+                 "p.safety_stock " +
+                 "FROM products p " +
+                 "INNER JOIN categories c ON p.category_id = c.category_id " +
+                 "LEFT JOIN brands b ON p.brand_id = b.brand_id " +
+                 "ORDER BY p.product_id";
 
-    try (Connection conn = MySQLConnect.getConnection();
-         PreparedStatement pst = conn.prepareStatement(sql);
-         ResultSet rs = pst.executeQuery()) {
+        try (Connection conn = MySQLConnect.getConnection();
+             PreparedStatement pst = conn.prepareStatement(sql);
+             ResultSet rs = pst.executeQuery()) {
 
-        while (rs.next()) {
-            model.addRow(new Object[]{
-                rs.getInt("product_id"),
-                rs.getString("product_name"),
-                rs.getString("category_name"),
-                rs.getString("brand_name"),
-                String.format("₱ %.2f", rs.getBigDecimal("cost_price")),
-                String.format("₱ %.2f", rs.getBigDecimal("selling_price")),
-                rs.getString("unit_type"),
-                rs.getString("status")
-        });
-        }
-
-    } catch (SQLException e) {
-        JOptionPane.showMessageDialog(this, "Load error: " + e.getMessage());
-    }
-    
-    }
-    
-    public void searchProducts(String keyword) {
-        DefaultTableModel model = (DefaultTableModel) jTable1.getModel();
-    model.setRowCount(0);
-
-    String sql = "SELECT " +
-             "p.product_id, " +
-             "p.product_name, " +
-             "c.category_name, " +
-             "b.brand_name, " +
-             "p.cost_price, " +
-             "p.selling_price, " +
-             "p.unit_type, " +
-             "p.status " +
-             "FROM products p " +
-             "INNER JOIN categories c ON p.category_id = c.category_id " +
-             "LEFT JOIN brands b ON p.brand_id = b.brand_id " +
-             "WHERE CAST(p.product_id AS CHAR) LIKE ? " +
-             "   OR p.product_name LIKE ? " +
-             "   OR c.category_name LIKE ? " +
-             "   OR b.brand_name LIKE ? " +
-             "   OR p.unit_type LIKE ? " +
-             "   OR p.status LIKE ? " +
-             "ORDER BY p.product_id";
-
-    try (Connection conn = MySQLConnect.getConnection();
-         PreparedStatement pst = conn.prepareStatement(sql)) {
-
-        String like = "%" + keyword + "%";
-        pst.setString(1, like);
-        pst.setString(2, like);
-        pst.setString(3, like);
-        pst.setString(4, like);
-        pst.setString(5, like);
-        pst.setString(6, like);
-
-        try (ResultSet rs = pst.executeQuery()) {
             while (rs.next()) {
+                String unitType = rs.getString("unit_type");
+                BigDecimal averageUsage = rs.getBigDecimal("average_usage");
+                BigDecimal safetyStock = rs.getBigDecimal("safety_stock");
+
                 model.addRow(new Object[]{
                     rs.getInt("product_id"),
                     rs.getString("product_name"),
@@ -183,15 +135,75 @@ public class productsPanel extends javax.swing.JPanel {
                     rs.getString("brand_name"),
                     String.format("₱ %.2f", rs.getBigDecimal("cost_price")),
                     String.format("₱ %.2f", rs.getBigDecimal("selling_price")),
-                    rs.getString("unit_type"),
-                    rs.getString("status")
-            });
+                    unitType,
+                    formatUsageOrStock(averageUsage, unitType),
+                    formatUsageOrStock(safetyStock, unitType)
+                });
             }
-        }
 
-    } catch (SQLException e) {
-        JOptionPane.showMessageDialog(this, "Search error: " + e.getMessage());
+        } catch (SQLException e) {
+            JOptionPane.showMessageDialog(this, "Load error: " + e.getMessage());
+        }
+    
     }
+    
+    public void searchProducts(String keyword) {
+        DefaultTableModel model = (DefaultTableModel) jTable1.getModel();
+        model.setRowCount(0);
+
+                String sql = "SELECT " +
+                 "p.product_id, " +
+                 "p.product_name, " +
+                 "c.category_name, " +
+                 "b.brand_name, " +
+                 "p.cost_price, " +
+                 "p.selling_price, " +
+                 "p.unit_type, " +
+                 "p.average_usage, " +
+                 "p.safety_stock " +
+                 "FROM products p " +
+                 "INNER JOIN categories c ON p.category_id = c.category_id " +
+                 "LEFT JOIN brands b ON p.brand_id = b.brand_id " +
+                 "WHERE CAST(p.product_id AS CHAR) LIKE ? " +
+                 "   OR p.product_name LIKE ? " +
+                 "   OR c.category_name LIKE ? " +
+                 "   OR b.brand_name LIKE ? " +
+                 "   OR p.unit_type LIKE ? " +
+                 "ORDER BY p.product_id";
+
+        try (Connection conn = MySQLConnect.getConnection();
+             PreparedStatement pst = conn.prepareStatement(sql)) {
+
+            String like = "%" + keyword + "%";
+            pst.setString(1, like);
+            pst.setString(2, like);
+            pst.setString(3, like);
+            pst.setString(4, like);
+            pst.setString(5, like);
+
+            try (ResultSet rs = pst.executeQuery()) {
+                while (rs.next()) {
+                    String unitType = rs.getString("unit_type");
+                    BigDecimal averageUsage = rs.getBigDecimal("average_usage");
+                    BigDecimal safetyStock = rs.getBigDecimal("safety_stock");
+
+                    model.addRow(new Object[]{
+                        rs.getInt("product_id"),
+                        rs.getString("product_name"),
+                        rs.getString("category_name"),
+                        rs.getString("brand_name"),
+                        String.format("₱ %.2f", rs.getBigDecimal("cost_price")),
+                        String.format("₱ %.2f", rs.getBigDecimal("selling_price")),
+                        unitType,
+                        formatUsageOrStock(averageUsage, unitType),
+                        formatUsageOrStock(safetyStock, unitType)
+                    });
+                }
+            }
+
+        } catch (SQLException e) {
+            JOptionPane.showMessageDialog(this, "Search error: " + e.getMessage());
+        }
     }
     
     public void autoSearchProducts() {
@@ -238,6 +250,31 @@ public class productsPanel extends javax.swing.JPanel {
         header.setForeground(new Color(54, 67, 20));
         header.setReorderingAllowed(false);
     }
+    
+    private BigDecimal calculateReorderLevel(BigDecimal averageUsage, BigDecimal safetyStock, String unitType) {
+        if (averageUsage == null) averageUsage = BigDecimal.ZERO;
+        if (safetyStock == null) safetyStock = BigDecimal.ZERO;
+
+        BigDecimal reorderLevel = averageUsage.add(safetyStock);
+
+        if ("KILO".equalsIgnoreCase(unitType)) {
+            return reorderLevel.setScale(2, RoundingMode.HALF_UP);
+        } else {
+            return new BigDecimal(reorderLevel.setScale(0, RoundingMode.CEILING).toPlainString());
+        }
+    }
+
+    private String formatUsageOrStock(BigDecimal value, String unitType) {
+        if (value == null) {
+            return "0";
+        }
+
+        if ("KILO".equalsIgnoreCase(unitType)) {
+            return value.setScale(2, RoundingMode.HALF_UP).toPlainString();
+        }
+
+        return String.valueOf(value.intValue());
+    }
     /**
      * This method is called from within the constructor to initialize the form.
      * WARNING: Do NOT modify this code. The content of this method is always
@@ -261,37 +298,37 @@ public class productsPanel extends javax.swing.JPanel {
 
         jTable1.setModel(new javax.swing.table.DefaultTableModel(
             new Object [][] {
-                {null, null, null, null, null, null, null, null},
-                {null, null, null, null, null, null, null, null},
-                {null, null, null, null, null, null, null, null},
-                {null, null, null, null, null, null, null, null}
+                {null, null, null, null, null, null, null, null, null},
+                {null, null, null, null, null, null, null, null, null},
+                {null, null, null, null, null, null, null, null, null},
+                {null, null, null, null, null, null, null, null, null}
             },
             new String [] {
-                "ID", "Product Name", "Category", "Brand", "Cost Price", "Selling Price", "Unit Type", "Status"
+                "ID", "Product Name", "Category", "Brand", "Cost Price", "Selling Price", "Unit Type", "Average Usage", "Safety Stock"
             }
         ));
         jScrollPane1.setViewportView(jTable1);
 
-        add(jScrollPane1, new org.netbeans.lib.awtextra.AbsoluteConstraints(30, 200, 860, 500));
+        add(jScrollPane1, new org.netbeans.lib.awtextra.AbsoluteConstraints(30, 210, 1040, 490));
 
         txtSearch.addActionListener(this::txtSearchActionPerformed);
-        add(txtSearch, new org.netbeans.lib.awtextra.AbsoluteConstraints(90, 160, 380, 30));
+        add(txtSearch, new org.netbeans.lib.awtextra.AbsoluteConstraints(90, 170, 380, 30));
 
         btnAdd.setText("ADD PRODUCT");
         btnAdd.addActionListener(this::btnAddActionPerformed);
-        add(btnAdd, new org.netbeans.lib.awtextra.AbsoluteConstraints(900, 260, 150, 40));
+        add(btnAdd, new org.netbeans.lib.awtextra.AbsoluteConstraints(510, 160, 150, 40));
 
         btnEdit.setText("EDIT PRODUCT");
         btnEdit.addActionListener(this::btnEditActionPerformed);
-        add(btnEdit, new org.netbeans.lib.awtextra.AbsoluteConstraints(900, 310, 150, 40));
+        add(btnEdit, new org.netbeans.lib.awtextra.AbsoluteConstraints(670, 160, 150, 40));
 
         jLabel1.setFont(new java.awt.Font("Segoe UI", 0, 14)); // NOI18N
         jLabel1.setText("Search:");
-        add(jLabel1, new org.netbeans.lib.awtextra.AbsoluteConstraints(30, 160, 60, 30));
+        add(jLabel1, new org.netbeans.lib.awtextra.AbsoluteConstraints(30, 170, 60, 30));
 
         btnDelete.setText("DELETE PRODUCT");
         btnDelete.addActionListener(this::btnDeleteActionPerformed);
-        add(btnDelete, new org.netbeans.lib.awtextra.AbsoluteConstraints(900, 360, 150, 40));
+        add(btnDelete, new org.netbeans.lib.awtextra.AbsoluteConstraints(830, 160, 150, 40));
 
         lblBackground.setIcon(new javax.swing.ImageIcon(getClass().getResource("/irms/design/Product List.png"))); // NOI18N
         add(lblBackground, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 0, -1, -1));
@@ -324,7 +361,51 @@ public class productsPanel extends javax.swing.JPanel {
             JTextField txtName = new JTextField();
             JTextField txtCost = new JTextField();
             JTextField txtSelling = new JTextField();
+            JTextField txtSafetyStock = new JTextField();
+            JLabel lblAverageUsageValue = new JLabel("0");
+            JLabel lblReorderLevelValue = new JLabel("0");
             JComboBox<String> cmbUnitType = new JComboBox<>(new String[]{"PIECE", "KILO"});
+
+            DocumentListener recalcListener = new DocumentListener() {
+                private void recalc() {
+                    try {
+                        BigDecimal averageUsage = BigDecimal.ZERO;
+                        BigDecimal safetyStock = txtSafetyStock.getText().trim().isEmpty()
+                                ? BigDecimal.ZERO
+                                : new BigDecimal(txtSafetyStock.getText().trim());
+
+                        String unitType = cmbUnitType.getSelectedItem().toString();
+                        BigDecimal reorderLevel = calculateReorderLevel(averageUsage, safetyStock, unitType);
+
+                        lblAverageUsageValue.setText(formatUsageOrStock(averageUsage, unitType));
+                        lblReorderLevelValue.setText(formatUsageOrStock(reorderLevel, unitType));
+                    } catch (NumberFormatException ex) {
+                        lblReorderLevelValue.setText("Invalid");
+                    }
+                }
+
+                @Override public void insertUpdate(DocumentEvent e) { recalc(); }
+                @Override public void removeUpdate(DocumentEvent e) { recalc(); }
+                @Override public void changedUpdate(DocumentEvent e) { recalc(); }
+            };
+
+            txtSafetyStock.getDocument().addDocumentListener(recalcListener);
+            cmbUnitType.addActionListener(e -> {
+                try {
+                    BigDecimal averageUsage = BigDecimal.ZERO;
+                    BigDecimal safetyStock = txtSafetyStock.getText().trim().isEmpty()
+                            ? BigDecimal.ZERO
+                            : new BigDecimal(txtSafetyStock.getText().trim());
+
+                    String unitType = cmbUnitType.getSelectedItem().toString();
+                    BigDecimal reorderLevel = calculateReorderLevel(averageUsage, safetyStock, unitType);
+
+                    lblAverageUsageValue.setText(formatUsageOrStock(averageUsage, unitType));
+                    lblReorderLevelValue.setText(formatUsageOrStock(reorderLevel, unitType));
+                } catch (NumberFormatException ex) {
+                    lblReorderLevelValue.setText("Invalid");
+                }
+            });
 
             JPanel panel = new JPanel(new GridLayout(0, 1, 8, 8));
             panel.add(new JLabel("Product Name:"));
@@ -339,6 +420,12 @@ public class productsPanel extends javax.swing.JPanel {
             panel.add(txtSelling);
             panel.add(new JLabel("Unit Type:"));
             panel.add(cmbUnitType);
+            panel.add(new JLabel("Average Usage (Auto):"));
+            panel.add(lblAverageUsageValue);
+            panel.add(new JLabel("Safety Stock:"));
+            panel.add(txtSafetyStock);
+            panel.add(new JLabel("Reorder Level (Auto):"));
+            panel.add(lblReorderLevelValue);
 
             int result = JOptionPane.showConfirmDialog(
                 this,
@@ -355,29 +442,34 @@ public class productsPanel extends javax.swing.JPanel {
             String productName = txtName.getText().trim();
             String costText = txtCost.getText().trim();
             String sellingText = txtSelling.getText().trim();
+            String safetyStockText = txtSafetyStock.getText().trim();
             String categoryName = cmbCategory.getSelectedItem().toString();
             String brandName = cmbBrand.getSelectedItem().toString();
             String unitType = cmbUnitType.getSelectedItem().toString();
             String unitLabel = unitType.equals("KILO") ? "kg" : "pc";
 
-            if (productName.isEmpty() || costText.isEmpty() || sellingText.isEmpty()) {
+            if (productName.isEmpty() || costText.isEmpty() || sellingText.isEmpty() || safetyStockText.isEmpty()) {
                 JOptionPane.showMessageDialog(this, "Please fill all fields.");
                 return;
             }
 
             BigDecimal costPrice;
             BigDecimal sellingPrice;
+            BigDecimal averageUsage = BigDecimal.ZERO;
+            BigDecimal safetyStock;
 
             try {
                 costPrice = new BigDecimal(costText);
                 sellingPrice = new BigDecimal(sellingText);
+                safetyStock = new BigDecimal(safetyStockText);
             } catch (NumberFormatException ex) {
-                JOptionPane.showMessageDialog(this, "Cost Price and Selling Price must be valid numbers.");
+                JOptionPane.showMessageDialog(this, "Cost price, selling price, and safety stock must be valid numbers.");
                 return;
             }
 
             if (costPrice.compareTo(BigDecimal.ZERO) < 0 ||
-                sellingPrice.compareTo(BigDecimal.ZERO) < 0) {
+                sellingPrice.compareTo(BigDecimal.ZERO) < 0 ||
+                safetyStock.compareTo(BigDecimal.ZERO) < 0) {
                 JOptionPane.showMessageDialog(this, "Values cannot be negative.");
                 return;
             }
@@ -386,6 +478,15 @@ public class productsPanel extends javax.swing.JPanel {
                 JOptionPane.showMessageDialog(this, "Selling Price must be higher than Cost Price.");
                 return;
             }
+
+            if (!unitType.equalsIgnoreCase("KILO")) {
+                if (safetyStock.stripTrailingZeros().scale() > 0) {
+                    JOptionPane.showMessageDialog(this, "Piece items must use whole numbers only for Safety Stock.");
+                    return;
+                }
+            }
+
+            BigDecimal reorderLevel = calculateReorderLevel(averageUsage, safetyStock, unitType);
 
             int categoryId = getCategoryIdByName(conn, categoryName);
             int brandId = getBrandIdByName(conn, brandName);
@@ -412,8 +513,8 @@ public class productsPanel extends javax.swing.JPanel {
             }
 
             String insertSql = "INSERT INTO products " +
-            "(category_id, brand_id, product_name, cost_price, selling_price, unit_type, unit_label, status) " +
-            "VALUES (?, ?, ?, ?, ?, ?, ?, 'ACTIVE')";
+                "(category_id, brand_id, product_name, cost_price, selling_price, unit_type, unit_label, average_usage, safety_stock) " +
+                "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)";
 
             int newProductId = 0;
 
@@ -425,6 +526,8 @@ public class productsPanel extends javax.swing.JPanel {
                 pst.setBigDecimal(5, sellingPrice);
                 pst.setString(6, unitType);
                 pst.setString(7, unitLabel);
+                pst.setBigDecimal(8, averageUsage);
+                pst.setBigDecimal(9, safetyStock);
                 pst.executeUpdate();
 
                 try (ResultSet rs = pst.getGeneratedKeys()) {
@@ -441,7 +544,7 @@ public class productsPanel extends javax.swing.JPanel {
                 pstStock.setInt(1, newProductId);
                 pstStock.setBigDecimal(2, BigDecimal.ZERO);
                 pstStock.setBigDecimal(3, sellingPrice);
-                pstStock.setBigDecimal(4, new BigDecimal("5.00"));
+                pstStock.setBigDecimal(4, reorderLevel);
                 pstStock.executeUpdate();
             }
 
@@ -466,11 +569,11 @@ public class productsPanel extends javax.swing.JPanel {
         try (Connection conn = MySQLConnect.getConnection()) {
 
             String sql = "SELECT p.product_name, p.cost_price, p.selling_price, p.unit_type, " +
-            "c.category_name, b.brand_name " +
-            "FROM products p " +
-            "INNER JOIN categories c ON p.category_id = c.category_id " +
-            "LEFT JOIN brands b ON p.brand_id = b.brand_id " +
-            "WHERE p.product_id = ?";
+                    "p.average_usage, p.safety_stock, c.category_name, b.brand_name " +
+                    "FROM products p " +
+                    "INNER JOIN categories c ON p.category_id = c.category_id " +
+                    "LEFT JOIN brands b ON p.brand_id = b.brand_id " +
+                    "WHERE p.product_id = ?";
 
             String currentName = "";
             String currentCategory = "";
@@ -478,6 +581,8 @@ public class productsPanel extends javax.swing.JPanel {
             String currentCost = "";
             String currentSelling = "";
             String currentUnitType = "PIECE";
+            String currentAverageUsage = "0";
+            String currentSafetyStock = "0";
 
             try (PreparedStatement pst = conn.prepareStatement(sql)) {
                 pst.setInt(1, productId);
@@ -490,13 +595,20 @@ public class productsPanel extends javax.swing.JPanel {
                         currentCost = rs.getBigDecimal("cost_price").toString();
                         currentSelling = rs.getBigDecimal("selling_price").toString();
                         currentUnitType = rs.getString("unit_type");
+                        currentAverageUsage = rs.getBigDecimal("average_usage").toString();
+                        currentSafetyStock = rs.getBigDecimal("safety_stock").toString();
                     }
                 }
             }
-
+            
+            final String fixedAverageUsage = currentAverageUsage;
+            
             JTextField txtName = new JTextField(currentName);
             JTextField txtCost = new JTextField(currentCost);
             JTextField txtSelling = new JTextField(currentSelling);
+            JTextField txtSafetyStock = new JTextField(currentSafetyStock);
+            JLabel lblAverageUsageValue = new JLabel(fixedAverageUsage);
+            JLabel lblReorderLevelValue = new JLabel("0");
 
             JComboBox<String> cmbCategory = new JComboBox<>();
             JComboBox<String> cmbBrand = new JComboBox<>();
@@ -508,6 +620,55 @@ public class productsPanel extends javax.swing.JPanel {
 
             cmbCategory.setSelectedItem(currentCategory);
             cmbBrand.setSelectedItem(currentBrand);
+
+            DocumentListener recalcListener = new DocumentListener() {
+                private void recalc() {
+                    try {
+                        BigDecimal averageUsage = new BigDecimal(fixedAverageUsage);
+                        BigDecimal safetyStock = txtSafetyStock.getText().trim().isEmpty()
+                                ? BigDecimal.ZERO
+                                : new BigDecimal(txtSafetyStock.getText().trim());
+
+                        String unitType = cmbUnitType.getSelectedItem().toString();
+                        BigDecimal reorderLevel = calculateReorderLevel(averageUsage, safetyStock, unitType);
+
+                        lblAverageUsageValue.setText(formatUsageOrStock(averageUsage, unitType));
+                        lblReorderLevelValue.setText(formatUsageOrStock(reorderLevel, unitType));
+                    } catch (NumberFormatException ex) {
+                        lblReorderLevelValue.setText("Invalid");
+                    }
+                }
+
+                @Override public void insertUpdate(DocumentEvent e) { recalc(); }
+                @Override public void removeUpdate(DocumentEvent e) { recalc(); }
+                @Override public void changedUpdate(DocumentEvent e) { recalc(); }
+            };
+
+            txtSafetyStock.getDocument().addDocumentListener(recalcListener);
+            
+            
+            cmbUnitType.addActionListener(e -> {
+                BigDecimal averageUsage = new BigDecimal(fixedAverageUsage);
+                BigDecimal safetyStock = txtSafetyStock.getText().trim().isEmpty()
+                        ? BigDecimal.ZERO
+                        : new BigDecimal(txtSafetyStock.getText().trim());
+
+                String unitType = cmbUnitType.getSelectedItem().toString();
+                BigDecimal reorderLevel = calculateReorderLevel(averageUsage, safetyStock, unitType);
+
+                lblAverageUsageValue.setText(formatUsageOrStock(averageUsage, unitType));
+                lblReorderLevelValue.setText(formatUsageOrStock(reorderLevel, unitType));
+            });
+
+            try {
+                BigDecimal initialAverageUsage = new BigDecimal(fixedAverageUsage);
+                BigDecimal initialSafetyStock = new BigDecimal(currentSafetyStock);
+                BigDecimal initialReorder = calculateReorderLevel(initialAverageUsage, initialSafetyStock, currentUnitType);
+                lblAverageUsageValue.setText(formatUsageOrStock(initialAverageUsage, currentUnitType));
+                lblReorderLevelValue.setText(formatUsageOrStock(initialReorder, currentUnitType));
+            } catch (NumberFormatException ex) {
+                lblReorderLevelValue.setText("Invalid");
+            }
 
             JPanel panel = new JPanel(new GridLayout(0, 1, 8, 8));
             panel.add(new JLabel("Product Name:"));
@@ -522,6 +683,12 @@ public class productsPanel extends javax.swing.JPanel {
             panel.add(txtSelling);
             panel.add(new JLabel("Unit Type:"));
             panel.add(cmbUnitType);
+            panel.add(new JLabel("Average Usage (Auto):"));
+            panel.add(lblAverageUsageValue);
+            panel.add(new JLabel("Safety Stock:"));
+            panel.add(txtSafetyStock);
+            panel.add(new JLabel("Reorder Level (Auto):"));
+            panel.add(lblReorderLevelValue);
 
             int result = JOptionPane.showConfirmDialog(
                 this,
@@ -542,25 +709,32 @@ public class productsPanel extends javax.swing.JPanel {
             String newUnitLabel = newUnitType.equals("KILO") ? "kg" : "pc";
             String costText = txtCost.getText().trim();
             String sellingText = txtSelling.getText().trim();
+            String safetyStockText = txtSafetyStock.getText().trim();
 
-            if (newName.isEmpty() || costText.isEmpty() || sellingText.isEmpty()) {
+            if (newName.isEmpty() || costText.isEmpty() || sellingText.isEmpty() || safetyStockText.isEmpty()) {
                 JOptionPane.showMessageDialog(this, "Please fill all fields.");
                 return;
             }
 
             BigDecimal newCost;
             BigDecimal newSelling;
+            BigDecimal averageUsage;
+            BigDecimal safetyStock;
 
             try {
                 newCost = new BigDecimal(costText);
                 newSelling = new BigDecimal(sellingText);
+                averageUsage = new BigDecimal(fixedAverageUsage);
+                safetyStock = new BigDecimal(safetyStockText);
             } catch (NumberFormatException ex) {
-                JOptionPane.showMessageDialog(this, "Cost Price and Selling Price must be valid numbers.");
+                JOptionPane.showMessageDialog(this, "Cost price, selling price, and safety stock must be valid numbers.");
                 return;
             }
 
             if (newCost.compareTo(BigDecimal.ZERO) < 0 ||
-                newSelling.compareTo(BigDecimal.ZERO) < 0) {
+                newSelling.compareTo(BigDecimal.ZERO) < 0 ||
+                averageUsage.compareTo(BigDecimal.ZERO) < 0 ||
+                safetyStock.compareTo(BigDecimal.ZERO) < 0) {
                 JOptionPane.showMessageDialog(this, "Values cannot be negative.");
                 return;
             }
@@ -569,6 +743,15 @@ public class productsPanel extends javax.swing.JPanel {
                 JOptionPane.showMessageDialog(this, "Selling Price must be higher than Cost Price.");
                 return;
             }
+
+            if (!newUnitType.equalsIgnoreCase("KILO")) {
+                if (safetyStock.stripTrailingZeros().scale() > 0) {
+                    JOptionPane.showMessageDialog(this, "Piece items must use whole numbers only for Safety Stock.");
+                    return;
+                }
+            }
+
+            BigDecimal reorderLevel = calculateReorderLevel(averageUsage, safetyStock, newUnitType);
 
             int categoryId = getCategoryIdByName(conn, newCategory);
             int brandId = getBrandIdByName(conn, newBrand);
@@ -597,14 +780,15 @@ public class productsPanel extends javax.swing.JPanel {
             }
 
             String updateSql = "UPDATE products SET " +
-            "product_name = ?, " +
-            "category_id = ?, " +
-            "brand_id = ?, " +
-            "cost_price = ?, " +
-            "selling_price = ?, " +
-            "unit_type = ?, " +
-            "unit_label = ? " +
-            "WHERE product_id = ?";
+                    "product_name = ?, " +
+                    "category_id = ?, " +
+                    "brand_id = ?, " +
+                    "cost_price = ?, " +
+                    "selling_price = ?, " +
+                    "unit_type = ?, " +
+                    "unit_label = ?, " +
+                    "safety_stock = ? " +
+                    "WHERE product_id = ?";
 
             try (PreparedStatement pst = conn.prepareStatement(updateSql)) {
                 pst.setString(1, newName);
@@ -614,8 +798,16 @@ public class productsPanel extends javax.swing.JPanel {
                 pst.setBigDecimal(5, newSelling);
                 pst.setString(6, newUnitType);
                 pst.setString(7, newUnitLabel);
-                pst.setInt(8, productId);
+                pst.setBigDecimal(8, safetyStock);
+                pst.setInt(9, productId);
                 pst.executeUpdate();
+            }
+
+            String updateStockSql = "UPDATE stocks SET reorder_level = ? WHERE product_id = ?";
+            try (PreparedStatement pstStock = conn.prepareStatement(updateStockSql)) {
+                pstStock.setBigDecimal(1, reorderLevel);
+                pstStock.setInt(2, productId);
+                pstStock.executeUpdate();
             }
 
             JOptionPane.showMessageDialog(this, "Product updated successfully!");
