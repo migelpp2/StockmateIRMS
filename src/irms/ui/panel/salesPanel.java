@@ -667,7 +667,7 @@ public class salesPanel extends javax.swing.JPanel {
         denominationPanel.setBorder(javax.swing.BorderFactory.createEmptyBorder(10, 10, 10, 10));
 
         String[] denominations = {
-            "0.25", "0.50", "1", "5",
+            "1", "5",
             "10", "20", "50", "100",
             "200", "500", "1000"
         };

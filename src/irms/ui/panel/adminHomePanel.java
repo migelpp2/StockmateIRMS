@@ -303,12 +303,12 @@ public class adminHomePanel extends javax.swing.JPanel {
         lblWelcome.setFont(new java.awt.Font("Segoe UI", 1, 24)); // NOI18N
         lblWelcome.setForeground(new java.awt.Color(54, 67, 20));
         lblWelcome.setText("Welcome to StockMate");
-        pnlWelcome.add(lblWelcome, new org.netbeans.lib.awtextra.AbsoluteConstraints(80, 20, -1, -1));
+        pnlWelcome.add(lblWelcome, new org.netbeans.lib.awtextra.AbsoluteConstraints(130, 20, -1, -1));
 
         lblSubheading.setFont(new java.awt.Font("Segoe UI", 0, 18)); // NOI18N
         lblSubheading.setForeground(new java.awt.Color(45, 45, 45));
         lblSubheading.setText("Inventory and Sales Overview");
-        pnlWelcome.add(lblSubheading, new org.netbeans.lib.awtextra.AbsoluteConstraints(80, 60, -1, -1));
+        pnlWelcome.add(lblSubheading, new org.netbeans.lib.awtextra.AbsoluteConstraints(130, 60, -1, -1));
 
         lblRealTime.setFont(new java.awt.Font("Segoe UI", 1, 14)); // NOI18N
         lblRealTime.setText("Real Time");

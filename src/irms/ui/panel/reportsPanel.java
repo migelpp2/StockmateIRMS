@@ -5,12 +5,15 @@
 package irms.ui.panel;
 
 import irms.db.MySQLConnect;
+import irms.ui.frame.MainFrame;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import javax.swing.JOptionPane;
 import javax.swing.table.DefaultTableModel;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 /**
  *
  * @author USER
@@ -32,7 +35,8 @@ public class reportsPanel extends javax.swing.JPanel {
                 new String[]{"Daily", "Weekly", "Monthly"}
         ));
 
-        txtDate.setText(java.time.LocalDate.now().toString());
+        jDateChooser1.setDate(new Date());
+        jDateChooser1.setDateFormatString("yyyy-MM-dd");
 
         jLabel3.setText("Daily Sales");
         jLabel4.setText("₱0.00");
@@ -53,12 +57,15 @@ public class reportsPanel extends javax.swing.JPanel {
 
     private void generateReport() {
         String reportType = cmbReportType.getSelectedItem().toString();
-        String dateText = txtDate.getText().trim();
+        Date selectedDate = jDateChooser1.getDate();
 
-        if (dateText.isEmpty()) {
+        if (selectedDate == null) {
             JOptionPane.showMessageDialog(this, "Date is required.");
             return;
         }
+
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+        String dateText = sdf.format(selectedDate);
 
         loadReportData(reportType, dateText);
     }
@@ -163,6 +170,14 @@ public class reportsPanel extends javax.swing.JPanel {
         header.setForeground(new java.awt.Color(54, 67, 20));
         header.setReorderingAllowed(false);
     }
+    
+    private void openPanel(javax.swing.JPanel panel) {
+        java.awt.Window window = javax.swing.SwingUtilities.getWindowAncestor(this);
+
+        if (window instanceof MainFrame) {
+            ((MainFrame) window).showPanel(panel);
+        }
+    }
 
     /**
      * This method is called from within the constructor to initialize the form.
@@ -175,7 +190,6 @@ public class reportsPanel extends javax.swing.JPanel {
 
         lblDate = new javax.swing.JLabel();
         cmbReportType = new javax.swing.JComboBox<>();
-        txtDate = new javax.swing.JTextField();
         pnlRevenue = new irms.ui.components.RoundedPanel();
         jLabel1 = new javax.swing.JLabel();
         jLabel2 = new javax.swing.JLabel();
@@ -185,6 +199,7 @@ public class reportsPanel extends javax.swing.JPanel {
         pnlTransactions = new irms.ui.components.RoundedPanel();
         jLabel5 = new javax.swing.JLabel();
         jLabel6 = new javax.swing.JLabel();
+        lblTransactionRecords = new javax.swing.JButton();
         lblReportType = new javax.swing.JLabel();
         btnRefresh = new javax.swing.JButton();
         btnGenerate = new javax.swing.JButton();
@@ -193,6 +208,7 @@ public class reportsPanel extends javax.swing.JPanel {
         jPanel1 = new javax.swing.JPanel();
         lblTotalRevenueValue = new javax.swing.JLabel();
         lblTotalRevenueText = new javax.swing.JLabel();
+        jDateChooser1 = new com.toedter.calendar.JDateChooser();
         lblBackground = new javax.swing.JLabel();
 
         setBackground(new java.awt.Color(200, 212, 222));
@@ -205,10 +221,6 @@ public class reportsPanel extends javax.swing.JPanel {
         cmbReportType.setFont(new java.awt.Font("Segoe UI", 0, 14)); // NOI18N
         cmbReportType.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "Item 1", "Item 2", "Item 3", "Item 4" }));
         add(cmbReportType, new org.netbeans.lib.awtextra.AbsoluteConstraints(110, 170, 250, 40));
-
-        txtDate.setFont(new java.awt.Font("Segoe UI", 0, 14)); // NOI18N
-        txtDate.addActionListener(this::txtDateActionPerformed);
-        add(txtDate, new org.netbeans.lib.awtextra.AbsoluteConstraints(410, 170, 250, 40));
 
         pnlRevenue.setBackground(new java.awt.Color(154, 151, 33));
         pnlRevenue.setBorder(new javax.swing.border.LineBorder(new java.awt.Color(204, 204, 204), 1, true));
@@ -289,6 +301,8 @@ public class reportsPanel extends javax.swing.JPanel {
         jLabel6.setForeground(new java.awt.Color(255, 255, 255));
         jLabel6.setText("Value");
 
+        lblTransactionRecords.addActionListener(this::lblTransactionRecordsActionPerformed);
+
         javax.swing.GroupLayout pnlTransactionsLayout = new javax.swing.GroupLayout(pnlTransactions);
         pnlTransactions.setLayout(pnlTransactionsLayout);
         pnlTransactionsLayout.setHorizontalGroup(
@@ -296,17 +310,25 @@ public class reportsPanel extends javax.swing.JPanel {
             .addGroup(pnlTransactionsLayout.createSequentialGroup()
                 .addGap(15, 15, 15)
                 .addGroup(pnlTransactionsLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(jLabel6, javax.swing.GroupLayout.PREFERRED_SIZE, 224, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addGroup(pnlTransactionsLayout.createSequentialGroup()
+                        .addComponent(jLabel6, javax.swing.GroupLayout.PREFERRED_SIZE, 224, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(lblTransactionRecords))
                     .addComponent(jLabel5, javax.swing.GroupLayout.PREFERRED_SIZE, 174, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addContainerGap(99, Short.MAX_VALUE))
+                .addContainerGap(21, Short.MAX_VALUE))
         );
         pnlTransactionsLayout.setVerticalGroup(
             pnlTransactionsLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(pnlTransactionsLayout.createSequentialGroup()
                 .addContainerGap()
                 .addComponent(jLabel5, javax.swing.GroupLayout.PREFERRED_SIZE, 25, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(18, 18, 18)
-                .addComponent(jLabel6)
+                .addGroup(pnlTransactionsLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(pnlTransactionsLayout.createSequentialGroup()
+                        .addGap(18, 18, 18)
+                        .addComponent(jLabel6))
+                    .addGroup(pnlTransactionsLayout.createSequentialGroup()
+                        .addGap(2, 2, 2)
+                        .addComponent(lblTransactionRecords, javax.swing.GroupLayout.PREFERRED_SIZE, 40, javax.swing.GroupLayout.PREFERRED_SIZE)))
                 .addContainerGap(37, Short.MAX_VALUE))
         );
 
@@ -322,14 +344,14 @@ public class reportsPanel extends javax.swing.JPanel {
         btnRefresh.setText("Refresh");
         btnRefresh.setBorder(null);
         btnRefresh.addActionListener(this::btnRefreshActionPerformed);
-        add(btnRefresh, new org.netbeans.lib.awtextra.AbsoluteConstraints(850, 170, 140, 40));
+        add(btnRefresh, new org.netbeans.lib.awtextra.AbsoluteConstraints(820, 170, 110, 40));
 
         btnGenerate.setBackground(new java.awt.Color(72, 92, 13));
         btnGenerate.setFont(new java.awt.Font("Segoe UI", 0, 14)); // NOI18N
         btnGenerate.setForeground(new java.awt.Color(255, 255, 255));
         btnGenerate.setText("Generate");
         btnGenerate.setBorder(null);
-        add(btnGenerate, new org.netbeans.lib.awtextra.AbsoluteConstraints(690, 170, 140, 40));
+        add(btnGenerate, new org.netbeans.lib.awtextra.AbsoluteConstraints(700, 170, 110, 40));
 
         jTable1.setBackground(new java.awt.Color(245, 245, 245));
         jTable1.setFont(new java.awt.Font("Segoe UI", 0, 14)); // NOI18N
@@ -385,25 +407,28 @@ public class reportsPanel extends javax.swing.JPanel {
         );
 
         add(jPanel1, new org.netbeans.lib.awtextra.AbsoluteConstraints(20, 680, 1040, 50));
+        add(jDateChooser1, new org.netbeans.lib.awtextra.AbsoluteConstraints(410, 170, 250, 40));
 
         lblBackground.setIcon(new javax.swing.ImageIcon(getClass().getResource("/irms/design/Reports.png"))); // NOI18N
         add(lblBackground, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 0, -1, -1));
     }// </editor-fold>//GEN-END:initComponents
 
-    private void txtDateActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_txtDateActionPerformed
-        // TODO add your handling code here:
-        generateReport();
-    }//GEN-LAST:event_txtDateActionPerformed
-
     private void btnRefreshActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnRefreshActionPerformed
         // TODO add your handling code here:
     }//GEN-LAST:event_btnRefreshActionPerformed
+
+    private void lblTransactionRecordsActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_lblTransactionRecordsActionPerformed
+        // TODO add your handling code here:
+        openPanel(new transactionRecords());
+
+    }//GEN-LAST:event_lblTransactionRecordsActionPerformed
 
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton btnGenerate;
     private javax.swing.JButton btnRefresh;
     private javax.swing.JComboBox<String> cmbReportType;
+    private com.toedter.calendar.JDateChooser jDateChooser1;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel2;
     private javax.swing.JLabel jLabel3;
@@ -418,9 +443,9 @@ public class reportsPanel extends javax.swing.JPanel {
     private javax.swing.JLabel lblReportType;
     private javax.swing.JLabel lblTotalRevenueText;
     private javax.swing.JLabel lblTotalRevenueValue;
+    private javax.swing.JButton lblTransactionRecords;
     private javax.swing.JPanel pnlReportType;
     private javax.swing.JPanel pnlRevenue;
     private javax.swing.JPanel pnlTransactions;
-    private javax.swing.JTextField txtDate;
     // End of variables declaration//GEN-END:variables
 }
