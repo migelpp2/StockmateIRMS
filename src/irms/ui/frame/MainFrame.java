@@ -229,17 +229,17 @@ public class MainFrame extends javax.swing.JFrame {
         );
         mainContentPanelLayout.setVerticalGroup(
             mainContentPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 810, Short.MAX_VALUE)
+            .addGap(0, 800, Short.MAX_VALUE)
         );
 
-        getContentPane().add(mainContentPanel, new org.netbeans.lib.awtextra.AbsoluteConstraints(250, -20, -1, 810));
+        getContentPane().add(mainContentPanel, new org.netbeans.lib.awtextra.AbsoluteConstraints(240, 0, -1, 800));
 
         pnlBackground.setBackground(new java.awt.Color(200, 212, 222));
         pnlBackground.setPreferredSize(new java.awt.Dimension(1366, 768));
         pnlBackground.setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
 
         lblBackground.setIcon(new javax.swing.ImageIcon(getClass().getResource("/irms/design/Home.png"))); // NOI18N
-        pnlBackground.add(lblBackground, new org.netbeans.lib.awtextra.AbsoluteConstraints(260, 0, 1110, -1));
+        pnlBackground.add(lblBackground, new org.netbeans.lib.awtextra.AbsoluteConstraints(260, 0, 1110, 780));
 
         getContentPane().add(pnlBackground, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 0, -1, 780));
 

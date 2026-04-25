@@ -265,6 +265,7 @@ public class adminHomePanel extends javax.swing.JPanel {
         lblRealTime = new javax.swing.JLabel();
         lblDay = new javax.swing.JLabel();
         lblDate = new javax.swing.JLabel();
+        lblIcon = new javax.swing.JLabel();
         pnlProductsNumber = new irms.ui.components.RoundedPanel();
         lblTotalProduct = new javax.swing.JLabel();
         lblProductsText = new javax.swing.JLabel();
@@ -321,6 +322,7 @@ public class adminHomePanel extends javax.swing.JPanel {
         lblDate.setFont(new java.awt.Font("Segoe UI", 1, 14)); // NOI18N
         lblDate.setText("January 1, 2026");
         pnlWelcome.add(lblDate, new org.netbeans.lib.awtextra.AbsoluteConstraints(940, 40, -1, -1));
+        pnlWelcome.add(lblIcon, new org.netbeans.lib.awtextra.AbsoluteConstraints(60, 50, -1, -1));
 
         add(pnlWelcome, new org.netbeans.lib.awtextra.AbsoluteConstraints(10, 170, 1070, 110));
 
@@ -464,7 +466,7 @@ public class adminHomePanel extends javax.swing.JPanel {
         add(pnlRecentTransactions, new org.netbeans.lib.awtextra.AbsoluteConstraints(10, 550, 1070, 210));
 
         lblRecentTransactionTxt.setIcon(new javax.swing.ImageIcon(getClass().getResource("/irms/design/Home.png"))); // NOI18N
-        add(lblRecentTransactionTxt, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 0, 1130, 780));
+        add(lblRecentTransactionTxt, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 0, -1, 770));
     }// </editor-fold>//GEN-END:initComponents
 
     private void btnNewSalesActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnNewSalesActionPerformed
@@ -492,6 +494,7 @@ public class adminHomePanel extends javax.swing.JPanel {
     private javax.swing.JLabel lblCustomerText;
     private javax.swing.JLabel lblDate;
     private javax.swing.JLabel lblDay;
+    private javax.swing.JLabel lblIcon;
     private javax.swing.JLabel lblLowStockText;
     private javax.swing.JLabel lblOverview1;
     private javax.swing.JLabel lblOverview2;

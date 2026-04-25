@@ -362,9 +362,25 @@ public class productsPanel extends javax.swing.JPanel {
             JTextField txtCost = new JTextField();
             JTextField txtSelling = new JTextField();
             JTextField txtSafetyStock = new JTextField();
+
+            JLabel lblCostPrice = new JLabel("Cost Price:");
+            JLabel lblSellingPrice = new JLabel("Selling Price:");
             JLabel lblAverageUsageValue = new JLabel("0");
             JLabel lblReorderLevelValue = new JLabel("0");
+
             JComboBox<String> cmbUnitType = new JComboBox<>(new String[]{"PIECE", "KILO"});
+
+            Runnable updatePriceLabels = () -> {
+                String unitType = cmbUnitType.getSelectedItem().toString();
+
+                if (unitType.equalsIgnoreCase("KILO")) {
+                    lblCostPrice.setText("Cost Price (per kilo):");
+                    lblSellingPrice.setText("Selling Price (per kilo):");
+                } else {
+                    lblCostPrice.setText("Cost Price:");
+                    lblSellingPrice.setText("Selling Price:");
+                }
+            };
 
             DocumentListener recalcListener = new DocumentListener() {
                 private void recalc() {
@@ -390,7 +406,10 @@ public class productsPanel extends javax.swing.JPanel {
             };
 
             txtSafetyStock.getDocument().addDocumentListener(recalcListener);
+
             cmbUnitType.addActionListener(e -> {
+                updatePriceLabels.run();
+
                 try {
                     BigDecimal averageUsage = BigDecimal.ZERO;
                     BigDecimal safetyStock = txtSafetyStock.getText().trim().isEmpty()
@@ -407,23 +426,33 @@ public class productsPanel extends javax.swing.JPanel {
                 }
             });
 
+            updatePriceLabels.run();
+
             JPanel panel = new JPanel(new GridLayout(0, 1, 8, 8));
             panel.add(new JLabel("Product Name:"));
             panel.add(txtName);
-            panel.add(new JLabel("Category:"));
-            panel.add(cmbCategory);
-            panel.add(new JLabel("Brand:"));
-            panel.add(cmbBrand);
-            panel.add(new JLabel("Cost Price:"));
-            panel.add(txtCost);
-            panel.add(new JLabel("Selling Price:"));
-            panel.add(txtSelling);
+
             panel.add(new JLabel("Unit Type:"));
             panel.add(cmbUnitType);
+
+            panel.add(new JLabel("Category:"));
+            panel.add(cmbCategory);
+
+            panel.add(new JLabel("Brand:"));
+            panel.add(cmbBrand);
+
+            panel.add(lblCostPrice);
+            panel.add(txtCost);
+
+            panel.add(lblSellingPrice);
+            panel.add(txtSelling);
+
             panel.add(new JLabel("Average Usage (Auto):"));
             panel.add(lblAverageUsageValue);
+
             panel.add(new JLabel("Safety Stock:"));
             panel.add(txtSafetyStock);
+
             panel.add(new JLabel("Reorder Level (Auto):"));
             panel.add(lblReorderLevelValue);
 
@@ -504,6 +533,7 @@ public class productsPanel extends javax.swing.JPanel {
             String checkSql = "SELECT COUNT(*) FROM products WHERE product_name = ?";
             try (PreparedStatement pst = conn.prepareStatement(checkSql)) {
                 pst.setString(1, productName);
+
                 try (ResultSet rs = pst.executeQuery()) {
                     if (rs.next() && rs.getInt(1) > 0) {
                         JOptionPane.showMessageDialog(this, "Product name already exists.");
@@ -677,12 +707,12 @@ public class productsPanel extends javax.swing.JPanel {
             panel.add(cmbCategory);
             panel.add(new JLabel("Brand:"));
             panel.add(cmbBrand);
+            panel.add(new JLabel("Unit Type:"));
+            panel.add(cmbUnitType);
             panel.add(new JLabel("Cost Price:"));
             panel.add(txtCost);
             panel.add(new JLabel("Selling Price:"));
             panel.add(txtSelling);
-            panel.add(new JLabel("Unit Type:"));
-            panel.add(cmbUnitType);
             panel.add(new JLabel("Average Usage (Auto):"));
             panel.add(lblAverageUsageValue);
             panel.add(new JLabel("Safety Stock:"));

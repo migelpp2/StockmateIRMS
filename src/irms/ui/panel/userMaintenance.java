@@ -204,22 +204,37 @@ public class userMaintenance extends javax.swing.JFrame {
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
 
-        lblTitle = new javax.swing.JLabel();
+        jPanel1 = new javax.swing.JPanel();
+        txtSearch = new javax.swing.JTextField();
+        lblSearch = new javax.swing.JLabel();
+        btnDelete = new javax.swing.JButton();
         jScrollPane1 = new javax.swing.JScrollPane();
         tblUsers = new javax.swing.JTable();
-        lblSearch = new javax.swing.JLabel();
-        txtSearch = new javax.swing.JTextField();
-        btnAdd = new javax.swing.JButton();
         btnEdit = new javax.swing.JButton();
-        btnDelete = new javax.swing.JButton();
+        lblTitle = new javax.swing.JLabel();
         btnClose = new javax.swing.JButton();
+        btnAdd = new javax.swing.JButton();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.DISPOSE_ON_CLOSE);
         setBackground(new java.awt.Color(200, 212, 222));
         setCursor(new java.awt.Cursor(java.awt.Cursor.DEFAULT_CURSOR));
 
-        lblTitle.setFont(new java.awt.Font("Segoe UI", 1, 24)); // NOI18N
-        lblTitle.setText("User Maintenance");
+        jPanel1.setBackground(new java.awt.Color(200, 212, 222));
+        jPanel1.setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
+        jPanel1.add(txtSearch, new org.netbeans.lib.awtextra.AbsoluteConstraints(80, 90, 250, 30));
+
+        lblSearch.setFont(new java.awt.Font("Segoe UI", 0, 14)); // NOI18N
+        lblSearch.setText("Search:");
+        jPanel1.add(lblSearch, new org.netbeans.lib.awtextra.AbsoluteConstraints(30, 90, -1, 30));
+
+        btnDelete.setFont(new java.awt.Font("Segoe UI", 1, 12)); // NOI18N
+        btnDelete.setText("Delete");
+        btnDelete.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnDeleteActionPerformed(evt);
+            }
+        });
+        jPanel1.add(btnDelete, new org.netbeans.lib.awtextra.AbsoluteConstraints(660, 90, 90, 30));
 
         tblUsers.setModel(new javax.swing.table.DefaultTableModel(
             new Object [][] {
@@ -242,16 +257,7 @@ public class userMaintenance extends javax.swing.JFrame {
         });
         jScrollPane1.setViewportView(tblUsers);
 
-        lblSearch.setFont(new java.awt.Font("Segoe UI", 0, 14)); // NOI18N
-        lblSearch.setText("Search:");
-
-        btnAdd.setFont(new java.awt.Font("Segoe UI", 1, 12)); // NOI18N
-        btnAdd.setText("Add");
-        btnAdd.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                btnAddActionPerformed(evt);
-            }
-        });
+        jPanel1.add(jScrollPane1, new org.netbeans.lib.awtextra.AbsoluteConstraints(30, 130, 820, -1));
 
         btnEdit.setFont(new java.awt.Font("Segoe UI", 1, 12)); // NOI18N
         btnEdit.setText("Edit");
@@ -260,14 +266,11 @@ public class userMaintenance extends javax.swing.JFrame {
                 btnEditActionPerformed(evt);
             }
         });
+        jPanel1.add(btnEdit, new org.netbeans.lib.awtextra.AbsoluteConstraints(560, 90, 90, 30));
 
-        btnDelete.setFont(new java.awt.Font("Segoe UI", 1, 12)); // NOI18N
-        btnDelete.setText("Delete");
-        btnDelete.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                btnDeleteActionPerformed(evt);
-            }
-        });
+        lblTitle.setFont(new java.awt.Font("Segoe UI", 1, 24)); // NOI18N
+        lblTitle.setText("User Maintenance");
+        jPanel1.add(lblTitle, new org.netbeans.lib.awtextra.AbsoluteConstraints(320, 30, -1, -1));
 
         btnClose.setFont(new java.awt.Font("Segoe UI", 1, 12)); // NOI18N
         btnClose.setText("Close");
@@ -276,58 +279,27 @@ public class userMaintenance extends javax.swing.JFrame {
                 btnCloseActionPerformed(evt);
             }
         });
+        jPanel1.add(btnClose, new org.netbeans.lib.awtextra.AbsoluteConstraints(760, 90, 90, 30));
+
+        btnAdd.setFont(new java.awt.Font("Segoe UI", 1, 12)); // NOI18N
+        btnAdd.setText("Add");
+        btnAdd.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnAddActionPerformed(evt);
+            }
+        });
+        jPanel1.add(btnAdd, new org.netbeans.lib.awtextra.AbsoluteConstraints(460, 90, 90, 30));
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
         layout.setHorizontalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(layout.createSequentialGroup()
-                .addContainerGap()
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                        .addGroup(layout.createSequentialGroup()
-                            .addComponent(lblTitle)
-                            .addGap(673, 673, 673))
-                        .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
-                            .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 820, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addGap(29, 29, 29)))
-                    .addGroup(layout.createSequentialGroup()
-                        .addComponent(lblSearch)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(txtSearch, javax.swing.GroupLayout.PREFERRED_SIZE, 301, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addGap(18, 18, 18)
-                        .addComponent(btnAdd, javax.swing.GroupLayout.PREFERRED_SIZE, 91, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(btnEdit)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(btnDelete)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(btnClose)
-                        .addContainerGap())))
+            .addComponent(jPanel1, javax.swing.GroupLayout.DEFAULT_SIZE, 881, Short.MAX_VALUE)
         );
-
-        layout.linkSize(javax.swing.SwingConstants.HORIZONTAL, new java.awt.Component[] {btnAdd, btnClose, btnDelete, btnEdit});
-
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(layout.createSequentialGroup()
-                .addContainerGap()
-                .addComponent(lblTitle)
-                .addGap(18, 18, 18)
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(txtSearch)
-                    .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                        .addComponent(lblSearch)
-                        .addComponent(btnAdd, javax.swing.GroupLayout.PREFERRED_SIZE, 31, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addComponent(btnEdit)
-                        .addComponent(btnDelete)
-                        .addComponent(btnClose)))
-                .addGap(18, 18, 18)
-                .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 406, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap())
+            .addComponent(jPanel1, javax.swing.GroupLayout.DEFAULT_SIZE, 617, Short.MAX_VALUE)
         );
-
-        layout.linkSize(javax.swing.SwingConstants.VERTICAL, new java.awt.Component[] {btnAdd, btnClose, btnDelete, btnEdit});
 
         pack();
     }// </editor-fold>//GEN-END:initComponents
@@ -654,6 +626,7 @@ public class userMaintenance extends javax.swing.JFrame {
     private javax.swing.JButton btnClose;
     private javax.swing.JButton btnDelete;
     private javax.swing.JButton btnEdit;
+    private javax.swing.JPanel jPanel1;
     private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JLabel lblSearch;
     private javax.swing.JLabel lblTitle;

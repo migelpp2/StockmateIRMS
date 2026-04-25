@@ -6,9 +6,7 @@ package irms.ui.panel;
 
 
 import irms.ui.frame.MainFrame;
-import irms.ui.frame.MainFrame;
 import irms.db.MySQLConnect;
-import java.awt.Color;
 import java.awt.GridLayout;
 import java.sql.Connection;
 import java.sql.PreparedStatement;

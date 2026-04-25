@@ -6,6 +6,7 @@ package irms.ui.panel;
 
 import irms.db.MySQLConnect;
 import java.awt.Color;
+import java.awt.Component;
 import java.awt.GridLayout;
 import java.math.BigDecimal;
 import java.sql.Connection;
@@ -19,8 +20,11 @@ import javax.swing.JTextField;
 import javax.swing.JTextArea;
 import javax.swing.JScrollPane;
 import javax.swing.JComboBox;
+import javax.swing.JTable;
+import static javax.swing.SwingConstants.CENTER;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
+import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.table.JTableHeader;
 /**
@@ -40,6 +44,8 @@ public class customerPanel extends javax.swing.JPanel {
         styleTable();
         loadDebts();
         autoSearchDebts();
+        
+        jTable1.getColumnModel().getColumn(5).setCellRenderer(new StatusCellRenderer());
     }
     
     private void styleTable() {
@@ -523,6 +529,45 @@ public class customerPanel extends javax.swing.JPanel {
 
         } catch (SQLException e) {
             JOptionPane.showMessageDialog(this, "View details error: " + e.getMessage());
+        }
+    }
+    
+    private class StatusCellRenderer extends DefaultTableCellRenderer {
+
+        @Override
+        public Component getTableCellRendererComponent(
+                JTable table, Object value, boolean isSelected,
+                boolean hasFocus, int row, int column) {
+
+            Component c = super.getTableCellRendererComponent(
+                    table, value, isSelected, hasFocus, row, column);
+
+            String status = value == null ? "" : value.toString();
+
+            if (!isSelected) {
+                c.setBackground(Color.WHITE);
+                c.setForeground(Color.BLACK);
+
+                switch (status) {
+                    case "PAID":
+                        c.setBackground(new Color(198, 239, 206));
+                        c.setForeground(new Color(0, 97, 0));
+                        break;
+
+                    case "PARTIALLY PAID":
+                        c.setBackground(new Color(255, 235, 156));
+                        c.setForeground(new Color(156, 101, 0));
+                        break;
+
+                    case "UNPAID":
+                        c.setBackground(new Color(255, 199, 206));
+                        c.setForeground(new Color(156, 0, 6));
+                        break;
+                }
+            }
+
+            setHorizontalAlignment(CENTER);
+            return c;
         }
     }
 
