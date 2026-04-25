@@ -143,9 +143,9 @@ public class categoryPanel extends javax.swing.JPanel {
         jLabel1 = new javax.swing.JLabel();
         jScrollPane1 = new javax.swing.JScrollPane();
         jTable1 = new javax.swing.JTable();
-        btnDelete = new javax.swing.JButton();
-        btnEdit = new javax.swing.JButton();
-        btnAdd = new javax.swing.JButton();
+        btnDelete = new irms.ui.components.RoundedButtons();
+        btnEdit = new irms.ui.components.RoundedButtons();
+        btnAdd = new irms.ui.components.RoundedButtons();
         txtSearch = new javax.swing.JTextField();
         lblBackground = new javax.swing.JLabel();
 
@@ -177,18 +177,26 @@ public class categoryPanel extends javax.swing.JPanel {
 
         add(jScrollPane1, new org.netbeans.lib.awtextra.AbsoluteConstraints(20, 220, 670, 510));
 
+        btnDelete.setBackground(new java.awt.Color(72, 92, 13));
+        btnDelete.setFont(new java.awt.Font("Segoe UI", 1, 14)); // NOI18N
+        btnDelete.setForeground(new java.awt.Color(255, 255, 255));
         btnDelete.setText("Delete Category");
         btnDelete.addActionListener(this::btnDeleteActionPerformed);
-        add(btnDelete, new org.netbeans.lib.awtextra.AbsoluteConstraints(760, 410, 160, 40));
+        add(btnDelete, new org.netbeans.lib.awtextra.AbsoluteConstraints(760, 400, 160, 50));
 
+        btnEdit.setBackground(new java.awt.Color(154, 151, 33));
+        btnEdit.setFont(new java.awt.Font("Segoe UI", 1, 14)); // NOI18N
+        btnEdit.setForeground(new java.awt.Color(255, 255, 255));
         btnEdit.setText("Edit Category");
         btnEdit.addActionListener(this::btnEditActionPerformed);
-        add(btnEdit, new org.netbeans.lib.awtextra.AbsoluteConstraints(760, 330, 160, 40));
+        add(btnEdit, new org.netbeans.lib.awtextra.AbsoluteConstraints(760, 320, 160, 50));
 
-        btnAdd.setForeground(new java.awt.Color(36, 48, 24));
+        btnAdd.setBackground(new java.awt.Color(72, 92, 13));
+        btnAdd.setFont(new java.awt.Font("Segoe UI", 1, 14)); // NOI18N
+        btnAdd.setForeground(new java.awt.Color(255, 255, 255));
         btnAdd.setText("Add Category");
         btnAdd.addActionListener(this::btnAddActionPerformed);
-        add(btnAdd, new org.netbeans.lib.awtextra.AbsoluteConstraints(760, 260, 160, 38));
+        add(btnAdd, new org.netbeans.lib.awtextra.AbsoluteConstraints(760, 248, 160, 50));
 
         txtSearch.setEditable(false);
         txtSearch.setBackground(new java.awt.Color(247, 249, 251));
@@ -198,7 +206,7 @@ public class categoryPanel extends javax.swing.JPanel {
         txtSearch.addActionListener(this::txtSearchActionPerformed);
         add(txtSearch, new org.netbeans.lib.awtextra.AbsoluteConstraints(70, 180, 380, 34));
 
-        lblBackground.setIcon(new javax.swing.ImageIcon(getClass().getResource("/irms/design/Category List.png"))); // NOI18N
+        lblBackground.setIcon(new javax.swing.ImageIcon(getClass().getResource("/irms/resources/background/Category List.png"))); // NOI18N
         add(lblBackground, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 0, -1, -1));
     }// </editor-fold>//GEN-END:initComponents
 

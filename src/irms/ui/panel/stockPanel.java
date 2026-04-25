@@ -544,12 +544,12 @@ public class stockPanel extends javax.swing.JPanel {
     private void initComponents() {
 
         cmbCategory = new javax.swing.JComboBox<>();
-        btnStockMovement = new javax.swing.JButton();
+        btnStockMovement = new irms.ui.components.RoundedButtons();
         jLabel1 = new javax.swing.JLabel();
         jLabel3 = new javax.swing.JLabel();
-        btnAdd = new javax.swing.JButton();
-        btnDelete = new javax.swing.JButton();
-        btnStockOut = new javax.swing.JButton();
+        btnAdd = new irms.ui.components.RoundedButtons();
+        btnDelete = new irms.ui.components.RoundedButtons();
+        btnStockOut = new irms.ui.components.RoundedButtons();
         jScrollPane1 = new javax.swing.JScrollPane();
         tblStocks = new javax.swing.JTable();
         searchbar = new javax.swing.JTextField();
@@ -565,9 +565,12 @@ public class stockPanel extends javax.swing.JPanel {
         cmbCategory.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "Item 1", "Item 2", "Item 3", "Item 4" }));
         add(cmbCategory, new org.netbeans.lib.awtextra.AbsoluteConstraints(420, 160, 190, 30));
 
+        btnStockMovement.setBackground(new java.awt.Color(72, 92, 13));
+        btnStockMovement.setFont(new java.awt.Font("Segoe UI", 1, 14)); // NOI18N
+        btnStockMovement.setForeground(new java.awt.Color(255, 255, 255));
         btnStockMovement.setText("Stock Movement");
         btnStockMovement.addActionListener(this::btnStockMovementActionPerformed);
-        add(btnStockMovement, new org.netbeans.lib.awtextra.AbsoluteConstraints(930, 700, 150, 30));
+        add(btnStockMovement, new org.netbeans.lib.awtextra.AbsoluteConstraints(930, 700, 150, 40));
 
         jLabel1.setFont(new java.awt.Font("Segoe UI", 0, 14)); // NOI18N
         jLabel1.setText("Category:");
@@ -577,17 +580,26 @@ public class stockPanel extends javax.swing.JPanel {
         jLabel3.setText("Search:");
         add(jLabel3, new org.netbeans.lib.awtextra.AbsoluteConstraints(20, 160, 50, 30));
 
+        btnAdd.setBackground(new java.awt.Color(72, 92, 13));
+        btnAdd.setFont(new java.awt.Font("Segoe UI", 1, 14)); // NOI18N
+        btnAdd.setForeground(new java.awt.Color(255, 255, 255));
         btnAdd.setText("Add");
         btnAdd.addActionListener(this::btnAddActionPerformed);
-        add(btnAdd, new org.netbeans.lib.awtextra.AbsoluteConstraints(620, 160, 100, 30));
+        add(btnAdd, new org.netbeans.lib.awtextra.AbsoluteConstraints(620, 160, 100, 40));
 
+        btnDelete.setBackground(new java.awt.Color(154, 151, 33));
+        btnDelete.setFont(new java.awt.Font("Segoe UI", 1, 14)); // NOI18N
+        btnDelete.setForeground(new java.awt.Color(255, 255, 255));
         btnDelete.setText("Delete");
         btnDelete.addActionListener(this::btnDeleteActionPerformed);
-        add(btnDelete, new org.netbeans.lib.awtextra.AbsoluteConstraints(730, 160, 100, 30));
+        add(btnDelete, new org.netbeans.lib.awtextra.AbsoluteConstraints(730, 160, 100, 40));
 
+        btnStockOut.setBackground(new java.awt.Color(72, 92, 13));
+        btnStockOut.setFont(new java.awt.Font("Segoe UI", 1, 14)); // NOI18N
+        btnStockOut.setForeground(new java.awt.Color(255, 255, 255));
         btnStockOut.setText("Stock Out");
         btnStockOut.addActionListener(this::btnStockOutActionPerformed);
-        add(btnStockOut, new org.netbeans.lib.awtextra.AbsoluteConstraints(980, 160, 100, 30));
+        add(btnStockOut, new org.netbeans.lib.awtextra.AbsoluteConstraints(960, 160, 120, 40));
 
         tblStocks.setModel(new javax.swing.table.DefaultTableModel(
             new Object [][] {
@@ -642,7 +654,7 @@ public class stockPanel extends javax.swing.JPanel {
 
         add(jPanel1, new org.netbeans.lib.awtextra.AbsoluteConstraints(20, 650, 1060, 40));
 
-        lblBackground.setIcon(new javax.swing.ImageIcon(getClass().getResource("/irms/design/Stock List.png"))); // NOI18N
+        lblBackground.setIcon(new javax.swing.ImageIcon(getClass().getResource("/irms/resources/background/Stock List.png"))); // NOI18N
         add(lblBackground, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 0, -1, -1));
     }// </editor-fold>//GEN-END:initComponents
 

@@ -198,11 +198,11 @@ public class transactionRecords extends javax.swing.JPanel {
         cmbReportType = new javax.swing.JComboBox<>();
         lblDate = new javax.swing.JLabel();
         jDateChooser1 = new com.toedter.calendar.JDateChooser();
-        btnGenerate = new javax.swing.JButton();
-        btnRefresh = new javax.swing.JButton();
+        btnGenerate = new irms.ui.components.RoundedButtons();
+        btnRefresh = new irms.ui.components.RoundedButtons();
         jScrollPane1 = new javax.swing.JScrollPane();
         jTable1 = new javax.swing.JTable();
-        btnReturn = new javax.swing.JButton();
+        btnReturn = new irms.ui.components.RoundedButtons();
         lblBackground = new javax.swing.JLabel();
 
         setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
@@ -221,19 +221,19 @@ public class transactionRecords extends javax.swing.JPanel {
         add(jDateChooser1, new org.netbeans.lib.awtextra.AbsoluteConstraints(430, 170, 250, 40));
 
         btnGenerate.setBackground(new java.awt.Color(72, 92, 13));
-        btnGenerate.setFont(new java.awt.Font("Segoe UI", 0, 14)); // NOI18N
+        btnGenerate.setFont(new java.awt.Font("Segoe UI", 1, 14)); // NOI18N
         btnGenerate.setForeground(new java.awt.Color(255, 255, 255));
         btnGenerate.setText("Generate");
         btnGenerate.setBorder(null);
-        add(btnGenerate, new org.netbeans.lib.awtextra.AbsoluteConstraints(840, 710, 110, 40));
+        add(btnGenerate, new org.netbeans.lib.awtextra.AbsoluteConstraints(720, 170, 110, 40));
 
-        btnRefresh.setBackground(new java.awt.Color(124, 144, 84));
-        btnRefresh.setFont(new java.awt.Font("Segoe UI", 0, 14)); // NOI18N
+        btnRefresh.setBackground(new java.awt.Color(154, 151, 33));
+        btnRefresh.setFont(new java.awt.Font("Segoe UI", 1, 14)); // NOI18N
         btnRefresh.setForeground(new java.awt.Color(255, 255, 255));
         btnRefresh.setText("Refresh");
         btnRefresh.setBorder(null);
         btnRefresh.addActionListener(this::btnRefreshActionPerformed);
-        add(btnRefresh, new org.netbeans.lib.awtextra.AbsoluteConstraints(960, 710, 110, 40));
+        add(btnRefresh, new org.netbeans.lib.awtextra.AbsoluteConstraints(840, 170, 110, 40));
 
         jTable1.setModel(new javax.swing.table.DefaultTableModel(
             new Object [][] {
@@ -250,8 +250,8 @@ public class transactionRecords extends javax.swing.JPanel {
 
         add(jScrollPane1, new org.netbeans.lib.awtextra.AbsoluteConstraints(20, 230, 1050, 460));
 
-        btnReturn.setBackground(new java.awt.Color(124, 144, 84));
-        btnReturn.setFont(new java.awt.Font("Segoe UI", 0, 14)); // NOI18N
+        btnReturn.setBackground(new java.awt.Color(72, 92, 13));
+        btnReturn.setFont(new java.awt.Font("Segoe UI", 1, 14)); // NOI18N
         btnReturn.setForeground(new java.awt.Color(255, 255, 255));
         btnReturn.setText("Return");
         btnReturn.setBorder(null);

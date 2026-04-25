@@ -197,7 +197,7 @@ public class stockMovementPanel extends javax.swing.JPanel {
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
 
-        btnClose = new javax.swing.JButton();
+        btnClose = new irms.ui.components.RoundedButtons();
         jScrollPane1 = new javax.swing.JScrollPane();
         tblStocks = new javax.swing.JTable();
         jLabel3 = new javax.swing.JLabel();
@@ -207,9 +207,12 @@ public class stockMovementPanel extends javax.swing.JPanel {
         setBackground(new java.awt.Color(200, 212, 222));
         setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
 
+        btnClose.setBackground(new java.awt.Color(72, 92, 13));
+        btnClose.setFont(new java.awt.Font("Segoe UI", 1, 14)); // NOI18N
+        btnClose.setForeground(new java.awt.Color(255, 255, 255));
         btnClose.setText("Close");
         btnClose.addActionListener(this::btnCloseActionPerformed);
-        add(btnClose, new org.netbeans.lib.awtextra.AbsoluteConstraints(980, 700, 100, 30));
+        add(btnClose, new org.netbeans.lib.awtextra.AbsoluteConstraints(980, 660, 100, 40));
 
         tblStocks.setModel(new javax.swing.table.DefaultTableModel(
             new Object [][] {
@@ -234,7 +237,7 @@ public class stockMovementPanel extends javax.swing.JPanel {
         searchbar.addActionListener(this::searchbarActionPerformed);
         add(searchbar, new org.netbeans.lib.awtextra.AbsoluteConstraints(70, 160, 270, 30));
 
-        lblBackground.setIcon(new javax.swing.ImageIcon(getClass().getResource("/irms/design/Stock List.png"))); // NOI18N
+        lblBackground.setIcon(new javax.swing.ImageIcon(getClass().getResource("/irms/resources/background/Stock List.png"))); // NOI18N
         add(lblBackground, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 0, -1, -1));
     }// </editor-fold>//GEN-END:initComponents
 

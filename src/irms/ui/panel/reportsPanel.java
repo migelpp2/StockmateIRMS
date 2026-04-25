@@ -199,12 +199,12 @@ public class reportsPanel extends javax.swing.JPanel {
         pnlTransactions = new irms.ui.components.RoundedPanel();
         jLabel5 = new javax.swing.JLabel();
         jLabel6 = new javax.swing.JLabel();
-        lblTransactionRecords = new javax.swing.JButton();
         lblReportType = new javax.swing.JLabel();
-        btnRefresh = new javax.swing.JButton();
-        btnGenerate = new javax.swing.JButton();
+        btnRefresh = new irms.ui.components.RoundedButtons();
+        btnGenerate = new irms.ui.components.RoundedButtons();
         jScrollPane1 = new javax.swing.JScrollPane();
         jTable1 = new javax.swing.JTable();
+        btnRecords = new irms.ui.components.RoundedButtons();
         jPanel1 = new javax.swing.JPanel();
         lblTotalRevenueValue = new javax.swing.JLabel();
         lblTotalRevenueText = new javax.swing.JLabel();
@@ -251,42 +251,24 @@ public class reportsPanel extends javax.swing.JPanel {
                 .addComponent(jLabel1, javax.swing.GroupLayout.PREFERRED_SIZE, 25, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addGap(18, 18, 18)
                 .addComponent(jLabel2)
-                .addContainerGap(37, Short.MAX_VALUE))
+                .addContainerGap(40, Short.MAX_VALUE))
         );
 
         add(pnlRevenue, new org.netbeans.lib.awtextra.AbsoluteConstraints(370, 220, 340, 120));
 
         pnlReportType.setBackground(new java.awt.Color(52, 86, 109));
         pnlReportType.setBorder(new javax.swing.border.LineBorder(new java.awt.Color(204, 204, 204), 1, true));
+        pnlReportType.setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
 
         jLabel3.setFont(new java.awt.Font("Segoe UI", 0, 18)); // NOI18N
         jLabel3.setForeground(new java.awt.Color(255, 255, 255));
         jLabel3.setText("Selected report type");
+        pnlReportType.add(jLabel3, new org.netbeans.lib.awtextra.AbsoluteConstraints(20, 30, 174, -1));
 
         jLabel4.setFont(new java.awt.Font("Segoe UI", 1, 24)); // NOI18N
         jLabel4.setForeground(new java.awt.Color(255, 255, 255));
         jLabel4.setText("Value");
-
-        javax.swing.GroupLayout pnlReportTypeLayout = new javax.swing.GroupLayout(pnlReportType);
-        pnlReportType.setLayout(pnlReportTypeLayout);
-        pnlReportTypeLayout.setHorizontalGroup(
-            pnlReportTypeLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(pnlReportTypeLayout.createSequentialGroup()
-                .addGap(15, 15, 15)
-                .addGroup(pnlReportTypeLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(jLabel4, javax.swing.GroupLayout.PREFERRED_SIZE, 224, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(jLabel3, javax.swing.GroupLayout.PREFERRED_SIZE, 174, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addContainerGap(99, Short.MAX_VALUE))
-        );
-        pnlReportTypeLayout.setVerticalGroup(
-            pnlReportTypeLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(pnlReportTypeLayout.createSequentialGroup()
-                .addContainerGap()
-                .addComponent(jLabel3, javax.swing.GroupLayout.PREFERRED_SIZE, 25, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(18, 18, 18)
-                .addComponent(jLabel4)
-                .addContainerGap(37, Short.MAX_VALUE))
-        );
+        pnlReportType.add(jLabel4, new org.netbeans.lib.awtextra.AbsoluteConstraints(20, 60, 224, 40));
 
         add(pnlReportType, new org.netbeans.lib.awtextra.AbsoluteConstraints(20, 220, 340, 120));
 
@@ -301,8 +283,6 @@ public class reportsPanel extends javax.swing.JPanel {
         jLabel6.setForeground(new java.awt.Color(255, 255, 255));
         jLabel6.setText("Value");
 
-        lblTransactionRecords.addActionListener(this::lblTransactionRecordsActionPerformed);
-
         javax.swing.GroupLayout pnlTransactionsLayout = new javax.swing.GroupLayout(pnlTransactions);
         pnlTransactions.setLayout(pnlTransactionsLayout);
         pnlTransactionsLayout.setHorizontalGroup(
@@ -310,25 +290,17 @@ public class reportsPanel extends javax.swing.JPanel {
             .addGroup(pnlTransactionsLayout.createSequentialGroup()
                 .addGap(15, 15, 15)
                 .addGroup(pnlTransactionsLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addGroup(pnlTransactionsLayout.createSequentialGroup()
-                        .addComponent(jLabel6, javax.swing.GroupLayout.PREFERRED_SIZE, 224, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(lblTransactionRecords))
+                    .addComponent(jLabel6, javax.swing.GroupLayout.PREFERRED_SIZE, 224, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(jLabel5, javax.swing.GroupLayout.PREFERRED_SIZE, 174, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addContainerGap(21, Short.MAX_VALUE))
+                .addContainerGap(99, Short.MAX_VALUE))
         );
         pnlTransactionsLayout.setVerticalGroup(
             pnlTransactionsLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(pnlTransactionsLayout.createSequentialGroup()
                 .addContainerGap()
                 .addComponent(jLabel5, javax.swing.GroupLayout.PREFERRED_SIZE, 25, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGroup(pnlTransactionsLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addGroup(pnlTransactionsLayout.createSequentialGroup()
-                        .addGap(18, 18, 18)
-                        .addComponent(jLabel6))
-                    .addGroup(pnlTransactionsLayout.createSequentialGroup()
-                        .addGap(2, 2, 2)
-                        .addComponent(lblTransactionRecords, javax.swing.GroupLayout.PREFERRED_SIZE, 40, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                .addGap(18, 18, 18)
+                .addComponent(jLabel6)
                 .addContainerGap(37, Short.MAX_VALUE))
         );
 
@@ -339,19 +311,19 @@ public class reportsPanel extends javax.swing.JPanel {
         add(lblReportType, new org.netbeans.lib.awtextra.AbsoluteConstraints(20, 170, -1, 40));
 
         btnRefresh.setBackground(new java.awt.Color(124, 144, 84));
-        btnRefresh.setFont(new java.awt.Font("Segoe UI", 0, 14)); // NOI18N
+        btnRefresh.setFont(new java.awt.Font("Segoe UI", 1, 14)); // NOI18N
         btnRefresh.setForeground(new java.awt.Color(255, 255, 255));
         btnRefresh.setText("Refresh");
-        btnRefresh.setBorder(null);
+        btnRefresh.setBorder(new javax.swing.border.SoftBevelBorder(javax.swing.border.BevelBorder.RAISED));
         btnRefresh.addActionListener(this::btnRefreshActionPerformed);
-        add(btnRefresh, new org.netbeans.lib.awtextra.AbsoluteConstraints(820, 170, 110, 40));
+        add(btnRefresh, new org.netbeans.lib.awtextra.AbsoluteConstraints(830, 160, 110, 50));
 
         btnGenerate.setBackground(new java.awt.Color(72, 92, 13));
-        btnGenerate.setFont(new java.awt.Font("Segoe UI", 0, 14)); // NOI18N
+        btnGenerate.setFont(new java.awt.Font("Segoe UI", 1, 14)); // NOI18N
         btnGenerate.setForeground(new java.awt.Color(255, 255, 255));
         btnGenerate.setText("Generate");
-        btnGenerate.setBorder(null);
-        add(btnGenerate, new org.netbeans.lib.awtextra.AbsoluteConstraints(700, 170, 110, 40));
+        btnGenerate.setBorder(new javax.swing.border.SoftBevelBorder(javax.swing.border.BevelBorder.RAISED));
+        add(btnGenerate, new org.netbeans.lib.awtextra.AbsoluteConstraints(710, 160, 110, 50));
 
         jTable1.setBackground(new java.awt.Color(245, 245, 245));
         jTable1.setFont(new java.awt.Font("Segoe UI", 0, 14)); // NOI18N
@@ -375,6 +347,14 @@ public class reportsPanel extends javax.swing.JPanel {
         jScrollPane1.setViewportView(jTable1);
 
         add(jScrollPane1, new org.netbeans.lib.awtextra.AbsoluteConstraints(20, 360, 1040, 320));
+
+        btnRecords.setBackground(new java.awt.Color(72, 92, 13));
+        btnRecords.setFont(new java.awt.Font("Segoe UI", 1, 14)); // NOI18N
+        btnRecords.setForeground(new java.awt.Color(255, 255, 255));
+        btnRecords.setText("Records");
+        btnRecords.setBorder(new javax.swing.border.SoftBevelBorder(javax.swing.border.BevelBorder.RAISED));
+        btnRecords.addActionListener(this::btnRecordsActionPerformed);
+        add(btnRecords, new org.netbeans.lib.awtextra.AbsoluteConstraints(950, 160, 110, 50));
 
         jPanel1.setBackground(new java.awt.Color(245, 245, 245));
         jPanel1.setPreferredSize(new java.awt.Dimension(375, 112));
@@ -409,7 +389,7 @@ public class reportsPanel extends javax.swing.JPanel {
         add(jPanel1, new org.netbeans.lib.awtextra.AbsoluteConstraints(20, 680, 1040, 50));
         add(jDateChooser1, new org.netbeans.lib.awtextra.AbsoluteConstraints(410, 170, 250, 40));
 
-        lblBackground.setIcon(new javax.swing.ImageIcon(getClass().getResource("/irms/design/Reports.png"))); // NOI18N
+        lblBackground.setIcon(new javax.swing.ImageIcon(getClass().getResource("/irms/resources/background/Reports.png"))); // NOI18N
         add(lblBackground, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 0, -1, -1));
     }// </editor-fold>//GEN-END:initComponents
 
@@ -417,15 +397,15 @@ public class reportsPanel extends javax.swing.JPanel {
         // TODO add your handling code here:
     }//GEN-LAST:event_btnRefreshActionPerformed
 
-    private void lblTransactionRecordsActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_lblTransactionRecordsActionPerformed
+    private void btnRecordsActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnRecordsActionPerformed
         // TODO add your handling code here:
         openPanel(new transactionRecords());
-
-    }//GEN-LAST:event_lblTransactionRecordsActionPerformed
+    }//GEN-LAST:event_btnRecordsActionPerformed
 
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton btnGenerate;
+    private javax.swing.JButton btnRecords;
     private javax.swing.JButton btnRefresh;
     private javax.swing.JComboBox<String> cmbReportType;
     private com.toedter.calendar.JDateChooser jDateChooser1;
@@ -443,7 +423,6 @@ public class reportsPanel extends javax.swing.JPanel {
     private javax.swing.JLabel lblReportType;
     private javax.swing.JLabel lblTotalRevenueText;
     private javax.swing.JLabel lblTotalRevenueValue;
-    private javax.swing.JButton lblTransactionRecords;
     private javax.swing.JPanel pnlReportType;
     private javax.swing.JPanel pnlRevenue;
     private javax.swing.JPanel pnlTransactions;

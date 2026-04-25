@@ -28,7 +28,7 @@ public class adminHomePanel extends javax.swing.JPanel {
      */
     public adminHomePanel() {
         initComponents();
-        lblRecentTransactionTxt.setIcon(new javax.swing.ImageIcon(
+        lblBackground.setIcon(new javax.swing.ImageIcon(
             getClass().getResource("/irms/resources/background/Home.png")
         ));
         jTable1.setModel(new javax.swing.table.DefaultTableModel(
@@ -266,13 +266,15 @@ public class adminHomePanel extends javax.swing.JPanel {
         lblDay = new javax.swing.JLabel();
         lblDate = new javax.swing.JLabel();
         lblIcon = new javax.swing.JLabel();
+        jLabel1 = new javax.swing.JLabel();
         pnlProductsNumber = new irms.ui.components.RoundedPanel();
         lblTotalProduct = new javax.swing.JLabel();
         lblProductsText = new javax.swing.JLabel();
+        jLabel2 = new javax.swing.JLabel();
         pnlQuickAction = new irms.ui.components.RoundedPanel();
-        btnViewStocks = new javax.swing.JButton();
-        btnReports = new javax.swing.JButton();
-        btnNewSales = new javax.swing.JButton();
+        btnViewStocks = new irms.ui.components.RoundedButtons();
+        btnReports = new irms.ui.components.RoundedButtons();
+        btnNewSales = new irms.ui.components.RoundedButtons();
         lblQuickActionText = new javax.swing.JLabel();
         pnlOverview = new irms.ui.components.RoundedPanel();
         lblTodayOverviewText = new javax.swing.JLabel();
@@ -283,17 +285,20 @@ public class adminHomePanel extends javax.swing.JPanel {
         lblTotalProduct1 = new javax.swing.JLabel();
         lblWithDebtText = new javax.swing.JLabel();
         lblCustomerText = new javax.swing.JLabel();
+        jLabel5 = new javax.swing.JLabel();
         pnlTodaySales = new irms.ui.components.RoundedPanel();
         lblTotalProduct2 = new javax.swing.JLabel();
         lblTodaySalesText = new javax.swing.JLabel();
+        jLabel4 = new javax.swing.JLabel();
         pnlLowStock = new irms.ui.components.RoundedPanel();
         lblTotalProduct3 = new javax.swing.JLabel();
         lblLowStockText = new javax.swing.JLabel();
+        jLabel3 = new javax.swing.JLabel();
         pnlRecentTransactions = new irms.ui.components.RoundedPanel();
         jScrollPane1 = new javax.swing.JScrollPane();
         jTable1 = new javax.swing.JTable();
         lblWelcome1 = new javax.swing.JLabel();
-        lblRecentTransactionTxt = new javax.swing.JLabel();
+        lblBackground = new javax.swing.JLabel();
 
         setBackground(new java.awt.Color(255, 255, 255));
         setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
@@ -304,12 +309,12 @@ public class adminHomePanel extends javax.swing.JPanel {
         lblWelcome.setFont(new java.awt.Font("Segoe UI", 1, 24)); // NOI18N
         lblWelcome.setForeground(new java.awt.Color(54, 67, 20));
         lblWelcome.setText("Welcome to StockMate");
-        pnlWelcome.add(lblWelcome, new org.netbeans.lib.awtextra.AbsoluteConstraints(130, 20, -1, -1));
+        pnlWelcome.add(lblWelcome, new org.netbeans.lib.awtextra.AbsoluteConstraints(150, 20, -1, -1));
 
         lblSubheading.setFont(new java.awt.Font("Segoe UI", 0, 18)); // NOI18N
         lblSubheading.setForeground(new java.awt.Color(45, 45, 45));
         lblSubheading.setText("Inventory and Sales Overview");
-        pnlWelcome.add(lblSubheading, new org.netbeans.lib.awtextra.AbsoluteConstraints(130, 60, -1, -1));
+        pnlWelcome.add(lblSubheading, new org.netbeans.lib.awtextra.AbsoluteConstraints(150, 60, -1, -1));
 
         lblRealTime.setFont(new java.awt.Font("Segoe UI", 1, 14)); // NOI18N
         lblRealTime.setText("Real Time");
@@ -324,21 +329,27 @@ public class adminHomePanel extends javax.swing.JPanel {
         pnlWelcome.add(lblDate, new org.netbeans.lib.awtextra.AbsoluteConstraints(940, 40, -1, -1));
         pnlWelcome.add(lblIcon, new org.netbeans.lib.awtextra.AbsoluteConstraints(60, 50, -1, -1));
 
-        add(pnlWelcome, new org.netbeans.lib.awtextra.AbsoluteConstraints(10, 170, 1070, 110));
+        jLabel1.setIcon(new javax.swing.ImageIcon(getClass().getResource("/irms/resources/icon/STOCKMATE_LOGO.png"))); // NOI18N
+        pnlWelcome.add(jLabel1, new org.netbeans.lib.awtextra.AbsoluteConstraints(10, 0, -1, -1));
+
+        add(pnlWelcome, new org.netbeans.lib.awtextra.AbsoluteConstraints(10, 160, 1070, 130));
 
         pnlProductsNumber.setBackground(new java.awt.Color(255, 255, 255));
         pnlProductsNumber.setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
 
         lblTotalProduct.setFont(new java.awt.Font("Segoe UI", 1, 24)); // NOI18N
         lblTotalProduct.setText("---");
-        pnlProductsNumber.add(lblTotalProduct, new org.netbeans.lib.awtextra.AbsoluteConstraints(140, 10, -1, -1));
+        pnlProductsNumber.add(lblTotalProduct, new org.netbeans.lib.awtextra.AbsoluteConstraints(130, 10, -1, -1));
 
         lblProductsText.setFont(new java.awt.Font("Segoe UI", 0, 18)); // NOI18N
         lblProductsText.setForeground(new java.awt.Color(45, 45, 45));
         lblProductsText.setText("Products");
-        pnlProductsNumber.add(lblProductsText, new org.netbeans.lib.awtextra.AbsoluteConstraints(140, 50, -1, -1));
+        pnlProductsNumber.add(lblProductsText, new org.netbeans.lib.awtextra.AbsoluteConstraints(130, 40, -1, -1));
 
-        add(pnlProductsNumber, new org.netbeans.lib.awtextra.AbsoluteConstraints(10, 290, 260, 90));
+        jLabel2.setIcon(new javax.swing.ImageIcon(getClass().getResource("/irms/resources/icon/product_icon.png"))); // NOI18N
+        pnlProductsNumber.add(jLabel2, new org.netbeans.lib.awtextra.AbsoluteConstraints(30, 10, -1, -1));
+
+        add(pnlProductsNumber, new org.netbeans.lib.awtextra.AbsoluteConstraints(10, 300, 260, 80));
 
         pnlQuickAction.setBackground(new java.awt.Color(255, 255, 255));
         pnlQuickAction.setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
@@ -346,28 +357,28 @@ public class adminHomePanel extends javax.swing.JPanel {
         btnViewStocks.setBackground(new java.awt.Color(126, 139, 74));
         btnViewStocks.setFont(new java.awt.Font("Segoe UI", 1, 18)); // NOI18N
         btnViewStocks.setForeground(new java.awt.Color(255, 255, 255));
-        btnViewStocks.setText("Stocks");
+        btnViewStocks.setIcon(new javax.swing.ImageIcon(getClass().getResource("/irms/resources/icon/Stocks Icon Button.png"))); // NOI18N
         btnViewStocks.addActionListener(this::btnViewStocksActionPerformed);
-        pnlQuickAction.add(btnViewStocks, new org.netbeans.lib.awtextra.AbsoluteConstraints(190, 60, 131, 70));
+        pnlQuickAction.add(btnViewStocks, new org.netbeans.lib.awtextra.AbsoluteConstraints(190, 50, 131, 80));
 
         btnReports.setBackground(new java.awt.Color(126, 139, 74));
         btnReports.setFont(new java.awt.Font("Segoe UI", 1, 18)); // NOI18N
         btnReports.setForeground(new java.awt.Color(255, 255, 255));
-        btnReports.setText("Reports");
+        btnReports.setIcon(new javax.swing.ImageIcon(getClass().getResource("/irms/resources/icon/reports icon button.png"))); // NOI18N
         btnReports.addActionListener(this::btnReportsActionPerformed);
-        pnlQuickAction.add(btnReports, new org.netbeans.lib.awtextra.AbsoluteConstraints(330, 60, 131, 70));
+        pnlQuickAction.add(btnReports, new org.netbeans.lib.awtextra.AbsoluteConstraints(330, 50, 131, 80));
 
         btnNewSales.setBackground(new java.awt.Color(126, 139, 74));
         btnNewSales.setFont(new java.awt.Font("Segoe UI", 1, 18)); // NOI18N
         btnNewSales.setForeground(new java.awt.Color(255, 255, 255));
-        btnNewSales.setText("Sales");
+        btnNewSales.setIcon(new javax.swing.ImageIcon(getClass().getResource("/irms/resources/icon/sales icon button.png"))); // NOI18N
         btnNewSales.addActionListener(this::btnNewSalesActionPerformed);
-        pnlQuickAction.add(btnNewSales, new org.netbeans.lib.awtextra.AbsoluteConstraints(50, 60, 131, 70));
+        pnlQuickAction.add(btnNewSales, new org.netbeans.lib.awtextra.AbsoluteConstraints(50, 50, 131, 80));
 
         lblQuickActionText.setFont(new java.awt.Font("Segoe UI", 1, 24)); // NOI18N
         lblQuickActionText.setForeground(new java.awt.Color(54, 67, 20));
         lblQuickActionText.setText("Quick Action");
-        pnlQuickAction.add(lblQuickActionText, new org.netbeans.lib.awtextra.AbsoluteConstraints(110, 10, -1, -1));
+        pnlQuickAction.add(lblQuickActionText, new org.netbeans.lib.awtextra.AbsoluteConstraints(50, 10, 180, -1));
 
         add(pnlQuickAction, new org.netbeans.lib.awtextra.AbsoluteConstraints(10, 390, 530, 150));
 
@@ -403,14 +414,17 @@ public class adminHomePanel extends javax.swing.JPanel {
         lblWithDebtText.setFont(new java.awt.Font("Segoe UI", 0, 18)); // NOI18N
         lblWithDebtText.setForeground(new java.awt.Color(45, 45, 45));
         lblWithDebtText.setText("with Debt");
-        pnlCustomerDebt.add(lblWithDebtText, new org.netbeans.lib.awtextra.AbsoluteConstraints(140, 60, -1, 20));
+        pnlCustomerDebt.add(lblWithDebtText, new org.netbeans.lib.awtextra.AbsoluteConstraints(140, 50, -1, 20));
 
         lblCustomerText.setFont(new java.awt.Font("Segoe UI", 0, 18)); // NOI18N
         lblCustomerText.setForeground(new java.awt.Color(45, 45, 45));
         lblCustomerText.setText("Customers ");
-        pnlCustomerDebt.add(lblCustomerText, new org.netbeans.lib.awtextra.AbsoluteConstraints(140, 35, -1, 30));
+        pnlCustomerDebt.add(lblCustomerText, new org.netbeans.lib.awtextra.AbsoluteConstraints(140, 30, -1, 20));
 
-        add(pnlCustomerDebt, new org.netbeans.lib.awtextra.AbsoluteConstraints(820, 290, 260, 90));
+        jLabel5.setIcon(new javax.swing.ImageIcon(getClass().getResource("/irms/resources/icon/customer_icon.png"))); // NOI18N
+        pnlCustomerDebt.add(jLabel5, new org.netbeans.lib.awtextra.AbsoluteConstraints(30, 10, -1, -1));
+
+        add(pnlCustomerDebt, new org.netbeans.lib.awtextra.AbsoluteConstraints(820, 300, 260, 80));
 
         pnlTodaySales.setBackground(new java.awt.Color(255, 255, 255));
         pnlTodaySales.setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
@@ -422,9 +436,12 @@ public class adminHomePanel extends javax.swing.JPanel {
         lblTodaySalesText.setFont(new java.awt.Font("Segoe UI", 0, 18)); // NOI18N
         lblTodaySalesText.setForeground(new java.awt.Color(45, 45, 45));
         lblTodaySalesText.setText("Today Sales");
-        pnlTodaySales.add(lblTodaySalesText, new org.netbeans.lib.awtextra.AbsoluteConstraints(130, 50, -1, -1));
+        pnlTodaySales.add(lblTodaySalesText, new org.netbeans.lib.awtextra.AbsoluteConstraints(130, 40, -1, -1));
 
-        add(pnlTodaySales, new org.netbeans.lib.awtextra.AbsoluteConstraints(550, 290, 260, 90));
+        jLabel4.setIcon(new javax.swing.ImageIcon(getClass().getResource("/irms/resources/icon/sales_icon.png"))); // NOI18N
+        pnlTodaySales.add(jLabel4, new org.netbeans.lib.awtextra.AbsoluteConstraints(30, 10, -1, -1));
+
+        add(pnlTodaySales, new org.netbeans.lib.awtextra.AbsoluteConstraints(550, 300, 260, 80));
 
         pnlLowStock.setBackground(new java.awt.Color(255, 255, 255));
         pnlLowStock.setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
@@ -436,9 +453,12 @@ public class adminHomePanel extends javax.swing.JPanel {
         lblLowStockText.setFont(new java.awt.Font("Segoe UI", 0, 18)); // NOI18N
         lblLowStockText.setForeground(new java.awt.Color(45, 45, 45));
         lblLowStockText.setText("Low Stock");
-        pnlLowStock.add(lblLowStockText, new org.netbeans.lib.awtextra.AbsoluteConstraints(140, 50, -1, -1));
+        pnlLowStock.add(lblLowStockText, new org.netbeans.lib.awtextra.AbsoluteConstraints(140, 40, -1, -1));
 
-        add(pnlLowStock, new org.netbeans.lib.awtextra.AbsoluteConstraints(280, 290, 260, 90));
+        jLabel3.setIcon(new javax.swing.ImageIcon(getClass().getResource("/irms/resources/icon/stocks_icon.png"))); // NOI18N
+        pnlLowStock.add(jLabel3, new org.netbeans.lib.awtextra.AbsoluteConstraints(30, 10, -1, -1));
+
+        add(pnlLowStock, new org.netbeans.lib.awtextra.AbsoluteConstraints(280, 300, 260, 80));
 
         pnlRecentTransactions.setBackground(new java.awt.Color(255, 255, 255));
         pnlRecentTransactions.setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
@@ -465,8 +485,8 @@ public class adminHomePanel extends javax.swing.JPanel {
 
         add(pnlRecentTransactions, new org.netbeans.lib.awtextra.AbsoluteConstraints(10, 550, 1070, 210));
 
-        lblRecentTransactionTxt.setIcon(new javax.swing.ImageIcon(getClass().getResource("/irms/design/Home.png"))); // NOI18N
-        add(lblRecentTransactionTxt, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 0, -1, 770));
+        lblBackground.setIcon(new javax.swing.ImageIcon(getClass().getResource("/irms/resources/background/Home.png"))); // NOI18N
+        add(lblBackground, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 0, -1, 770));
     }// </editor-fold>//GEN-END:initComponents
 
     private void btnNewSalesActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnNewSalesActionPerformed
@@ -489,8 +509,14 @@ public class adminHomePanel extends javax.swing.JPanel {
     private javax.swing.JButton btnNewSales;
     private javax.swing.JButton btnReports;
     private javax.swing.JButton btnViewStocks;
+    private javax.swing.JLabel jLabel1;
+    private javax.swing.JLabel jLabel2;
+    private javax.swing.JLabel jLabel3;
+    private javax.swing.JLabel jLabel4;
+    private javax.swing.JLabel jLabel5;
     private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JTable jTable1;
+    private javax.swing.JLabel lblBackground;
     private javax.swing.JLabel lblCustomerText;
     private javax.swing.JLabel lblDate;
     private javax.swing.JLabel lblDay;
@@ -502,7 +528,6 @@ public class adminHomePanel extends javax.swing.JPanel {
     private javax.swing.JLabel lblProductsText;
     private javax.swing.JLabel lblQuickActionText;
     private javax.swing.JLabel lblRealTime;
-    private javax.swing.JLabel lblRecentTransactionTxt;
     private javax.swing.JLabel lblSubheading;
     private javax.swing.JLabel lblTodayOverviewText;
     private javax.swing.JLabel lblTodaySalesText;

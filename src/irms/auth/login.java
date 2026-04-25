@@ -39,7 +39,7 @@ public class login extends javax.swing.JFrame {
         pwfPassword = new javax.swing.JPasswordField();
         btnLogin = new javax.swing.JButton();
         btnClose = new javax.swing.JButton();
-        jLabel4 = new javax.swing.JLabel();
+        lblBackground = new javax.swing.JLabel();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
         setUndecorated(true);
@@ -77,8 +77,8 @@ public class login extends javax.swing.JFrame {
         });
         getContentPane().add(btnClose, new org.netbeans.lib.awtextra.AbsoluteConstraints(530, 480, 310, -1));
 
-        jLabel4.setIcon(new javax.swing.ImageIcon(getClass().getResource("/irms/design/Login page.png"))); // NOI18N
-        getContentPane().add(jLabel4, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 0, -1, -1));
+        lblBackground.setIcon(new javax.swing.ImageIcon(getClass().getResource("/irms/resources/background/Login page.png"))); // NOI18N
+        getContentPane().add(lblBackground, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 0, -1, -1));
 
         pack();
     }// </editor-fold>//GEN-END:initComponents
@@ -172,8 +172,8 @@ public class login extends javax.swing.JFrame {
     private javax.swing.JButton btnClose;
     private javax.swing.JButton btnLogin;
     private javax.swing.JLabel jLabel2;
-    private javax.swing.JLabel jLabel4;
     private javax.swing.JLabel jLabel5;
+    private javax.swing.JLabel lblBackground;
     private javax.swing.JPasswordField pwfPassword;
     private javax.swing.JTextField txtUsername;
     // End of variables declaration//GEN-END:variables

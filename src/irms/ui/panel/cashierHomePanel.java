@@ -169,18 +169,23 @@ public class cashierHomePanel extends javax.swing.JPanel {
         lblRealTime = new javax.swing.JLabel();
         lblDate = new javax.swing.JLabel();
         lblDay = new javax.swing.JLabel();
+        jLabel1 = new javax.swing.JLabel();
         pnlLowStock = new irms.ui.components.RoundedPanel();
         lblTransactionsValue = new javax.swing.JLabel();
         lblTransactionToday = new javax.swing.JLabel();
+        jLabel3 = new javax.swing.JLabel();
         pnlTodaySales = new irms.ui.components.RoundedPanel();
         lblSoldValue = new javax.swing.JLabel();
         lblItemSold = new javax.swing.JLabel();
+        jLabel4 = new javax.swing.JLabel();
         pnlCustomerDebt = new irms.ui.components.RoundedPanel();
         lblAverageSale = new javax.swing.JLabel();
         lblAveSale = new javax.swing.JLabel();
+        jLabel5 = new javax.swing.JLabel();
         pnlProductsNumber = new irms.ui.components.RoundedPanel();
         lblSalesValue = new javax.swing.JLabel();
         lblTodaySales = new javax.swing.JLabel();
+        jLabel2 = new javax.swing.JLabel();
         pnlOverview = new irms.ui.components.RoundedPanel();
         lblTodayOverviewText = new javax.swing.JLabel();
         lblOverview3 = new javax.swing.JLabel();
@@ -196,12 +201,12 @@ public class cashierHomePanel extends javax.swing.JPanel {
         lblWelcome.setFont(new java.awt.Font("Segoe UI", 1, 24)); // NOI18N
         lblWelcome.setForeground(new java.awt.Color(54, 67, 20));
         lblWelcome.setText("Welcome to StockMate");
-        pnlWelcome.add(lblWelcome, new org.netbeans.lib.awtextra.AbsoluteConstraints(83, 34, -1, -1));
+        pnlWelcome.add(lblWelcome, new org.netbeans.lib.awtextra.AbsoluteConstraints(140, 30, -1, -1));
 
         lblSubheading.setFont(new java.awt.Font("Segoe UI", 0, 18)); // NOI18N
         lblSubheading.setForeground(new java.awt.Color(45, 45, 45));
         lblSubheading.setText("Inventory and Sales Overview");
-        pnlWelcome.add(lblSubheading, new org.netbeans.lib.awtextra.AbsoluteConstraints(83, 72, -1, -1));
+        pnlWelcome.add(lblSubheading, new org.netbeans.lib.awtextra.AbsoluteConstraints(140, 70, -1, -1));
 
         lblRealTime.setFont(new java.awt.Font("Segoe UI", 1, 14)); // NOI18N
         lblRealTime.setText("Real Time");
@@ -215,6 +220,9 @@ public class cashierHomePanel extends javax.swing.JPanel {
         lblDay.setText("Monday");
         pnlWelcome.add(lblDay, new org.netbeans.lib.awtextra.AbsoluteConstraints(930, 70, 110, 20));
 
+        jLabel1.setIcon(new javax.swing.ImageIcon(getClass().getResource("/irms/resources/icon/STOCKMATE_LOGO.png"))); // NOI18N
+        pnlWelcome.add(jLabel1, new org.netbeans.lib.awtextra.AbsoluteConstraints(10, 0, -1, -1));
+
         add(pnlWelcome, new org.netbeans.lib.awtextra.AbsoluteConstraints(10, 170, 1070, 130));
 
         pnlLowStock.setBackground(new java.awt.Color(255, 255, 255));
@@ -227,9 +235,12 @@ public class cashierHomePanel extends javax.swing.JPanel {
         lblTransactionToday.setFont(new java.awt.Font("Segoe UI", 0, 18)); // NOI18N
         lblTransactionToday.setForeground(new java.awt.Color(45, 45, 45));
         lblTransactionToday.setText("Transactions Today");
-        pnlLowStock.add(lblTransactionToday, new org.netbeans.lib.awtextra.AbsoluteConstraints(60, 50, -1, -1));
+        pnlLowStock.add(lblTransactionToday, new org.netbeans.lib.awtextra.AbsoluteConstraints(90, 50, -1, -1));
 
-        add(pnlLowStock, new org.netbeans.lib.awtextra.AbsoluteConstraints(280, 320, 260, 90));
+        jLabel3.setIcon(new javax.swing.ImageIcon(getClass().getResource("/irms/resources/icon/Transactions.png"))); // NOI18N
+        pnlLowStock.add(jLabel3, new org.netbeans.lib.awtextra.AbsoluteConstraints(10, 20, -1, -1));
+
+        add(pnlLowStock, new org.netbeans.lib.awtextra.AbsoluteConstraints(280, 310, 260, 100));
 
         pnlTodaySales.setBackground(new java.awt.Color(255, 255, 255));
         pnlTodaySales.setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
@@ -243,7 +254,11 @@ public class cashierHomePanel extends javax.swing.JPanel {
         lblItemSold.setText("Item Sold");
         pnlTodaySales.add(lblItemSold, new org.netbeans.lib.awtextra.AbsoluteConstraints(150, 50, -1, -1));
 
-        add(pnlTodaySales, new org.netbeans.lib.awtextra.AbsoluteConstraints(550, 320, 260, 90));
+        jLabel4.setIcon(new javax.swing.ImageIcon(getClass().getResource("/irms/resources/icon/Item Sold.png"))); // NOI18N
+        jLabel4.setToolTipText("");
+        pnlTodaySales.add(jLabel4, new org.netbeans.lib.awtextra.AbsoluteConstraints(40, 20, -1, -1));
+
+        add(pnlTodaySales, new org.netbeans.lib.awtextra.AbsoluteConstraints(550, 310, 260, 100));
 
         pnlCustomerDebt.setBackground(new java.awt.Color(255, 255, 255));
         pnlCustomerDebt.setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
@@ -257,7 +272,10 @@ public class cashierHomePanel extends javax.swing.JPanel {
         lblAveSale.setText("---");
         pnlCustomerDebt.add(lblAveSale, new org.netbeans.lib.awtextra.AbsoluteConstraints(150, 10, -1, -1));
 
-        add(pnlCustomerDebt, new org.netbeans.lib.awtextra.AbsoluteConstraints(820, 320, 260, 90));
+        jLabel5.setIcon(new javax.swing.ImageIcon(getClass().getResource("/irms/resources/icon/reports_icon.png"))); // NOI18N
+        pnlCustomerDebt.add(jLabel5, new org.netbeans.lib.awtextra.AbsoluteConstraints(30, 20, -1, -1));
+
+        add(pnlCustomerDebt, new org.netbeans.lib.awtextra.AbsoluteConstraints(820, 310, 260, 100));
 
         pnlProductsNumber.setBackground(new java.awt.Color(255, 255, 255));
         pnlProductsNumber.setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
@@ -271,7 +289,10 @@ public class cashierHomePanel extends javax.swing.JPanel {
         lblTodaySales.setText("Today Sales");
         pnlProductsNumber.add(lblTodaySales, new org.netbeans.lib.awtextra.AbsoluteConstraints(140, 50, -1, -1));
 
-        add(pnlProductsNumber, new org.netbeans.lib.awtextra.AbsoluteConstraints(10, 320, 260, 90));
+        jLabel2.setIcon(new javax.swing.ImageIcon(getClass().getResource("/irms/resources/icon/sales_icon.png"))); // NOI18N
+        pnlProductsNumber.add(jLabel2, new org.netbeans.lib.awtextra.AbsoluteConstraints(40, 20, -1, -1));
+
+        add(pnlProductsNumber, new org.netbeans.lib.awtextra.AbsoluteConstraints(10, 310, 260, 100));
 
         pnlOverview.setBackground(new java.awt.Color(255, 255, 255));
         pnlOverview.setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
@@ -279,21 +300,21 @@ public class cashierHomePanel extends javax.swing.JPanel {
         lblTodayOverviewText.setFont(new java.awt.Font("Segoe UI", 1, 24)); // NOI18N
         lblTodayOverviewText.setForeground(new java.awt.Color(54, 67, 20));
         lblTodayOverviewText.setText("Today Overview");
-        pnlOverview.add(lblTodayOverviewText, new org.netbeans.lib.awtextra.AbsoluteConstraints(70, 40, -1, -1));
+        pnlOverview.add(lblTodayOverviewText, new org.netbeans.lib.awtextra.AbsoluteConstraints(60, 20, 240, -1));
 
         lblOverview3.setFont(new java.awt.Font("Segoe UI", 0, 18)); // NOI18N
         lblOverview3.setText("---");
-        pnlOverview.add(lblOverview3, new org.netbeans.lib.awtextra.AbsoluteConstraints(70, 140, -1, -1));
+        pnlOverview.add(lblOverview3, new org.netbeans.lib.awtextra.AbsoluteConstraints(60, 120, -1, -1));
 
         lblOverview1.setFont(new java.awt.Font("Segoe UI", 0, 18)); // NOI18N
         lblOverview1.setText("---");
-        pnlOverview.add(lblOverview1, new org.netbeans.lib.awtextra.AbsoluteConstraints(70, 80, -1, -1));
+        pnlOverview.add(lblOverview1, new org.netbeans.lib.awtextra.AbsoluteConstraints(60, 60, -1, -1));
 
         lblOverview2.setFont(new java.awt.Font("Segoe UI", 0, 18)); // NOI18N
         lblOverview2.setText("---");
-        pnlOverview.add(lblOverview2, new org.netbeans.lib.awtextra.AbsoluteConstraints(70, 110, -1, -1));
+        pnlOverview.add(lblOverview2, new org.netbeans.lib.awtextra.AbsoluteConstraints(60, 90, -1, -1));
 
-        add(pnlOverview, new org.netbeans.lib.awtextra.AbsoluteConstraints(10, 430, 610, 240));
+        add(pnlOverview, new org.netbeans.lib.awtextra.AbsoluteConstraints(10, 430, 610, 170));
 
         lblBackground.setIcon(new javax.swing.ImageIcon(getClass().getResource("/irms/resources/background/Home.png"))); // NOI18N
         add(lblBackground, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 0, -1, -1));
@@ -301,6 +322,11 @@ public class cashierHomePanel extends javax.swing.JPanel {
 
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
+    private javax.swing.JLabel jLabel1;
+    private javax.swing.JLabel jLabel2;
+    private javax.swing.JLabel jLabel3;
+    private javax.swing.JLabel jLabel4;
+    private javax.swing.JLabel jLabel5;
     private javax.swing.JLabel lblAveSale;
     private javax.swing.JLabel lblAverageSale;
     private javax.swing.JLabel lblBackground;

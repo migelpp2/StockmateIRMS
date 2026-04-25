@@ -19,6 +19,7 @@ import javax.swing.table.DefaultTableModel;
 import java.math.RoundingMode;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import javax.swing.table.DefaultTableCellRenderer;
 /**
  *
  * @author USER
@@ -33,17 +34,22 @@ public class salesPanel extends javax.swing.JPanel {
         lblBackground.setIcon(new javax.swing.ImageIcon(
             getClass().getResource("/irms/resources/background/Sales List.png")
         ));
-//        applyRoleAccess();
     
-        lblSubT.setText("Change: ₱0.00");
-        lblTotal.setText("Total: ₱0.00");
+        lblSubT.setText("Change:");
+        lblTotal.setText("Total:");
+        lblChangeValue.setText("₱0.00");
+        lblTotalValue.setText("₱0.00");
 
         setupTables();
         styleOneTable(tblProducts);
         styleOneTable(tblCart);
+        centerTableText(tblCart);
 
         loadProducts();
         autoSearchProducts();
+        setupProductTableClickAdd();
+        setupCartQuantityButtons();
+        setupCartQtyEditListener();
     }
     private static final String STORE_NAME = "STOCKMATE";
     private static final String STORE_ADDRESS = "67 Jian Chavez St. Ormoc City Leyte";
@@ -57,7 +63,7 @@ public class salesPanel extends javax.swing.JPanel {
         BigDecimal total = BigDecimal.ZERO;
 
         for (int i = 0; i < cartModel.getRowCount(); i++) {
-            String totalText = cartModel.getValueAt(i, 3).toString().replace("₱", "").trim();
+            String totalText = cartModel.getValueAt(i, 5).toString().replace("₱", "").trim();
             total = total.add(new BigDecimal(totalText));
         }
 
@@ -74,29 +80,54 @@ public class salesPanel extends javax.swing.JPanel {
     
     private void setupTables() {
         DefaultTableModel productModel = new DefaultTableModel(
-            new Object[][]{},
-            new String[]{"Product", "Brand", "Stock", "Price", "Unit Type", "Unit"}
-        ) {
+                new Object[][]{},
+                new String[]{"Product", "Brand", "Stock", "Price", "Unit Type", "Unit", ""}
+            ) {
+                @Override
+                public boolean isCellEditable(int row, int column) {
+                    return false;
+                }
+            };
+            tblProducts.setModel(productModel);
+
+            DefaultTableCellRenderer addRenderer = new DefaultTableCellRenderer() {
             @Override
-            public boolean isCellEditable(int row, int column) {
-                return false;
+            public java.awt.Component getTableCellRendererComponent(
+                    javax.swing.JTable table, Object value, boolean isSelected,
+                    boolean hasFocus, int row, int column) {
+
+                java.awt.Component c = super.getTableCellRendererComponent(
+                        table, value, isSelected, hasFocus, row, column);
+
+                c.setForeground(new java.awt.Color(72, 92, 13));
+                c.setFont(c.getFont().deriveFont(java.awt.Font.BOLD));
+
+                setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
+
+                return c;
             }
         };
-        tblProducts.setModel(productModel);
 
-        DefaultTableModel cartModel = new DefaultTableModel(
+        tblProducts.getColumnModel().getColumn(6).setCellRenderer(addRenderer);
+
+            tblProducts.getColumnModel().getColumn(6).setPreferredWidth(45);
+            tblProducts.getColumnModel().getColumn(6).setMaxWidth(50);
+
+            DefaultTableModel cartModel = new DefaultTableModel(
             new Object[][]{},
-            new String[]{"Product", "Qty", "Unit Price", "Total"}
+            new String[]{"Product", "-", "Qty", "+", "Unit Price", "Total"}
         ) {
             @Override
             public boolean isCellEditable(int row, int column) {
-                return false;
+                return column == 2; // Qty only
             }
         };
         tblCart.setModel(cartModel);
+        tblCart.getColumnModel().getColumn(1).setPreferredWidth(30);
+        tblCart.getColumnModel().getColumn(1).setMaxWidth(30);
 
-        tblProducts.setRowSelectionAllowed(true);
-        tblCart.setRowSelectionAllowed(true);
+        tblCart.getColumnModel().getColumn(3).setPreferredWidth(30);
+        tblCart.getColumnModel().getColumn(3).setMaxWidth(30);
     }
 
     private void loadProducts() {
@@ -130,7 +161,8 @@ public class salesPanel extends javax.swing.JPanel {
                     formatStockDisplay(stockQty, unitLabel),
                     String.format("₱%.2f", rs.getBigDecimal("selling_price")),
                     rs.getString("unit_type"),
-                    unitLabel
+                    unitLabel,
+                    "Add"
                 });
             }
 
@@ -175,7 +207,8 @@ public class salesPanel extends javax.swing.JPanel {
                         formatStockDisplay(stockQty, unitLabel),
                         String.format("₱%.2f", rs.getBigDecimal("selling_price")),
                         rs.getString("unit_type"),
-                        unitLabel
+                        unitLabel,
+                        "Add"
                     });
                 }
             }
@@ -218,7 +251,7 @@ public class salesPanel extends javax.swing.JPanel {
 
         for (int i = 0; i < cartModel.getRowCount(); i++) {
             if (productName.equalsIgnoreCase(cartModel.getValueAt(i, 0).toString())) {
-                return parseCartQty(cartModel.getValueAt(i, 1).toString());
+                return parseCartQty(cartModel.getValueAt(i, 2).toString());
             }
         }
         return 0.0;
@@ -353,13 +386,13 @@ public class salesPanel extends javax.swing.JPanel {
     }
 
     private void addOrUpdateCart(String productName, double qtyToAdd, double price, double stock, String unitLabel) {
-    DefaultTableModel cartModel = (DefaultTableModel) tblCart.getModel();
+        DefaultTableModel cartModel = (DefaultTableModel) tblCart.getModel();
 
         for (int i = 0; i < cartModel.getRowCount(); i++) {
             String existingName = cartModel.getValueAt(i, 0).toString();
 
             if (existingName.equalsIgnoreCase(productName)) {
-                double oldQty = parseCartQty(cartModel.getValueAt(i, 1).toString());
+                double oldQty = parseCartQty(cartModel.getValueAt(i, 2).toString());
                 double newQty = oldQty + qtyToAdd;
 
                 if (newQty > stock) {
@@ -369,34 +402,36 @@ public class salesPanel extends javax.swing.JPanel {
 
                 double lineTotal = newQty * price;
 
-                cartModel.setValueAt(formatCartQtyDisplay(newQty, unitLabel), i, 1);
-                cartModel.setValueAt(String.format("₱%.2f", price), i, 2);
-                cartModel.setValueAt(String.format("₱%.2f", lineTotal), i, 3);
+                cartModel.setValueAt(formatCartQtyDisplay(newQty, unitLabel), i, 2);
+                cartModel.setValueAt(String.format("₱%.2f", price), i, 4);
+                cartModel.setValueAt(String.format("₱%.2f", lineTotal), i, 5);
                 updateTotals();
                 return;
             }
+        }
+
+        if (qtyToAdd > stock) {
+            JOptionPane.showMessageDialog(this, "Not enough stock.");
+            return;
+        }
+
+        double total = qtyToAdd * price;
+        cartModel.addRow(new Object[]{
+            productName,
+            "-",
+            formatCartQtyDisplay(qtyToAdd, unitLabel),
+            "+",
+            String.format("₱%.2f", price),
+            String.format("₱%.2f", total)
+        });
+
+        updateTotals();
     }
-
-    if (qtyToAdd > stock) {
-        JOptionPane.showMessageDialog(this, "Not enough stock.");
-        return;
-    }
-
-    double total = qtyToAdd * price;
-    cartModel.addRow(new Object[]{
-        productName,
-        formatCartQtyDisplay(qtyToAdd, unitLabel),
-        String.format("₱%.2f", price),
-        String.format("₱%.2f", total)
-    });
-
-    updateTotals();
-}
 
     private void updateTotals() {
         BigDecimal total = getCartGrandTotal();
-        lblTotal.setText(String.format("Total: ₱%.2f", total));
-        lblSubT.setText("Change: ₱0.00");
+        lblTotalValue.setText(String.format("₱%.2f", total));
+        lblChangeValue.setText("₱0.00");
     }
 
     private void clearCart() {
@@ -492,7 +527,7 @@ public class salesPanel extends javax.swing.JPanel {
         String dash = repeatChar('-', WIDTH);
 
         java.time.format.DateTimeFormatter formatter =
-                java.time.format.DateTimeFormatter.ofPattern("yyyy-MM-dd hh:mm a");
+        java.time.format.DateTimeFormatter.ofPattern("yyyy-MM-dd hh:mm a");
         String saleDateTime = java.time.LocalDateTime.now().format(formatter);
 
         StringBuilder receipt = new StringBuilder();
@@ -511,10 +546,10 @@ public class salesPanel extends javax.swing.JPanel {
 
         for (int i = 0; i < cartModel.getRowCount(); i++) {
             String productName = cartModel.getValueAt(i, 0).toString();
-            String qtyText = cartModel.getValueAt(i, 1).toString();
-            String priceText = cartModel.getValueAt(i, 2).toString().replace("₱", "").trim();
-            String totalText = cartModel.getValueAt(i, 3).toString().replace("₱", "").trim();
-
+            String qtyText = cartModel.getValueAt(i, 2).toString();
+            String priceText = cartModel.getValueAt(i, 4).toString().replace("₱", "").trim();
+            String totalText = cartModel.getValueAt(i, 5).toString().replace("₱", "").trim();
+            
             if (qtyText.equals("1/4") || qtyText.equals("1/2") || qtyText.equals("3/4")) {
                 qtyText = qtyText + "kg";
             }
@@ -577,29 +612,46 @@ public class salesPanel extends javax.swing.JPanel {
         return repeatChar(' ', leftPadding) + text + repeatChar(' ', rightPadding);
     }
     
-//    private void applyRoleAccess() {
-//        if (session.role == null) {
-//            return;
-//        }
-//
-//        if (session.role.equalsIgnoreCase("CASHIER")) {
-//            btnBrand.setVisible(false); 
-//            btnCategory.setVisible(false);  
-//            btnProducts.setVisible(false);  
-//            btnStocks.setVisible(false);
-//            btnCustomers.setVisible(false);
-//            btnReports.setVisible(false);   
-//
-//        } else if (session.role.equalsIgnoreCase("ADMIN")) {
-//            btnBrand.setVisible(true);
-//            btnCategory.setVisible(true);
-//            btnProducts.setVisible(true);
-//            btnStocks.setVisible(true);
-//            btnCustomers.setVisible(true);
-//            btnReports.setVisible(true);
-//
-//        }
-//    }
+    private void setupProductTableClickAdd() {
+        tblProducts.addMouseListener(new java.awt.event.MouseAdapter() {
+            @Override
+            public void mouseClicked(java.awt.event.MouseEvent e) {
+                int row = tblProducts.rowAtPoint(e.getPoint());
+                int col = tblProducts.columnAtPoint(e.getPoint());
+
+                if (row == -1 || col != 6) {
+                    return;
+                }
+
+                String productName = tblProducts.getValueAt(row, 0).toString();
+                double stock = Double.parseDouble(tblProducts.getValueAt(row, 2).toString());
+                double price = Double.parseDouble(tblProducts.getValueAt(row, 3).toString().replace("₱", "").trim());
+                String unitLabel = tblProducts.getValueAt(row, 5).toString();
+
+                double qtyToAdd;
+
+                if (unitLabel.equalsIgnoreCase("kg")) {
+                    Double selectedQty = showKiloPickerDialog();
+                    if (selectedQty == null) return;
+                    qtyToAdd = selectedQty;
+                } else {
+                    qtyToAdd = 1;
+                }
+
+                addOrUpdateCart(productName, qtyToAdd, price, stock, unitLabel);
+            }
+        });
+    }
+    
+    private void centerTableText(javax.swing.JTable table) {
+        DefaultTableCellRenderer centerRenderer = new DefaultTableCellRenderer();
+        centerRenderer.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
+
+        for (int i = 0; i < table.getColumnCount(); i++) {
+            table.getColumnModel().getColumn(i).setCellRenderer(centerRenderer);
+        }
+    }
+
     public void styleOneTable(javax.swing.JTable table) {
         table.setRowHeight(28);
         table.setFont(new java.awt.Font("Segoe UI", java.awt.Font.PLAIN, 13));
@@ -843,6 +895,107 @@ public class salesPanel extends javax.swing.JPanel {
             pst.executeUpdate();
         }
     }
+    
+    private void setupCartQuantityButtons() {
+        tblCart.addMouseListener(new java.awt.event.MouseAdapter() {
+            @Override
+            public void mouseClicked(java.awt.event.MouseEvent e) {
+                int row = tblCart.rowAtPoint(e.getPoint());
+                int col = tblCart.columnAtPoint(e.getPoint());
+
+                if (row == -1) return;
+
+                DefaultTableModel model = (DefaultTableModel) tblCart.getModel();
+
+                try {
+                    String productName = model.getValueAt(row, 0).toString();
+                    double qty = parseCartQty(model.getValueAt(row, 2).toString());
+
+                    double price = Double.parseDouble(
+                        model.getValueAt(row, 4).toString().replace("₱", "").trim()
+                    );
+
+                    Connection conn = MySQLConnect.getConnection();
+                    int productId = getProductIdByName(conn, productName);
+                    double stock = getCurrentStockByProductId(conn, productId).doubleValue();
+
+                    double step = qty % 1 != 0 ? 0.25 : 1.0;
+
+                    if (col == 1) { // minus
+                        qty -= step;
+
+                        if (qty <= 0) {
+                            model.removeRow(row);
+                            updateTotals();
+                            return;
+                        }
+                    } else if (col == 3) { // plus
+                        qty += step;
+
+                        if (qty > stock) {
+                            JOptionPane.showMessageDialog(null, "Stock limit reached.");
+                            return;
+                        }
+                    } else {
+                        return;
+                    }
+
+                    double total = qty * price;
+
+                    model.setValueAt(formatCartQtyDisplay(qty, "pc"), row, 2);
+                    model.setValueAt(String.format("₱%.2f", total), row, 5);
+
+                    updateTotals();
+
+                } catch (Exception ex) {
+                    JOptionPane.showMessageDialog(null, "Error updating quantity.");
+                }
+            }
+        });
+    }
+    
+    private void setupCartQtyEditListener() {
+        tblCart.getModel().addTableModelListener(e -> {
+            if (e.getColumn() != 2 || e.getFirstRow() < 0) return;
+
+            int row = e.getFirstRow();
+            DefaultTableModel model = (DefaultTableModel) tblCart.getModel();
+
+            try {
+                String productName = model.getValueAt(row, 0).toString();
+                double qty = parseCartQty(model.getValueAt(row, 2).toString());
+
+                if (qty <= 0) {
+                    model.removeRow(row);
+                    updateTotals();
+                    return;
+                }
+
+                Connection conn = MySQLConnect.getConnection();
+                int productId = getProductIdByName(conn, productName);
+                double stock = getCurrentStockByProductId(conn, productId).doubleValue();
+
+                if (qty > stock) {
+                    JOptionPane.showMessageDialog(this, "Not enough stock.");
+                    model.setValueAt(formatCartQtyDisplay(stock, "pc"), row, 2);
+                    return;
+                }
+
+                double price = Double.parseDouble(
+                    model.getValueAt(row, 4).toString().replace("₱", "").trim()
+                );
+
+                double total = qty * price;
+
+                model.setValueAt(String.format("₱%.2f", total), row, 5);
+                updateTotals();
+
+            } catch (Exception ex) {
+                JOptionPane.showMessageDialog(this, "Invalid quantity.");
+                model.setValueAt("1", row, 2);
+            }
+        });
+    }
 
     /**
      * This method is called from within the constructor to initialize the form.
@@ -853,57 +1006,115 @@ public class salesPanel extends javax.swing.JPanel {
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
 
+        pnlProducts = new irms.ui.components.RoundedPanel();
+        lblCart2 = new javax.swing.JLabel();
+        jLabel2 = new javax.swing.JLabel();
         searchbar = new javax.swing.JTextField();
-        jLabel1 = new javax.swing.JLabel();
-        lblCart1 = new javax.swing.JLabel();
-        jScrollPane2 = new javax.swing.JScrollPane();
+        jScrollPane4 = new javax.swing.JScrollPane();
         tblProducts = new javax.swing.JTable();
-        btnAddToCart = new javax.swing.JButton();
-        lblCart = new javax.swing.JLabel();
-        jScrollPane3 = new javax.swing.JScrollPane();
-        tblCart = new javax.swing.JTable();
+        pnlCart = new irms.ui.components.RoundedPanel();
         lblSubT = new javax.swing.JLabel();
         lblTotal = new javax.swing.JLabel();
-        btnClearCart = new javax.swing.JButton();
-        btnRemoveItem = new javax.swing.JButton();
-        btnPay = new javax.swing.JButton();
+        btnRemoveItem = new irms.ui.components.RoundedButtons();
+        btnClearCart = new irms.ui.components.RoundedButtons();
+        btnPay = new irms.ui.components.RoundedButtons();
+        jScrollPane3 = new javax.swing.JScrollPane();
+        tblCart = new javax.swing.JTable();
+        lblCart = new javax.swing.JLabel();
+        lblChangeValue = new javax.swing.JLabel();
+        lblTotalValue = new javax.swing.JLabel();
         lblBackground = new javax.swing.JLabel();
 
         setBackground(new java.awt.Color(200, 212, 222));
         setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
-        add(searchbar, new org.netbeans.lib.awtextra.AbsoluteConstraints(110, 210, 280, 30));
 
-        jLabel1.setFont(new java.awt.Font("Segoe UI", 0, 14)); // NOI18N
-        jLabel1.setText("Search:");
-        add(jLabel1, new org.netbeans.lib.awtextra.AbsoluteConstraints(50, 210, 60, 30));
+        lblCart2.setFont(new java.awt.Font("sansserif", 1, 24)); // NOI18N
+        lblCart2.setForeground(new java.awt.Color(54, 67, 20));
+        lblCart2.setText("Products");
 
-        lblCart1.setFont(new java.awt.Font("sansserif", 0, 24)); // NOI18N
-        lblCart1.setText("Products");
-        add(lblCart1, new org.netbeans.lib.awtextra.AbsoluteConstraints(50, 170, 227, -1));
+        jLabel2.setFont(new java.awt.Font("Segoe UI", 0, 14)); // NOI18N
+        jLabel2.setText("Search:");
 
         tblProducts.setModel(new javax.swing.table.DefaultTableModel(
             new Object [][] {
-                {null, null, null, null},
-                {null, null, null, null},
-                {null, null, null, null},
-                {null, null, null, null}
+                {null, null, null, null, null, null, null},
+                {null, null, null, null, null, null, null},
+                {null, null, null, null, null, null, null},
+                {null, null, null, null, null, null, null}
             },
             new String [] {
-                "Product", "Brand", "Stock", "Price"
+                "Product", "Brand", "Stock", "Price", "Unit Type", "Unit", ""
             }
-        ));
-        jScrollPane2.setViewportView(tblProducts);
+        ) {
+            boolean[] canEdit = new boolean [] {
+                false, false, false, false, true, true, true
+            };
 
-        add(jScrollPane2, new org.netbeans.lib.awtextra.AbsoluteConstraints(50, 250, 490, 440));
+            public boolean isCellEditable(int rowIndex, int columnIndex) {
+                return canEdit [columnIndex];
+            }
+        });
+        jScrollPane4.setViewportView(tblProducts);
 
-        btnAddToCart.setFont(new java.awt.Font("Segoe UI", 0, 14)); // NOI18N
-        btnAddToCart.setText("Add to Cart");
-        btnAddToCart.addActionListener(this::btnAddToCartActionPerformed);
-        add(btnAddToCart, new org.netbeans.lib.awtextra.AbsoluteConstraints(440, 700, -1, -1));
+        javax.swing.GroupLayout pnlProductsLayout = new javax.swing.GroupLayout(pnlProducts);
+        pnlProducts.setLayout(pnlProductsLayout);
+        pnlProductsLayout.setHorizontalGroup(
+            pnlProductsLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(pnlProductsLayout.createSequentialGroup()
+                .addGroup(pnlProductsLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(pnlProductsLayout.createSequentialGroup()
+                        .addGap(34, 34, 34)
+                        .addComponent(lblCart2, javax.swing.GroupLayout.PREFERRED_SIZE, 227, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addGroup(pnlProductsLayout.createSequentialGroup()
+                        .addGap(21, 21, 21)
+                        .addGroup(pnlProductsLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                            .addGroup(pnlProductsLayout.createSequentialGroup()
+                                .addComponent(jLabel2, javax.swing.GroupLayout.PREFERRED_SIZE, 60, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                .addComponent(searchbar))
+                            .addComponent(jScrollPane4, javax.swing.GroupLayout.PREFERRED_SIZE, 490, javax.swing.GroupLayout.PREFERRED_SIZE))))
+                .addContainerGap(19, Short.MAX_VALUE))
+        );
+        pnlProductsLayout.setVerticalGroup(
+            pnlProductsLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, pnlProductsLayout.createSequentialGroup()
+                .addGap(8, 8, 8)
+                .addComponent(lblCart2)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addGroup(pnlProductsLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(jLabel2, javax.swing.GroupLayout.PREFERRED_SIZE, 30, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(searchbar, javax.swing.GroupLayout.PREFERRED_SIZE, 30, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                .addComponent(jScrollPane4, javax.swing.GroupLayout.PREFERRED_SIZE, 481, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addContainerGap(20, Short.MAX_VALUE))
+        );
 
-        lblCart.setFont(new java.awt.Font("sansserif", 0, 24)); // NOI18N
-        lblCart.setText("Cart");
-        add(lblCart, new org.netbeans.lib.awtextra.AbsoluteConstraints(570, 170, 227, -1));
+        add(pnlProducts, new org.netbeans.lib.awtextra.AbsoluteConstraints(10, 160, 530, 590));
+
+        lblSubT.setFont(new java.awt.Font("Segoe UI", 1, 14)); // NOI18N
+        lblSubT.setText("   Change:");
+
+        lblTotal.setFont(new java.awt.Font("Segoe UI", 1, 18)); // NOI18N
+        lblTotal.setForeground(new java.awt.Color(126, 139, 74));
+        lblTotal.setText("    Total:");
+
+        btnRemoveItem.setBackground(new java.awt.Color(72, 92, 13));
+        btnRemoveItem.setFont(new java.awt.Font("Segoe UI", 1, 14)); // NOI18N
+        btnRemoveItem.setForeground(new java.awt.Color(255, 255, 255));
+        btnRemoveItem.setText("Remove Item");
+        btnRemoveItem.addActionListener(this::btnRemoveItemActionPerformed);
+
+        btnClearCart.setBackground(new java.awt.Color(154, 151, 33));
+        btnClearCart.setFont(new java.awt.Font("Segoe UI", 1, 14)); // NOI18N
+        btnClearCart.setForeground(new java.awt.Color(255, 255, 255));
+        btnClearCart.setText("Clear Cart");
+        btnClearCart.addActionListener(this::btnClearCartActionPerformed);
+
+        btnPay.setBackground(new java.awt.Color(72, 92, 13));
+        btnPay.setFont(new java.awt.Font("Segoe UI", 1, 14)); // NOI18N
+        btnPay.setForeground(new java.awt.Color(255, 255, 255));
+        btnPay.setText("Pay");
+        btnPay.addActionListener(this::btnPayActionPerformed);
 
         tblCart.setModel(new javax.swing.table.DefaultTableModel(
             new Object [][] {
@@ -918,110 +1129,74 @@ public class salesPanel extends javax.swing.JPanel {
         ));
         jScrollPane3.setViewportView(tblCart);
 
-        add(jScrollPane3, new org.netbeans.lib.awtextra.AbsoluteConstraints(570, 210, 490, 430));
+        lblCart.setFont(new java.awt.Font("sansserif", 1, 24)); // NOI18N
+        lblCart.setForeground(new java.awt.Color(54, 67, 20));
+        lblCart.setText("Cart");
 
-        lblSubT.setFont(new java.awt.Font("Segoe UI", 1, 14)); // NOI18N
-        lblSubT.setText("Change:");
-        add(lblSubT, new org.netbeans.lib.awtextra.AbsoluteConstraints(860, 650, 190, -1));
+        lblChangeValue.setFont(new java.awt.Font("Segoe UI", 1, 14)); // NOI18N
+        lblChangeValue.setText("---");
 
-        lblTotal.setFont(new java.awt.Font("Segoe UI", 1, 14)); // NOI18N
-        lblTotal.setText("    Total:");
-        add(lblTotal, new org.netbeans.lib.awtextra.AbsoluteConstraints(860, 670, 190, -1));
+        lblTotalValue.setFont(new java.awt.Font("Segoe UI", 1, 18)); // NOI18N
+        lblTotalValue.setForeground(new java.awt.Color(126, 139, 74));
+        lblTotalValue.setText("---");
 
-        btnClearCart.setFont(new java.awt.Font("Segoe UI", 0, 14)); // NOI18N
-        btnClearCart.setText("Clear Cart");
-        btnClearCart.addActionListener(this::btnClearCartActionPerformed);
-        add(btnClearCart, new org.netbeans.lib.awtextra.AbsoluteConstraints(850, 700, -1, -1));
+        javax.swing.GroupLayout pnlCartLayout = new javax.swing.GroupLayout(pnlCart);
+        pnlCart.setLayout(pnlCartLayout);
+        pnlCartLayout.setHorizontalGroup(
+            pnlCartLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(pnlCartLayout.createSequentialGroup()
+                .addGroup(pnlCartLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(pnlCartLayout.createSequentialGroup()
+                        .addGap(35, 35, 35)
+                        .addComponent(lblCart, javax.swing.GroupLayout.PREFERRED_SIZE, 227, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addGroup(pnlCartLayout.createSequentialGroup()
+                        .addGap(15, 15, 15)
+                        .addComponent(jScrollPane3, javax.swing.GroupLayout.PREFERRED_SIZE, 490, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addGroup(pnlCartLayout.createSequentialGroup()
+                        .addGap(136, 136, 136)
+                        .addGroup(pnlCartLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addGroup(pnlCartLayout.createSequentialGroup()
+                                .addComponent(btnRemoveItem)
+                                .addGap(11, 11, 11)
+                                .addComponent(btnClearCart))
+                            .addGroup(pnlCartLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                                .addComponent(lblTotal, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                                .addComponent(lblSubT, javax.swing.GroupLayout.PREFERRED_SIZE, 81, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                        .addGap(13, 13, 13)
+                        .addGroup(pnlCartLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING, false)
+                            .addComponent(lblChangeValue, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                            .addComponent(btnPay, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                            .addComponent(lblTotalValue, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, 100, Short.MAX_VALUE))))
+                .addContainerGap(25, Short.MAX_VALUE))
+        );
+        pnlCartLayout.setVerticalGroup(
+            pnlCartLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(pnlCartLayout.createSequentialGroup()
+                .addGap(8, 8, 8)
+                .addComponent(lblCart)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(jScrollPane3, javax.swing.GroupLayout.PREFERRED_SIZE, 420, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(4, 4, 4)
+                .addGroup(pnlCartLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(lblSubT)
+                    .addComponent(lblChangeValue))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addGroup(pnlCartLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(lblTotal, javax.swing.GroupLayout.PREFERRED_SIZE, 22, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(lblTotalValue, javax.swing.GroupLayout.PREFERRED_SIZE, 22, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addGap(18, 18, 18)
+                .addGroup(pnlCartLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(btnRemoveItem, javax.swing.GroupLayout.PREFERRED_SIZE, 40, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(btnClearCart, javax.swing.GroupLayout.PREFERRED_SIZE, 40, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(btnPay, javax.swing.GroupLayout.PREFERRED_SIZE, 40, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addContainerGap(14, Short.MAX_VALUE))
+        );
 
-        btnRemoveItem.setFont(new java.awt.Font("Segoe UI", 0, 14)); // NOI18N
-        btnRemoveItem.setText("Remove Item");
-        btnRemoveItem.addActionListener(this::btnRemoveItemActionPerformed);
-        add(btnRemoveItem, new org.netbeans.lib.awtextra.AbsoluteConstraints(730, 700, -1, -1));
+        add(pnlCart, new org.netbeans.lib.awtextra.AbsoluteConstraints(550, 160, 530, 590));
 
-        btnPay.setFont(new java.awt.Font("Segoe UI", 0, 14)); // NOI18N
-        btnPay.setText("Pay");
-        btnPay.addActionListener(this::btnPayActionPerformed);
-        add(btnPay, new org.netbeans.lib.awtextra.AbsoluteConstraints(950, 700, 100, -1));
-
-        lblBackground.setIcon(new javax.swing.ImageIcon(getClass().getResource("/irms/design/Sales List.png"))); // NOI18N
-        add(lblBackground, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 0, -1, -1));
+        lblBackground.setIcon(new javax.swing.ImageIcon(getClass().getResource("/irms/resources/background/Sales List.png"))); // NOI18N
+        add(lblBackground, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 0, 1070, 750));
     }// </editor-fold>//GEN-END:initComponents
-
-    private void btnAddToCartActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnAddToCartActionPerformed
-        // TODO add your handling code here:
-        int row = tblProducts.getSelectedRow();
-
-        if (row == -1) {
-            JOptionPane.showMessageDialog(this, "Please select a product first.");
-            return;
-        }
-
-        String productName = tblProducts.getValueAt(row, 0).toString();
-        double stock = Double.parseDouble(tblProducts.getValueAt(row, 2).toString());
-
-        String priceText = tblProducts.getValueAt(row, 3).toString().replace("₱", "").trim();
-        double price = Double.parseDouble(priceText);
-
-        String unitType = tblProducts.getValueAt(row, 4).toString();
-        String unitLabel = tblProducts.getValueAt(row, 5).toString();
-
-        if (stock <= 0) {
-            JOptionPane.showMessageDialog(this, "This product is out of stock.");
-            return;
-        }
-
-        double qtyToAdd;
-
-        if ("KILO".equalsIgnoreCase(unitType)) {
-            Double selectedKilos = showKiloPickerDialog();
-
-            if (selectedKilos == null) {
-                return;
-            }
-
-            qtyToAdd = selectedKilos;
-
-        } else {
-            String qtyInput = JOptionPane.showInputDialog(this, "Enter quantity to add:", "1");
-
-            if (qtyInput == null) {
-                return;
-            }
-
-            qtyInput = qtyInput.trim();
-
-            if (qtyInput.isEmpty()) {
-                JOptionPane.showMessageDialog(this, "Quantity is required.");
-                return;
-            }
-
-            try {
-                qtyToAdd = Double.parseDouble(qtyInput);
-            } catch (NumberFormatException e) {
-                JOptionPane.showMessageDialog(this, "Quantity must be a valid number.");
-                return;
-            }
-
-            if (qtyToAdd <= 0) {
-                JOptionPane.showMessageDialog(this, "Quantity must be greater than 0.");
-                return;
-            }
-        }
-
-        if ("PIECE".equalsIgnoreCase(unitType) && qtyToAdd != Math.floor(qtyToAdd)) {
-            JOptionPane.showMessageDialog(this, "Piece items must use whole numbers only.");
-            return;
-        }
-
-        double currentCartQty = getCartQuantity(productName);
-
-        if ((currentCartQty + qtyToAdd) > stock) {
-            JOptionPane.showMessageDialog(this, "Not enough stock.");
-            return;
-        }
-
-        addOrUpdateCart(productName, qtyToAdd, price, stock, unitLabel);
-    }//GEN-LAST:event_btnAddToCartActionPerformed
 
     private void btnClearCartActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnClearCartActionPerformed
         // TODO add your handling code here:
@@ -1068,8 +1243,8 @@ public class salesPanel extends javax.swing.JPanel {
             }
 
             BigDecimal changeAmount = cashReceived.subtract(grossTotal).setScale(2, RoundingMode.HALF_UP);
-            lblSubT.setText(String.format("Change: ₱%.2f", changeAmount));
-
+            lblChangeValue.setText(String.format("₱%.2f", changeAmount));
+            
             String saleSql = "INSERT INTO sales (subtotal, total, vatable_sales, vat_amount, cash_received, change_amount, cashier_name, notes) " +
                     "VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
 
@@ -1097,9 +1272,9 @@ public class salesPanel extends javax.swing.JPanel {
 
             for (int i = 0; i < cartModel.getRowCount(); i++) {
                 String productName = cartModel.getValueAt(i, 0).toString();
-                double qty = parseCartQty(cartModel.getValueAt(i, 1).toString());
-                double price = Double.parseDouble(cartModel.getValueAt(i, 2).toString().replace("₱", "").trim());
-                double lineTotal = Double.parseDouble(cartModel.getValueAt(i, 3).toString().replace("₱", "").trim());
+                double qty = parseCartQty(cartModel.getValueAt(i, 2).toString());
+                double price = Double.parseDouble(cartModel.getValueAt(i, 4).toString().replace("₱", "").trim());
+                double lineTotal = Double.parseDouble(cartModel.getValueAt(i, 5).toString().replace("₱", "").trim());
 
                 int productId = getProductIdByName(conn, productName);
 
@@ -1179,18 +1354,21 @@ public class salesPanel extends javax.swing.JPanel {
 
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
-    private javax.swing.JButton btnAddToCart;
     private javax.swing.JButton btnClearCart;
     private javax.swing.JButton btnPay;
     private javax.swing.JButton btnRemoveItem;
-    private javax.swing.JLabel jLabel1;
-    private javax.swing.JScrollPane jScrollPane2;
+    private javax.swing.JLabel jLabel2;
     private javax.swing.JScrollPane jScrollPane3;
+    private javax.swing.JScrollPane jScrollPane4;
     private javax.swing.JLabel lblBackground;
     private javax.swing.JLabel lblCart;
-    private javax.swing.JLabel lblCart1;
+    private javax.swing.JLabel lblCart2;
+    private javax.swing.JLabel lblChangeValue;
     private javax.swing.JLabel lblSubT;
     private javax.swing.JLabel lblTotal;
+    private javax.swing.JLabel lblTotalValue;
+    private javax.swing.JPanel pnlCart;
+    private javax.swing.JPanel pnlProducts;
     private javax.swing.JTextField searchbar;
     private javax.swing.JTable tblCart;
     private javax.swing.JTable tblProducts;

@@ -108,10 +108,10 @@
         </Constraint>
       </Constraints>
     </Component>
-    <Component class="javax.swing.JLabel" name="jLabel4">
+    <Component class="javax.swing.JLabel" name="lblBackground">
       <Properties>
         <Property name="icon" type="javax.swing.Icon" editor="org.netbeans.modules.form.editors2.IconEditor">
-          <Image iconType="3" name="/irms/design/Login page.png"/>
+          <Image iconType="3" name="/irms/resources/background/Login page.png"/>
         </Property>
       </Properties>
       <Constraints>

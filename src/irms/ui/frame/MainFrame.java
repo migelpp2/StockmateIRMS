@@ -214,7 +214,7 @@ public class MainFrame extends javax.swing.JFrame {
         btnHome.addActionListener(this::btnHomeActionPerformed);
         getContentPane().add(btnHome, new org.netbeans.lib.awtextra.AbsoluteConstraints(40, 320, 140, -1));
 
-        actionbar.setIcon(new javax.swing.ImageIcon(getClass().getResource("/irms/design/action bar.png"))); // NOI18N
+        actionbar.setIcon(new javax.swing.ImageIcon(getClass().getResource("/irms/resources/background/action bar.png"))); // NOI18N
         actionbar.setText("actionBar");
         getContentPane().add(actionbar, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 10, 240, 770));
 
@@ -238,7 +238,7 @@ public class MainFrame extends javax.swing.JFrame {
         pnlBackground.setPreferredSize(new java.awt.Dimension(1366, 768));
         pnlBackground.setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
 
-        lblBackground.setIcon(new javax.swing.ImageIcon(getClass().getResource("/irms/design/Home.png"))); // NOI18N
+        lblBackground.setIcon(new javax.swing.ImageIcon(getClass().getResource("/irms/resources/background/Home.png"))); // NOI18N
         pnlBackground.add(lblBackground, new org.netbeans.lib.awtextra.AbsoluteConstraints(260, 0, 1110, 780));
 
         getContentPane().add(pnlBackground, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 0, -1, 780));

@@ -143,9 +143,9 @@ public class brandPanel extends javax.swing.JPanel {
         jScrollPane1 = new javax.swing.JScrollPane();
         jTable1 = new javax.swing.JTable();
         jLabel1 = new javax.swing.JLabel();
-        btnDelete = new javax.swing.JButton();
-        btnEdit = new javax.swing.JButton();
-        btnAdd = new javax.swing.JButton();
+        btnDelete = new irms.ui.components.RoundedButtons();
+        btnEdit = new irms.ui.components.RoundedButtons();
+        btnAdd = new irms.ui.components.RoundedButtons();
         txtSearch = new javax.swing.JTextField();
         lblBackground = new javax.swing.JLabel();
 
@@ -167,6 +167,7 @@ public class brandPanel extends javax.swing.JPanel {
             }
         ));
         jTable1.setGridColor(new java.awt.Color(142, 160, 173));
+        jTable1.setOpaque(false);
         jTable1.setShowGrid(false);
         jScrollPane1.setViewportView(jTable1);
 
@@ -176,18 +177,26 @@ public class brandPanel extends javax.swing.JPanel {
         jLabel1.setText("Search:");
         add(jLabel1, new org.netbeans.lib.awtextra.AbsoluteConstraints(20, 180, 60, 30));
 
+        btnDelete.setBackground(new java.awt.Color(72, 92, 13));
+        btnDelete.setFont(new java.awt.Font("Segoe UI", 1, 14)); // NOI18N
+        btnDelete.setForeground(new java.awt.Color(255, 255, 255));
         btnDelete.setText("Delete Brand");
         btnDelete.addActionListener(this::btnDeleteActionPerformed);
-        add(btnDelete, new org.netbeans.lib.awtextra.AbsoluteConstraints(760, 410, 120, 40));
+        add(btnDelete, new org.netbeans.lib.awtextra.AbsoluteConstraints(730, 410, 130, 50));
 
+        btnEdit.setBackground(new java.awt.Color(154, 151, 33));
+        btnEdit.setFont(new java.awt.Font("Segoe UI", 1, 14)); // NOI18N
+        btnEdit.setForeground(new java.awt.Color(255, 255, 255));
         btnEdit.setText("Edit Brand");
         btnEdit.addActionListener(this::btnEditActionPerformed);
-        add(btnEdit, new org.netbeans.lib.awtextra.AbsoluteConstraints(760, 330, 120, 40));
+        add(btnEdit, new org.netbeans.lib.awtextra.AbsoluteConstraints(730, 330, 130, 50));
 
-        btnAdd.setForeground(new java.awt.Color(36, 48, 24));
+        btnAdd.setBackground(new java.awt.Color(72, 92, 13));
+        btnAdd.setFont(new java.awt.Font("Segoe UI", 1, 14)); // NOI18N
+        btnAdd.setForeground(new java.awt.Color(255, 255, 255));
         btnAdd.setText("Add Brand");
         btnAdd.addActionListener(this::btnAddActionPerformed);
-        add(btnAdd, new org.netbeans.lib.awtextra.AbsoluteConstraints(760, 260, 120, 38));
+        add(btnAdd, new org.netbeans.lib.awtextra.AbsoluteConstraints(730, 260, 130, 50));
 
         txtSearch.setEditable(false);
         txtSearch.setBackground(new java.awt.Color(247, 249, 251));
@@ -197,7 +206,7 @@ public class brandPanel extends javax.swing.JPanel {
         txtSearch.addActionListener(this::txtSearchActionPerformed);
         add(txtSearch, new org.netbeans.lib.awtextra.AbsoluteConstraints(70, 180, 380, 34));
 
-        lblBackground.setIcon(new javax.swing.ImageIcon(getClass().getResource("/irms/design/Brand.png"))); // NOI18N
+        lblBackground.setIcon(new javax.swing.ImageIcon(getClass().getResource("/irms/resources/background/Brand.png"))); // NOI18N
         add(lblBackground, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 0, -1, -1));
     }// </editor-fold>//GEN-END:initComponents
 
