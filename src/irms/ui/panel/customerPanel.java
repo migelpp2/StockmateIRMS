@@ -45,7 +45,7 @@ public class customerPanel extends javax.swing.JPanel {
         loadDebts();
         autoSearchDebts();
         
-        jTable1.getColumnModel().getColumn(5).setCellRenderer(new StatusCellRenderer());
+        jTable1.getColumnModel().getColumn(6).setCellRenderer(new StatusCellRenderer());
     }
     
     private void styleTable() {
@@ -69,11 +69,12 @@ public class customerPanel extends javax.swing.JPanel {
         model.setRowCount(0);
 
         String sql =
-            "SELECT u.utang_id, c.customer_name, COALESCE(c.contact_number, '') AS contact_number, " +
-            "u.total_amount, u.amount_paid, u.status " +
-            "FROM utang u " +
-            "INNER JOIN customers c ON u.customer_id = c.customer_id " +
-            "ORDER BY u.utang_id DESC";
+        "SELECT u.utang_id, c.customer_name, COALESCE(c.contact_number, '') AS contact_number, " +
+        "COALESCE(c.address, '') AS address, " +
+        "u.total_amount, u.amount_paid, u.status " +
+        "FROM utang u " +
+        "INNER JOIN customers c ON u.customer_id = c.customer_id " +
+        "ORDER BY u.utang_id DESC";
 
         BigDecimal totalOutstanding = BigDecimal.ZERO;
         int totalCustomersWithDebt = 0;
@@ -90,6 +91,7 @@ public class customerPanel extends javax.swing.JPanel {
                     rs.getInt("utang_id"),
                     rs.getString("customer_name"),
                     rs.getString("contact_number"),
+                    rs.getString("address"),
                     String.format("₱%.2f", totalDebt),
                     String.format("₱%.2f", amountPaid),
                     rs.getString("status")
@@ -113,12 +115,14 @@ public class customerPanel extends javax.swing.JPanel {
 
         String sql =
             "SELECT u.utang_id, c.customer_name, COALESCE(c.contact_number, '') AS contact_number, " +
+            "COALESCE(c.address, '') AS address, " +
             "u.total_amount, u.amount_paid, u.status " +
             "FROM utang u " +
             "INNER JOIN customers c ON u.customer_id = c.customer_id " +
             "WHERE CAST(u.utang_id AS CHAR) LIKE ? " +
             "   OR c.customer_name LIKE ? " +
             "   OR COALESCE(c.contact_number, '') LIKE ? " +
+            "   OR COALESCE(c.address, '') LIKE ? " +
             "   OR u.status LIKE ? " +
             "ORDER BY u.utang_id DESC";
 
@@ -133,6 +137,7 @@ public class customerPanel extends javax.swing.JPanel {
             pst.setString(2, like);
             pst.setString(3, like);
             pst.setString(4, like);
+            pst.setString(5, like);
 
             try (ResultSet rs = pst.executeQuery()) {
                 while (rs.next()) {
@@ -189,7 +194,7 @@ public class customerPanel extends javax.swing.JPanel {
         });
     }
 
-    private int getOrCreateCustomer(Connection conn, String fullName, String contactNumber) throws SQLException {
+    private int getOrCreateCustomer(Connection conn, String fullName, String contactNumber, String address) throws SQLException {
         String findSql = "SELECT customer_id FROM customers WHERE customer_name = ? AND COALESCE(contact_number, '') = ?";
         try (PreparedStatement pst = conn.prepareStatement(findSql)) {
             pst.setString(1, fullName);
@@ -202,11 +207,12 @@ public class customerPanel extends javax.swing.JPanel {
             }
         }
 
-        String insertSql = "INSERT INTO customers (customer_name, contact_number) VALUES (?, ?)";
+        String insertSql = "INSERT INTO customers (customer_name, contact_number, address) VALUES (?, ?, ?)";
         try (PreparedStatement pst = conn.prepareStatement(insertSql, PreparedStatement.RETURN_GENERATED_KEYS)) {
             pst.setString(1, fullName);
             pst.setString(2, contactNumber);
-
+            pst.setString(3, address.isEmpty() ? null : address);
+            
             pst.executeUpdate();
 
             try (ResultSet rs = pst.getGeneratedKeys()) {
@@ -244,12 +250,15 @@ public class customerPanel extends javax.swing.JPanel {
         JTextField txtPhone = new JTextField();
         JTextField txtAmount = new JTextField();
         JTextField txtRemarks = new JTextField();
+        JTextField txtAddress = new JTextField();
 
         JPanel panel = new JPanel(new GridLayout(0, 1, 8, 8));
         panel.add(new JLabel("Customer Name:"));
         panel.add(txtName);
         panel.add(new JLabel("Phone Number:"));
         panel.add(txtPhone);
+        panel.add(new JLabel("Address:"));
+        panel.add(txtAddress);
         panel.add(new JLabel("Debt Amount:"));
         panel.add(txtAmount);
         panel.add(new JLabel("Remarks (Optional):"));
@@ -269,8 +278,10 @@ public class customerPanel extends javax.swing.JPanel {
 
         String fullName = txtName.getText().trim();
         String phone = txtPhone.getText().trim();
+        String address = txtAddress.getText().trim();
         String amountText = txtAmount.getText().trim();
         String remarks = txtRemarks.getText().trim();
+        
 
         if (fullName.isEmpty() || amountText.isEmpty()) {
             JOptionPane.showMessageDialog(this, "Customer name and debt amount are required.");
@@ -291,7 +302,7 @@ public class customerPanel extends javax.swing.JPanel {
         }
 
         try (Connection conn = MySQLConnect.getConnection()) {
-            int customerId = getOrCreateCustomer(conn, fullName, phone);
+            int customerId = getOrCreateCustomer(conn, fullName, phone, address);
 
             if (customerId == -1) {
                 JOptionPane.showMessageDialog(this, "Could not create or find customer.");
@@ -570,7 +581,154 @@ public class customerPanel extends javax.swing.JPanel {
             return c;
         }
     }
+    
+    private void showEditDebtDialog() {
+        int utangId = getSelectedUtangId();
 
+        if (utangId == -1) {
+            JOptionPane.showMessageDialog(this, "Please select a debt record first.");
+            return;
+        }
+
+        JTextField txtName = new JTextField();
+        JTextField txtPhone = new JTextField();
+        JTextField txtAddress = new JTextField();
+        JTextField txtAmount = new JTextField();
+        JTextField txtRemarks = new JTextField();
+
+        BigDecimal amountPaid = BigDecimal.ZERO;
+
+        try (Connection conn = MySQLConnect.getConnection()) {
+            String fetchSql =
+                "SELECT c.customer_name, COALESCE(c.contact_number, '') AS contact_number, " +
+                "COALESCE(c.address, '') AS address, " +
+                "u.total_amount, u.amount_paid, COALESCE(u.remarks, '') AS remarks " +
+                "FROM utang u " +
+                "INNER JOIN customers c ON u.customer_id = c.customer_id " +
+                "WHERE u.utang_id = ?";
+
+            try (PreparedStatement pst = conn.prepareStatement(fetchSql)) {
+                pst.setInt(1, utangId);
+
+                try (ResultSet rs = pst.executeQuery()) {
+                    if (rs.next()) {
+                        txtName.setText(rs.getString("customer_name"));
+                        txtPhone.setText(rs.getString("contact_number"));
+                        txtAddress.setText(rs.getString("address"));
+                        txtAmount.setText(rs.getBigDecimal("total_amount").toPlainString());
+                        txtRemarks.setText(rs.getString("remarks"));
+                        amountPaid = rs.getBigDecimal("amount_paid");
+                    } else {
+                        JOptionPane.showMessageDialog(this, "Debt record not found.");
+                        return;
+                    }
+                }
+            }
+
+        } catch (SQLException e) {
+            JOptionPane.showMessageDialog(this, "Load edit data error: " + e.getMessage());
+            return;
+        }
+
+        JPanel panel = new JPanel(new GridLayout(0, 1, 8, 8));
+        panel.add(new JLabel("Customer Name:"));
+        panel.add(txtName);
+        panel.add(new JLabel("Phone Number:"));
+        panel.add(txtPhone);
+        panel.add(new JLabel("Address:"));
+        panel.add(txtAddress);
+        panel.add(new JLabel("Debt Amount:"));
+        panel.add(txtAmount);
+        panel.add(new JLabel("Remarks:"));
+        panel.add(txtRemarks);
+
+        int result = JOptionPane.showConfirmDialog(
+                this,
+                panel,
+                "Edit Debt",
+                JOptionPane.OK_CANCEL_OPTION,
+                JOptionPane.PLAIN_MESSAGE
+        );
+
+        if (result != JOptionPane.OK_OPTION) {
+            return;
+        }
+
+        String fullName = txtName.getText().trim();
+        String phone = txtPhone.getText().trim();
+        String address = txtAddress.getText().trim();
+        String amountText = txtAmount.getText().trim();
+        String remarks = txtRemarks.getText().trim();
+
+        if (fullName.isEmpty() || amountText.isEmpty()) {
+            JOptionPane.showMessageDialog(this, "Customer name and debt amount are required.");
+            return;
+        }
+
+        BigDecimal newTotalAmount;
+
+        try {
+            newTotalAmount = new BigDecimal(amountText);
+        } catch (NumberFormatException e) {
+            JOptionPane.showMessageDialog(this, "Debt amount must be a valid number.");
+            return;
+        }
+
+        if (newTotalAmount.compareTo(BigDecimal.ZERO) <= 0) {
+            JOptionPane.showMessageDialog(this, "Debt amount must be greater than 0.");
+            return;
+        }
+
+        if (newTotalAmount.compareTo(amountPaid) < 0) {
+            JOptionPane.showMessageDialog(this, "Debt amount cannot be lower than amount already paid.");
+            return;
+        }
+
+        BigDecimal remainingBalance = newTotalAmount.subtract(amountPaid);
+        String newStatus = computeStatus(newTotalAmount, amountPaid);
+
+        try (Connection conn = MySQLConnect.getConnection()) {
+            conn.setAutoCommit(false);
+
+            String updateCustomerSql =
+                "UPDATE customers c " +
+                "INNER JOIN utang u ON c.customer_id = u.customer_id " +
+                "SET c.customer_name = ?, c.contact_number = ?, c.address = ? " +
+                "WHERE u.utang_id = ?";
+
+            try (PreparedStatement pst = conn.prepareStatement(updateCustomerSql)) {
+                pst.setString(1, fullName);
+                pst.setString(2, phone.isEmpty() ? null : phone);
+                pst.setString(3, address.isEmpty() ? null : address);
+                pst.setInt(4, utangId);
+                pst.executeUpdate();
+            }
+
+            String updateDebtSql =
+                "UPDATE utang SET total_amount = ?, remaining_balance = ?, status = ?, remarks = ? " +
+                "WHERE utang_id = ?";
+
+            try (PreparedStatement pst = conn.prepareStatement(updateDebtSql)) {
+                pst.setBigDecimal(1, newTotalAmount);
+                pst.setBigDecimal(2, remainingBalance);
+                pst.setString(3, newStatus);
+                pst.setString(4, remarks.isEmpty() ? null : remarks);
+                pst.setInt(5, utangId);
+                pst.executeUpdate();
+            }
+
+            conn.commit();
+            conn.setAutoCommit(true);
+
+            JOptionPane.showMessageDialog(this, "Debt updated successfully.");
+            loadDebts();
+            jTable1.clearSelection();
+            btnAddDebt.setText("Add Debt");
+
+        } catch (SQLException e) {
+            JOptionPane.showMessageDialog(this, "Edit debt error: " + e.getMessage());
+        }
+    }
     /**
      * This method is called from within the constructor to initialize the form.
      * WARNING: Do NOT modify this code. The content of this method is always
@@ -592,6 +750,7 @@ public class customerPanel extends javax.swing.JPanel {
         btnAddDebt = new irms.ui.components.RoundedButtons();
         btnRecordPayment = new irms.ui.components.RoundedButtons();
         btnDetails = new irms.ui.components.RoundedButtons();
+        btnEditDebt = new irms.ui.components.RoundedButtons();
         lblBackground = new javax.swing.JLabel();
 
         setBackground(new java.awt.Color(200, 212, 222));
@@ -600,17 +759,17 @@ public class customerPanel extends javax.swing.JPanel {
 
         jTable1.setModel(new javax.swing.table.DefaultTableModel(
             new Object [][] {
-                {null, null, null, null, null, null},
-                {null, null, null, null, null, null},
-                {null, null, null, null, null, null},
-                {null, null, null, null, null, null}
+                {null, null, null, null, null, null, null},
+                {null, null, null, null, null, null, null},
+                {null, null, null, null, null, null, null},
+                {null, null, null, null, null, null, null}
             },
             new String [] {
-                "Debt ID", "Customer Name", "Phone Number", "Total Debt", "Amount Paid", "Status"
+                "Debt ID", "Customer Name", "Phone Number", "Address", "Total Debt", "Amount Paid", "Status"
             }
         ) {
             boolean[] canEdit = new boolean [] {
-                true, true, true, true, true, false
+                true, true, true, true, true, true, false
             };
 
             public boolean isCellEditable(int rowIndex, int columnIndex) {
@@ -660,6 +819,12 @@ public class customerPanel extends javax.swing.JPanel {
         btnDetails.setText("View Details");
         btnDetails.addActionListener(this::btnDetailsActionPerformed);
 
+        btnEditDebt.setBackground(new java.awt.Color(154, 151, 33));
+        btnEditDebt.setFont(new java.awt.Font("Segoe UI", 1, 14)); // NOI18N
+        btnEditDebt.setForeground(new java.awt.Color(255, 255, 255));
+        btnEditDebt.setText("Edit Debt");
+        btnEditDebt.addActionListener(this::btnEditDebtActionPerformed);
+
         javax.swing.GroupLayout jPanel1Layout = new javax.swing.GroupLayout(jPanel1);
         jPanel1.setLayout(jPanel1Layout);
         jPanel1Layout.setHorizontalGroup(
@@ -667,11 +832,13 @@ public class customerPanel extends javax.swing.JPanel {
             .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel1Layout.createSequentialGroup()
                 .addContainerGap()
                 .addComponent(btnAddDebt, javax.swing.GroupLayout.PREFERRED_SIZE, 148, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(18, 18, 18)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                .addComponent(btnEditDebt, javax.swing.GroupLayout.PREFERRED_SIZE, 148, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                 .addComponent(btnRecordPayment, javax.swing.GroupLayout.PREFERRED_SIZE, 148, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(18, 18, 18)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                 .addComponent(btnDetails, javax.swing.GroupLayout.PREFERRED_SIZE, 148, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(202, 202, 202)
+                .addGap(54, 54, 54)
                 .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(jPanel1Layout.createSequentialGroup()
                         .addGap(9, 9, 9)
@@ -679,7 +846,7 @@ public class customerPanel extends javax.swing.JPanel {
                     .addComponent(jLabel3))
                 .addGap(18, 18, 18)
                 .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(jLabel5, javax.swing.GroupLayout.DEFAULT_SIZE, 132, Short.MAX_VALUE)
+                    .addComponent(jLabel5, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                     .addComponent(jLabel4, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
                 .addContainerGap())
         );
@@ -688,19 +855,19 @@ public class customerPanel extends javax.swing.JPanel {
             .addGroup(jPanel1Layout.createSequentialGroup()
                 .addGap(18, 18, 18)
                 .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(btnEditDebt, javax.swing.GroupLayout.PREFERRED_SIZE, 49, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addGroup(jPanel1Layout.createSequentialGroup()
+                        .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                            .addComponent(jLabel2)
+                            .addComponent(jLabel5))
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                            .addComponent(jLabel3)
+                            .addComponent(jLabel4)))
                     .addComponent(btnAddDebt, javax.swing.GroupLayout.PREFERRED_SIZE, 49, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                        .addComponent(btnRecordPayment, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                        .addComponent(btnDetails, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                        .addGroup(jPanel1Layout.createSequentialGroup()
-                            .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                                .addComponent(jLabel2)
-                                .addComponent(jLabel5))
-                            .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                            .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                                .addComponent(jLabel3)
-                                .addComponent(jLabel4))
-                            .addGap(0, 0, Short.MAX_VALUE))))
+                    .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                        .addComponent(btnRecordPayment, javax.swing.GroupLayout.PREFERRED_SIZE, 49, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addComponent(btnDetails, javax.swing.GroupLayout.PREFERRED_SIZE, 49, javax.swing.GroupLayout.PREFERRED_SIZE)))
                 .addContainerGap(28, Short.MAX_VALUE))
         );
 
@@ -729,10 +896,16 @@ public class customerPanel extends javax.swing.JPanel {
         showDebtDetailsDialog();
     }//GEN-LAST:event_btnDetailsActionPerformed
 
+    private void btnEditDebtActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnEditDebtActionPerformed
+        // TODO add your handling code here:
+        showEditDebtDialog();
+    }//GEN-LAST:event_btnEditDebtActionPerformed
+
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton btnAddDebt;
     private javax.swing.JButton btnDetails;
+    private javax.swing.JButton btnEditDebt;
     private javax.swing.JButton btnRecordPayment;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel2;
