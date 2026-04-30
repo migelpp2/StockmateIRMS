@@ -1102,18 +1102,21 @@ public class salesPanel extends javax.swing.JPanel {
         btnRemoveItem.setFont(new java.awt.Font("Segoe UI", 1, 14)); // NOI18N
         btnRemoveItem.setForeground(new java.awt.Color(255, 255, 255));
         btnRemoveItem.setText("Remove Item");
+        btnRemoveItem.setFocusPainted(false);
         btnRemoveItem.addActionListener(this::btnRemoveItemActionPerformed);
 
         btnClearCart.setBackground(new java.awt.Color(154, 151, 33));
         btnClearCart.setFont(new java.awt.Font("Segoe UI", 1, 14)); // NOI18N
         btnClearCart.setForeground(new java.awt.Color(255, 255, 255));
         btnClearCart.setText("Clear Cart");
+        btnClearCart.setFocusPainted(false);
         btnClearCart.addActionListener(this::btnClearCartActionPerformed);
 
         btnPay.setBackground(new java.awt.Color(72, 92, 13));
         btnPay.setFont(new java.awt.Font("Segoe UI", 1, 14)); // NOI18N
         btnPay.setForeground(new java.awt.Color(255, 255, 255));
         btnPay.setText("Pay");
+        btnPay.setFocusPainted(false);
         btnPay.addActionListener(this::btnPayActionPerformed);
 
         tblCart.setModel(new javax.swing.table.DefaultTableModel(

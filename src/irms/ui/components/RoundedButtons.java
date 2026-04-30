@@ -26,7 +26,7 @@ public class RoundedButtons extends JButton {
         super(text);
         setOpaque(false);
         setContentAreaFilled(false);
-        setBorderPainted(false);
+        setBorderPainted(true);
         setFocusPainted(false);
     }
 

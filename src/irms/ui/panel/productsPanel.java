@@ -318,6 +318,7 @@ public class productsPanel extends javax.swing.JPanel {
         btnAdd.setFont(new java.awt.Font("Segoe UI", 1, 14)); // NOI18N
         btnAdd.setForeground(new java.awt.Color(255, 255, 255));
         btnAdd.setText("ADD PRODUCT");
+        btnAdd.setFocusPainted(false);
         btnAdd.addActionListener(this::btnAddActionPerformed);
         add(btnAdd, new org.netbeans.lib.awtextra.AbsoluteConstraints(540, 160, 170, 40));
 
@@ -325,6 +326,7 @@ public class productsPanel extends javax.swing.JPanel {
         btnEdit.setFont(new java.awt.Font("Segoe UI", 1, 14)); // NOI18N
         btnEdit.setForeground(new java.awt.Color(255, 255, 255));
         btnEdit.setText("EDIT PRODUCT");
+        btnEdit.setFocusPainted(false);
         btnEdit.addActionListener(this::btnEditActionPerformed);
         add(btnEdit, new org.netbeans.lib.awtextra.AbsoluteConstraints(720, 160, 170, 40));
 
@@ -336,6 +338,7 @@ public class productsPanel extends javax.swing.JPanel {
         btnDelete.setFont(new java.awt.Font("Segoe UI", 1, 14)); // NOI18N
         btnDelete.setForeground(new java.awt.Color(255, 255, 255));
         btnDelete.setText("DELETE PRODUCT");
+        btnDelete.setFocusPainted(false);
         btnDelete.addActionListener(this::btnDeleteActionPerformed);
         add(btnDelete, new org.netbeans.lib.awtextra.AbsoluteConstraints(900, 160, 170, 40));
 

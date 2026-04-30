@@ -211,6 +211,7 @@ public class stockMovementPanel extends javax.swing.JPanel {
         btnClose.setFont(new java.awt.Font("Segoe UI", 1, 14)); // NOI18N
         btnClose.setForeground(new java.awt.Color(255, 255, 255));
         btnClose.setText("Close");
+        btnClose.setFocusPainted(false);
         btnClose.addActionListener(this::btnCloseActionPerformed);
         add(btnClose, new org.netbeans.lib.awtextra.AbsoluteConstraints(980, 660, 100, 40));
 

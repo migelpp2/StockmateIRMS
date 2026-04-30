@@ -33,49 +33,73 @@ public class login extends javax.swing.JFrame {
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
 
+        btnLogin = new irms.ui.components.RoundedButtons();
+        btnClose = new irms.ui.components.RoundedButtons();
         jLabel2 = new javax.swing.JLabel();
         txtUsername = new javax.swing.JTextField();
         jLabel5 = new javax.swing.JLabel();
         pwfPassword = new javax.swing.JPasswordField();
-        btnLogin = new javax.swing.JButton();
-        btnClose = new javax.swing.JButton();
         lblBackground = new javax.swing.JLabel();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
         setUndecorated(true);
         getContentPane().setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
 
-        jLabel2.setFont(new java.awt.Font("Segoe UI", 1, 14)); // NOI18N
-        jLabel2.setText("USERNAME");
-        getContentPane().add(jLabel2, new org.netbeans.lib.awtextra.AbsoluteConstraints(530, 250, -1, -1));
-
-        txtUsername.setFont(new java.awt.Font("Segoe UI", 1, 14)); // NOI18N
-        getContentPane().add(txtUsername, new org.netbeans.lib.awtextra.AbsoluteConstraints(530, 270, 310, -1));
-
-        jLabel5.setFont(new java.awt.Font("Segoe UI", 1, 14)); // NOI18N
-        jLabel5.setText("PASSWORD");
-        getContentPane().add(jLabel5, new org.netbeans.lib.awtextra.AbsoluteConstraints(530, 310, -1, -1));
-
-        pwfPassword.setFont(new java.awt.Font("Segoe UI", 1, 14)); // NOI18N
-        getContentPane().add(pwfPassword, new org.netbeans.lib.awtextra.AbsoluteConstraints(530, 330, 310, -1));
-
+        btnLogin.setBackground(new java.awt.Color(72, 92, 13));
         btnLogin.setFont(new java.awt.Font("Segoe UI", 1, 14)); // NOI18N
+        btnLogin.setForeground(new java.awt.Color(255, 255, 255));
+        btnLogin.setIcon(new javax.swing.ImageIcon(getClass().getResource("/irms/resources/icon/Login Button Icon.png"))); // NOI18N
         btnLogin.setText("LOGIN");
+        btnLogin.setFocusPainted(false);
         btnLogin.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 btnLoginActionPerformed(evt);
             }
         });
-        getContentPane().add(btnLogin, new org.netbeans.lib.awtextra.AbsoluteConstraints(530, 440, 310, -1));
+        getContentPane().add(btnLogin, new org.netbeans.lib.awtextra.AbsoluteConstraints(530, 410, 310, 40));
 
+        btnClose.setBackground(new java.awt.Color(255, 255, 254));
         btnClose.setFont(new java.awt.Font("Segoe UI", 1, 14)); // NOI18N
+        btnClose.setForeground(new java.awt.Color(72, 92, 13));
+        btnClose.setIcon(new javax.swing.ImageIcon(getClass().getResource("/irms/resources/icon/Close Button Icon.png"))); // NOI18N
         btnClose.setText("CLOSE");
+        btnClose.setBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(72, 92, 13)));
+        btnClose.setFocusPainted(false);
         btnClose.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 btnCloseActionPerformed(evt);
             }
         });
-        getContentPane().add(btnClose, new org.netbeans.lib.awtextra.AbsoluteConstraints(530, 480, 310, -1));
+        getContentPane().add(btnClose, new org.netbeans.lib.awtextra.AbsoluteConstraints(530, 460, 310, 40));
+
+        jLabel2.setBackground(new java.awt.Color(72, 92, 13));
+        jLabel2.setFont(new java.awt.Font("Segoe UI", 1, 18)); // NOI18N
+        jLabel2.setForeground(new java.awt.Color(72, 92, 13));
+        jLabel2.setIcon(new javax.swing.ImageIcon(getClass().getResource("/irms/resources/icon/logo_icon.png"))); // NOI18N
+        jLabel2.setText("USERNAME");
+        getContentPane().add(jLabel2, new org.netbeans.lib.awtextra.AbsoluteConstraints(530, 250, -1, 40));
+
+        txtUsername.setFont(new java.awt.Font("Segoe UI", 1, 14)); // NOI18N
+        txtUsername.setBorder(javax.swing.BorderFactory.createEmptyBorder(1, 1, 1, 1));
+        txtUsername.setPreferredSize(new java.awt.Dimension(64, 25));
+        txtUsername.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                txtUsernameActionPerformed(evt);
+            }
+        });
+        getContentPane().add(txtUsername, new org.netbeans.lib.awtextra.AbsoluteConstraints(530, 290, 310, 30));
+
+        jLabel5.setBackground(new java.awt.Color(72, 92, 13));
+        jLabel5.setFont(new java.awt.Font("Segoe UI", 1, 18)); // NOI18N
+        jLabel5.setForeground(new java.awt.Color(72, 92, 13));
+        jLabel5.setIcon(new javax.swing.ImageIcon(getClass().getResource("/irms/resources/icon/Password Icon.png"))); // NOI18N
+        jLabel5.setText("PASSWORD");
+        getContentPane().add(jLabel5, new org.netbeans.lib.awtextra.AbsoluteConstraints(530, 320, -1, 40));
+
+        pwfPassword.setFont(new java.awt.Font("Segoe UI", 1, 14)); // NOI18N
+        pwfPassword.setBorder(javax.swing.BorderFactory.createEmptyBorder(1, 1, 1, 1));
+        pwfPassword.setPreferredSize(new java.awt.Dimension(64, 25));
+        getContentPane().add(pwfPassword, new org.netbeans.lib.awtextra.AbsoluteConstraints(530, 360, 310, 30));
 
         lblBackground.setIcon(new javax.swing.ImageIcon(getClass().getResource("/irms/resources/background/Login page.png"))); // NOI18N
         getContentPane().add(lblBackground, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 0, -1, -1));
@@ -132,6 +156,10 @@ public class login extends javax.swing.JFrame {
             JOptionPane.showMessageDialog(this, "Database error: " + e.getMessage());
         }
     }//GEN-LAST:event_btnLoginActionPerformed
+
+    private void txtUsernameActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_txtUsernameActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_txtUsernameActionPerformed
 
     /**
      * @param args the command line arguments

@@ -513,18 +513,18 @@ public class stockPanel extends javax.swing.JPanel {
 
                 switch (status) {
                     case "IN STOCK":
-                        c.setBackground(new Color(198, 239, 206));
-                        c.setForeground(new Color(0, 97, 0));
+                        c.setBackground(new Color(145, 214, 160));
+                        c.setForeground(new Color(0, 75, 20));
                         break;
 
                     case "LOW STOCK":
-                        c.setBackground(new Color(255, 235, 156));
-                        c.setForeground(new Color(156, 101, 0));
+                        c.setBackground(new Color(245, 205, 95));
+                        c.setForeground(new Color(120, 75, 0));
                         break;
 
                     case "OUT OF STOCK":
-                        c.setBackground(new Color(255, 199, 206));
-                        c.setForeground(new Color(156, 0, 6));
+                        c.setBackground(new Color(245, 145, 155));
+                        c.setForeground(new Color(130, 0, 15));
                         break;
                 }
             }
@@ -569,6 +569,7 @@ public class stockPanel extends javax.swing.JPanel {
         btnStockMovement.setFont(new java.awt.Font("Segoe UI", 1, 14)); // NOI18N
         btnStockMovement.setForeground(new java.awt.Color(255, 255, 255));
         btnStockMovement.setText("Stock Movement");
+        btnStockMovement.setFocusPainted(false);
         btnStockMovement.addActionListener(this::btnStockMovementActionPerformed);
         add(btnStockMovement, new org.netbeans.lib.awtextra.AbsoluteConstraints(930, 700, 150, 40));
 
@@ -584,6 +585,7 @@ public class stockPanel extends javax.swing.JPanel {
         btnAdd.setFont(new java.awt.Font("Segoe UI", 1, 14)); // NOI18N
         btnAdd.setForeground(new java.awt.Color(255, 255, 255));
         btnAdd.setText("Add");
+        btnAdd.setFocusPainted(false);
         btnAdd.addActionListener(this::btnAddActionPerformed);
         add(btnAdd, new org.netbeans.lib.awtextra.AbsoluteConstraints(620, 160, 100, 40));
 
@@ -591,6 +593,7 @@ public class stockPanel extends javax.swing.JPanel {
         btnDelete.setFont(new java.awt.Font("Segoe UI", 1, 14)); // NOI18N
         btnDelete.setForeground(new java.awt.Color(255, 255, 255));
         btnDelete.setText("Delete");
+        btnDelete.setFocusPainted(false);
         btnDelete.addActionListener(this::btnDeleteActionPerformed);
         add(btnDelete, new org.netbeans.lib.awtextra.AbsoluteConstraints(730, 160, 100, 40));
 
@@ -598,6 +601,7 @@ public class stockPanel extends javax.swing.JPanel {
         btnStockOut.setFont(new java.awt.Font("Segoe UI", 1, 14)); // NOI18N
         btnStockOut.setForeground(new java.awt.Color(255, 255, 255));
         btnStockOut.setText("Stock Out");
+        btnStockOut.setFocusPainted(false);
         btnStockOut.addActionListener(this::btnStockOutActionPerformed);
         add(btnStockOut, new org.netbeans.lib.awtextra.AbsoluteConstraints(960, 160, 120, 40));
 

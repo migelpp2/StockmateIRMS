@@ -358,6 +358,7 @@ public class adminHomePanel extends javax.swing.JPanel {
         btnViewStocks.setFont(new java.awt.Font("Segoe UI", 1, 18)); // NOI18N
         btnViewStocks.setForeground(new java.awt.Color(255, 255, 255));
         btnViewStocks.setIcon(new javax.swing.ImageIcon(getClass().getResource("/irms/resources/icon/Stocks Icon Button.png"))); // NOI18N
+        btnViewStocks.setFocusPainted(false);
         btnViewStocks.addActionListener(this::btnViewStocksActionPerformed);
         pnlQuickAction.add(btnViewStocks, new org.netbeans.lib.awtextra.AbsoluteConstraints(190, 50, 131, 80));
 
@@ -365,6 +366,7 @@ public class adminHomePanel extends javax.swing.JPanel {
         btnReports.setFont(new java.awt.Font("Segoe UI", 1, 18)); // NOI18N
         btnReports.setForeground(new java.awt.Color(255, 255, 255));
         btnReports.setIcon(new javax.swing.ImageIcon(getClass().getResource("/irms/resources/icon/reports icon button.png"))); // NOI18N
+        btnReports.setFocusPainted(false);
         btnReports.addActionListener(this::btnReportsActionPerformed);
         pnlQuickAction.add(btnReports, new org.netbeans.lib.awtextra.AbsoluteConstraints(330, 50, 131, 80));
 
@@ -372,6 +374,7 @@ public class adminHomePanel extends javax.swing.JPanel {
         btnNewSales.setFont(new java.awt.Font("Segoe UI", 1, 18)); // NOI18N
         btnNewSales.setForeground(new java.awt.Color(255, 255, 255));
         btnNewSales.setIcon(new javax.swing.ImageIcon(getClass().getResource("/irms/resources/icon/sales icon button.png"))); // NOI18N
+        btnNewSales.setFocusPainted(false);
         btnNewSales.addActionListener(this::btnNewSalesActionPerformed);
         pnlQuickAction.add(btnNewSales, new org.netbeans.lib.awtextra.AbsoluteConstraints(50, 50, 131, 80));
 
@@ -486,7 +489,7 @@ public class adminHomePanel extends javax.swing.JPanel {
         add(pnlRecentTransactions, new org.netbeans.lib.awtextra.AbsoluteConstraints(10, 550, 1070, 210));
 
         lblBackground.setIcon(new javax.swing.ImageIcon(getClass().getResource("/irms/resources/background/Home.png"))); // NOI18N
-        add(lblBackground, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 0, -1, 770));
+        add(lblBackground, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, -30, -1, 830));
     }// </editor-fold>//GEN-END:initComponents
 
     private void btnNewSalesActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnNewSalesActionPerformed

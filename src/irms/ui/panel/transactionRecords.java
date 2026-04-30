@@ -225,6 +225,7 @@ public class transactionRecords extends javax.swing.JPanel {
         btnGenerate.setForeground(new java.awt.Color(255, 255, 255));
         btnGenerate.setText("Generate");
         btnGenerate.setBorder(null);
+        btnGenerate.setFocusPainted(false);
         add(btnGenerate, new org.netbeans.lib.awtextra.AbsoluteConstraints(720, 170, 110, 40));
 
         btnRefresh.setBackground(new java.awt.Color(154, 151, 33));
@@ -232,6 +233,7 @@ public class transactionRecords extends javax.swing.JPanel {
         btnRefresh.setForeground(new java.awt.Color(255, 255, 255));
         btnRefresh.setText("Refresh");
         btnRefresh.setBorder(null);
+        btnRefresh.setFocusPainted(false);
         btnRefresh.addActionListener(this::btnRefreshActionPerformed);
         add(btnRefresh, new org.netbeans.lib.awtextra.AbsoluteConstraints(840, 170, 110, 40));
 
@@ -255,6 +257,7 @@ public class transactionRecords extends javax.swing.JPanel {
         btnReturn.setForeground(new java.awt.Color(255, 255, 255));
         btnReturn.setText("Return");
         btnReturn.setBorder(null);
+        btnReturn.setFocusPainted(false);
         btnReturn.addActionListener(this::btnReturnActionPerformed);
         add(btnReturn, new org.netbeans.lib.awtextra.AbsoluteConstraints(960, 170, 110, 40));
 

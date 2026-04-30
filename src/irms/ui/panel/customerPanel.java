@@ -561,18 +561,18 @@ public class customerPanel extends javax.swing.JPanel {
 
                 switch (status) {
                     case "PAID":
-                        c.setBackground(new Color(198, 239, 206));
-                        c.setForeground(new Color(0, 97, 0));
+                        c.setBackground(new Color(145, 214, 160));
+                        c.setForeground(new Color(0, 75, 20));
                         break;
 
                     case "PARTIALLY PAID":
-                        c.setBackground(new Color(255, 235, 156));
-                        c.setForeground(new Color(156, 101, 0));
+                        c.setBackground(new Color(245, 205, 95));
+                        c.setForeground(new Color(120, 75, 0));
                         break;
 
                     case "UNPAID":
-                        c.setBackground(new Color(255, 199, 206));
-                        c.setForeground(new Color(156, 0, 6));
+                        c.setBackground(new Color(245, 145, 155));
+                        c.setForeground(new Color(130, 0, 15));
                         break;
                 }
             }
@@ -805,24 +805,28 @@ public class customerPanel extends javax.swing.JPanel {
         btnAddDebt.setFont(new java.awt.Font("Segoe UI", 1, 14)); // NOI18N
         btnAddDebt.setForeground(new java.awt.Color(255, 255, 255));
         btnAddDebt.setText("Add Debt");
+        btnAddDebt.setFocusPainted(false);
         btnAddDebt.addActionListener(this::btnAddDebtActionPerformed);
 
         btnRecordPayment.setBackground(new java.awt.Color(154, 151, 33));
         btnRecordPayment.setFont(new java.awt.Font("Segoe UI", 1, 14)); // NOI18N
         btnRecordPayment.setForeground(new java.awt.Color(255, 255, 255));
         btnRecordPayment.setText("Record Payment");
+        btnRecordPayment.setFocusPainted(false);
         btnRecordPayment.addActionListener(this::btnRecordPaymentActionPerformed);
 
         btnDetails.setBackground(new java.awt.Color(72, 92, 13));
         btnDetails.setFont(new java.awt.Font("Segoe UI", 1, 14)); // NOI18N
         btnDetails.setForeground(new java.awt.Color(255, 255, 255));
         btnDetails.setText("View Details");
+        btnDetails.setFocusPainted(false);
         btnDetails.addActionListener(this::btnDetailsActionPerformed);
 
         btnEditDebt.setBackground(new java.awt.Color(154, 151, 33));
         btnEditDebt.setFont(new java.awt.Font("Segoe UI", 1, 14)); // NOI18N
         btnEditDebt.setForeground(new java.awt.Color(255, 255, 255));
         btnEditDebt.setText("Edit Debt");
+        btnEditDebt.setFocusPainted(false);
         btnEditDebt.addActionListener(this::btnEditDebtActionPerformed);
 
         javax.swing.GroupLayout jPanel1Layout = new javax.swing.GroupLayout(jPanel1);

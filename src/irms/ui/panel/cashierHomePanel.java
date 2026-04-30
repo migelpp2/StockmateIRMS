@@ -237,8 +237,8 @@ public class cashierHomePanel extends javax.swing.JPanel {
         lblTransactionToday.setText("Transactions Today");
         pnlLowStock.add(lblTransactionToday, new org.netbeans.lib.awtextra.AbsoluteConstraints(90, 50, -1, -1));
 
-        jLabel3.setIcon(new javax.swing.ImageIcon(getClass().getResource("/irms/resources/icon/Transactions.png"))); // NOI18N
-        pnlLowStock.add(jLabel3, new org.netbeans.lib.awtextra.AbsoluteConstraints(10, 20, -1, -1));
+        jLabel3.setIcon(new javax.swing.ImageIcon(getClass().getResource("/irms/resources/icon/Transactions Today.png"))); // NOI18N
+        pnlLowStock.add(jLabel3, new org.netbeans.lib.awtextra.AbsoluteConstraints(20, 20, -1, -1));
 
         add(pnlLowStock, new org.netbeans.lib.awtextra.AbsoluteConstraints(280, 310, 260, 100));
 
@@ -254,7 +254,7 @@ public class cashierHomePanel extends javax.swing.JPanel {
         lblItemSold.setText("Item Sold");
         pnlTodaySales.add(lblItemSold, new org.netbeans.lib.awtextra.AbsoluteConstraints(150, 50, -1, -1));
 
-        jLabel4.setIcon(new javax.swing.ImageIcon(getClass().getResource("/irms/resources/icon/Item Sold.png"))); // NOI18N
+        jLabel4.setIcon(new javax.swing.ImageIcon(getClass().getResource("/irms/resources/icon/Item Sold_1.png"))); // NOI18N
         jLabel4.setToolTipText("");
         pnlTodaySales.add(jLabel4, new org.netbeans.lib.awtextra.AbsoluteConstraints(40, 20, -1, -1));
 

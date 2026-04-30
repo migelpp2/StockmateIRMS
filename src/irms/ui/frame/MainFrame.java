@@ -161,58 +161,84 @@ public class MainFrame extends javax.swing.JFrame {
         getContentPane().setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
 
         btnProducts.setFont(new java.awt.Font("Segoe UI", 1, 18)); // NOI18N
-        btnProducts.setText("PRODUCTS");
+        btnProducts.setIcon(new javax.swing.ImageIcon(getClass().getResource("/irms/resources/icon/Products Module.png"))); // NOI18N
+        btnProducts.setText(" PRODUCTS ");
         btnProducts.setBorder(javax.swing.BorderFactory.createBevelBorder(javax.swing.border.BevelBorder.RAISED));
+        btnProducts.setFocusPainted(false);
+        btnProducts.setPreferredSize(new java.awt.Dimension(94, 44));
         btnProducts.addActionListener(this::btnProductsActionPerformed);
-        getContentPane().add(btnProducts, new org.netbeans.lib.awtextra.AbsoluteConstraints(40, 520, 140, -1));
+        getContentPane().add(btnProducts, new org.netbeans.lib.awtextra.AbsoluteConstraints(20, 570, 190, -1));
 
         btnSales.setFont(new java.awt.Font("Segoe UI", 1, 18)); // NOI18N
-        btnSales.setText("SALES");
+        btnSales.setIcon(new javax.swing.ImageIcon(getClass().getResource("/irms/resources/icon/Sales Module.png"))); // NOI18N
+        btnSales.setText("    SALES       ");
         btnSales.setBorder(javax.swing.BorderFactory.createBevelBorder(javax.swing.border.BevelBorder.RAISED));
+        btnSales.setFocusPainted(false);
+        btnSales.setPreferredSize(new java.awt.Dimension(94, 44));
         btnSales.addActionListener(this::btnSalesActionPerformed);
-        getContentPane().add(btnSales, new org.netbeans.lib.awtextra.AbsoluteConstraints(40, 360, 140, -1));
+        getContentPane().add(btnSales, new org.netbeans.lib.awtextra.AbsoluteConstraints(20, 370, 190, -1));
 
         btnStocks.setFont(new java.awt.Font("Segoe UI", 1, 18)); // NOI18N
-        btnStocks.setText("STOCKS");
+        btnStocks.setIcon(new javax.swing.ImageIcon(getClass().getResource("/irms/resources/icon/Stocks Module.png"))); // NOI18N
+        btnStocks.setText("    STOCKS   ");
         btnStocks.setBorder(javax.swing.BorderFactory.createBevelBorder(javax.swing.border.BevelBorder.RAISED));
+        btnStocks.setFocusPainted(false);
+        btnStocks.setPreferredSize(new java.awt.Dimension(94, 44));
         btnStocks.addActionListener(this::btnStocksActionPerformed);
-        getContentPane().add(btnStocks, new org.netbeans.lib.awtextra.AbsoluteConstraints(40, 560, 140, -1));
+        getContentPane().add(btnStocks, new org.netbeans.lib.awtextra.AbsoluteConstraints(20, 620, 190, -1));
 
         btnCategory.setFont(new java.awt.Font("Segoe UI", 1, 18)); // NOI18N
-        btnCategory.setText("CATEGORY");
+        btnCategory.setIcon(new javax.swing.ImageIcon(getClass().getResource("/irms/resources/icon/Category Module.png"))); // NOI18N
+        btnCategory.setText(" CATEGORY ");
         btnCategory.setBorder(javax.swing.BorderFactory.createBevelBorder(javax.swing.border.BevelBorder.RAISED));
+        btnCategory.setFocusPainted(false);
+        btnCategory.setPreferredSize(new java.awt.Dimension(94, 44));
         btnCategory.addActionListener(this::btnCategoryActionPerformed);
-        getContentPane().add(btnCategory, new org.netbeans.lib.awtextra.AbsoluteConstraints(40, 480, 140, -1));
+        getContentPane().add(btnCategory, new org.netbeans.lib.awtextra.AbsoluteConstraints(20, 520, 190, -1));
 
         btnReports.setFont(new java.awt.Font("Segoe UI", 1, 18)); // NOI18N
-        btnReports.setText("REPORTS");
+        btnReports.setIcon(new javax.swing.ImageIcon(getClass().getResource("/irms/resources/icon/Reports Module.png"))); // NOI18N
+        btnReports.setText("   REPORTS  ");
         btnReports.setBorder(javax.swing.BorderFactory.createBevelBorder(javax.swing.border.BevelBorder.RAISED));
+        btnReports.setFocusPainted(false);
+        btnReports.setPreferredSize(new java.awt.Dimension(94, 44));
         btnReports.addActionListener(this::btnReportsActionPerformed);
-        getContentPane().add(btnReports, new org.netbeans.lib.awtextra.AbsoluteConstraints(40, 600, 140, -1));
+        getContentPane().add(btnReports, new org.netbeans.lib.awtextra.AbsoluteConstraints(20, 670, 190, -1));
 
         btnCustomers.setFont(new java.awt.Font("Segoe UI", 1, 18)); // NOI18N
+        btnCustomers.setIcon(new javax.swing.ImageIcon(getClass().getResource("/irms/resources/icon/Customers Module.png"))); // NOI18N
         btnCustomers.setText("CUSTOMERS");
         btnCustomers.setBorder(javax.swing.BorderFactory.createBevelBorder(javax.swing.border.BevelBorder.RAISED));
+        btnCustomers.setFocusPainted(false);
+        btnCustomers.setPreferredSize(new java.awt.Dimension(94, 44));
         btnCustomers.addActionListener(this::btnCustomersActionPerformed);
-        getContentPane().add(btnCustomers, new org.netbeans.lib.awtextra.AbsoluteConstraints(40, 400, 140, -1));
+        getContentPane().add(btnCustomers, new org.netbeans.lib.awtextra.AbsoluteConstraints(20, 420, 190, -1));
 
         btnBrand.setFont(new java.awt.Font("Segoe UI", 1, 18)); // NOI18N
-        btnBrand.setText("BRAND");
+        btnBrand.setIcon(new javax.swing.ImageIcon(getClass().getResource("/irms/resources/icon/Brands Module.png"))); // NOI18N
+        btnBrand.setText("  BRAND     ");
         btnBrand.setBorder(javax.swing.BorderFactory.createBevelBorder(javax.swing.border.BevelBorder.RAISED));
+        btnBrand.setFocusPainted(false);
+        btnBrand.setPreferredSize(new java.awt.Dimension(94, 44));
         btnBrand.addActionListener(this::btnBrandActionPerformed);
-        getContentPane().add(btnBrand, new org.netbeans.lib.awtextra.AbsoluteConstraints(40, 440, 140, -1));
+        getContentPane().add(btnBrand, new org.netbeans.lib.awtextra.AbsoluteConstraints(20, 470, 190, -1));
 
         btnUser.setFont(new java.awt.Font("Segoe UI", 1, 18)); // NOI18N
-        btnUser.setText("USER");
+        btnUser.setIcon(new javax.swing.ImageIcon(getClass().getResource("/irms/resources/icon/logo_icon.png"))); // NOI18N
+        btnUser.setText("    USER       ");
         btnUser.setBorder(javax.swing.BorderFactory.createBevelBorder(javax.swing.border.BevelBorder.RAISED));
+        btnUser.setFocusPainted(false);
         btnUser.addActionListener(this::btnUserActionPerformed);
-        getContentPane().add(btnUser, new org.netbeans.lib.awtextra.AbsoluteConstraints(40, 250, 140, -1));
+        getContentPane().add(btnUser, new org.netbeans.lib.awtextra.AbsoluteConstraints(20, 250, 190, -1));
 
         btnHome.setFont(new java.awt.Font("Segoe UI", 1, 18)); // NOI18N
-        btnHome.setText("HOME");
+        btnHome.setIcon(new javax.swing.ImageIcon(getClass().getResource("/irms/resources/icon/Home Module.png"))); // NOI18N
+        btnHome.setText("    HOME      ");
         btnHome.setBorder(javax.swing.BorderFactory.createBevelBorder(javax.swing.border.BevelBorder.RAISED));
+        btnHome.setFocusPainted(false);
+        btnHome.setPreferredSize(new java.awt.Dimension(94, 44));
         btnHome.addActionListener(this::btnHomeActionPerformed);
-        getContentPane().add(btnHome, new org.netbeans.lib.awtextra.AbsoluteConstraints(40, 320, 140, -1));
+        getContentPane().add(btnHome, new org.netbeans.lib.awtextra.AbsoluteConstraints(20, 320, 190, -1));
 
         actionbar.setIcon(new javax.swing.ImageIcon(getClass().getResource("/irms/resources/background/action bar.png"))); // NOI18N
         actionbar.setText("actionBar");

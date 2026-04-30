@@ -181,6 +181,7 @@ public class categoryPanel extends javax.swing.JPanel {
         btnDelete.setFont(new java.awt.Font("Segoe UI", 1, 14)); // NOI18N
         btnDelete.setForeground(new java.awt.Color(255, 255, 255));
         btnDelete.setText("Delete Category");
+        btnDelete.setFocusPainted(false);
         btnDelete.addActionListener(this::btnDeleteActionPerformed);
         add(btnDelete, new org.netbeans.lib.awtextra.AbsoluteConstraints(760, 400, 160, 50));
 
@@ -188,6 +189,7 @@ public class categoryPanel extends javax.swing.JPanel {
         btnEdit.setFont(new java.awt.Font("Segoe UI", 1, 14)); // NOI18N
         btnEdit.setForeground(new java.awt.Color(255, 255, 255));
         btnEdit.setText("Edit Category");
+        btnEdit.setFocusPainted(false);
         btnEdit.addActionListener(this::btnEditActionPerformed);
         add(btnEdit, new org.netbeans.lib.awtextra.AbsoluteConstraints(760, 320, 160, 50));
 
@@ -195,6 +197,7 @@ public class categoryPanel extends javax.swing.JPanel {
         btnAdd.setFont(new java.awt.Font("Segoe UI", 1, 14)); // NOI18N
         btnAdd.setForeground(new java.awt.Color(255, 255, 255));
         btnAdd.setText("Add Category");
+        btnAdd.setFocusPainted(false);
         btnAdd.addActionListener(this::btnAddActionPerformed);
         add(btnAdd, new org.netbeans.lib.awtextra.AbsoluteConstraints(760, 248, 160, 50));
 

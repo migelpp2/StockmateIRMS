@@ -263,12 +263,12 @@ public class reportsPanel extends javax.swing.JPanel {
         jLabel3.setFont(new java.awt.Font("Segoe UI", 0, 18)); // NOI18N
         jLabel3.setForeground(new java.awt.Color(255, 255, 255));
         jLabel3.setText("Selected report type");
-        pnlReportType.add(jLabel3, new org.netbeans.lib.awtextra.AbsoluteConstraints(20, 30, 174, -1));
+        pnlReportType.add(jLabel3, new org.netbeans.lib.awtextra.AbsoluteConstraints(20, 10, 174, -1));
 
         jLabel4.setFont(new java.awt.Font("Segoe UI", 1, 24)); // NOI18N
         jLabel4.setForeground(new java.awt.Color(255, 255, 255));
         jLabel4.setText("Value");
-        pnlReportType.add(jLabel4, new org.netbeans.lib.awtextra.AbsoluteConstraints(20, 60, 224, 40));
+        pnlReportType.add(jLabel4, new org.netbeans.lib.awtextra.AbsoluteConstraints(20, 50, 224, 40));
 
         add(pnlReportType, new org.netbeans.lib.awtextra.AbsoluteConstraints(20, 220, 340, 120));
 
@@ -310,7 +310,7 @@ public class reportsPanel extends javax.swing.JPanel {
         lblReportType.setText("Report Type:");
         add(lblReportType, new org.netbeans.lib.awtextra.AbsoluteConstraints(20, 170, -1, 40));
 
-        btnRefresh.setBackground(new java.awt.Color(124, 144, 84));
+        btnRefresh.setBackground(new java.awt.Color(154, 151, 33));
         btnRefresh.setFont(new java.awt.Font("Segoe UI", 1, 14)); // NOI18N
         btnRefresh.setForeground(new java.awt.Color(255, 255, 255));
         btnRefresh.setText("Refresh");
