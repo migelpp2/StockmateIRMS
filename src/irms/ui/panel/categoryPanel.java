@@ -215,7 +215,7 @@ public class categoryPanel extends javax.swing.JPanel {
 
     private void btnDeleteActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnDeleteActionPerformed
         // TODO add your handling code here:
-        int row = jTable1.getSelectedRow();
+            int row = jTable1.getSelectedRow();
 
         if (row == -1) {
             JOptionPane.showMessageDialog(this, "Please select a category to delete.");
@@ -238,6 +238,7 @@ public class categoryPanel extends javax.swing.JPanel {
 
         try (Connection conn = MySQLConnect.getConnection()) {
 
+            // Check if category is used in products
             String checkSql = "SELECT COUNT(*) FROM products WHERE category_id = ?";
             try (PreparedStatement pst = conn.prepareStatement(checkSql)) {
                 pst.setInt(1, categoryId);
@@ -246,13 +247,14 @@ public class categoryPanel extends javax.swing.JPanel {
                     if (rs.next() && rs.getInt(1) > 0) {
                         JOptionPane.showMessageDialog(
                             this,
-                            "Cannot delete category.\nThere are products still using this category."
+                            "Cannot delete this category because it is currently used by one or more products."
                         );
                         return;
                     }
                 }
             }
 
+            // Delete only if unused
             String deleteSql = "DELETE FROM categories WHERE category_id = ?";
             try (PreparedStatement pst = conn.prepareStatement(deleteSql)) {
                 pst.setInt(1, categoryId);
@@ -333,7 +335,7 @@ public class categoryPanel extends javax.swing.JPanel {
         }
 
         String checkSql = "SELECT COUNT(*) FROM categories WHERE category_name = ?";
-        String insertSql = "INSERT INTO categories (category_name, description) VALUES (?, NULL)";
+        String insertSql = "INSERT INTO categories (category_name) VALUES (?)";
 
         try (Connection conn = MySQLConnect.getConnection()) {
 
