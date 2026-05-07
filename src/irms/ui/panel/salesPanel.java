@@ -996,6 +996,101 @@ public class salesPanel extends javax.swing.JPanel {
             }
         });
     }
+    
+    
+     // ************************************************************ //
+    private int showCreditCustomerDialog(Connection conn) throws SQLException {
+        javax.swing.JTextField txtName = new javax.swing.JTextField();
+        javax.swing.JTextField txtPhone = new javax.swing.JTextField();
+        javax.swing.JTextField txtAddress = new javax.swing.JTextField();
+
+        javax.swing.JPanel panel = new javax.swing.JPanel(new java.awt.GridLayout(0, 1, 8, 8));
+        panel.add(new javax.swing.JLabel("Customer Name:"));
+        panel.add(txtName);
+        panel.add(new javax.swing.JLabel("Phone Number:"));
+        panel.add(txtPhone);
+        panel.add(new javax.swing.JLabel("Address:"));
+        panel.add(txtAddress);
+
+        int result = JOptionPane.showConfirmDialog(
+            this,
+            panel,
+            "Credit / Utang Customer Info",
+            JOptionPane.OK_CANCEL_OPTION,
+            JOptionPane.PLAIN_MESSAGE
+        );
+
+        if (result != JOptionPane.OK_OPTION) {
+            return -1;
+        }
+
+        String name = txtName.getText().trim();
+        String phone = txtPhone.getText().trim();
+        String address = txtAddress.getText().trim();
+
+        if (name.isEmpty()) {
+            JOptionPane.showMessageDialog(this, "Customer name is required for credit/utang.");
+            return -1;
+        }
+
+        return getOrCreateCustomer(conn, name, phone, address);
+    }
+    
+    private int getOrCreateCustomer(Connection conn, String fullName, String contactNumber, String address) throws SQLException {
+        String findSql = "SELECT customer_id FROM customers WHERE customer_name = ? AND COALESCE(contact_number, '') = ?";
+
+        try (PreparedStatement pst = conn.prepareStatement(findSql)) {
+            pst.setString(1, fullName);
+            pst.setString(2, contactNumber == null ? "" : contactNumber);
+
+            try (ResultSet rs = pst.executeQuery()) {
+                if (rs.next()) {
+                    return rs.getInt("customer_id");
+                }
+            }
+        }
+
+        String insertSql = "INSERT INTO customers (customer_name, contact_number, address) VALUES (?, ?, ?)";
+
+        try (PreparedStatement pst = conn.prepareStatement(insertSql, PreparedStatement.RETURN_GENERATED_KEYS)) {
+            pst.setString(1, fullName);
+            pst.setString(2, contactNumber == null || contactNumber.trim().isEmpty() ? null : contactNumber);
+            pst.setString(3, address == null || address.trim().isEmpty() ? null : address);
+
+            pst.executeUpdate();
+
+            try (ResultSet rs = pst.getGeneratedKeys()) {
+                if (rs.next()) {
+                    return rs.getInt(1);
+                }
+            }
+        }
+
+        return -1;
+    }
+    
+    private String showPaymentTypeDialog() {
+        String[] options = {"Cash", "Credit / Utang"};
+
+        int choice = JOptionPane.showOptionDialog(
+            this,
+            "Select payment type:",
+            "Checkout Payment",
+            JOptionPane.DEFAULT_OPTION,
+            JOptionPane.QUESTION_MESSAGE,
+            null,
+            options,
+            options[0]
+        );
+
+        if (choice == 0) {
+            return "CASH";
+        } else if (choice == 1) {
+            return "CREDIT";
+        }
+
+        return null;
+    }
 
     /**
      * This method is called from within the constructor to initialize the form.
@@ -1222,10 +1317,148 @@ public class salesPanel extends javax.swing.JPanel {
 
     private void btnPayActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnPayActionPerformed
         // TODO add your handling code here:
+//        DefaultTableModel cartModel = (DefaultTableModel) tblCart.getModel();
+//
+//        if (cartModel.getRowCount() == 0) {
+//            JOptionPane.showMessageDialog(this, "Cart is empty.");
+//            return;
+//        }
+//
+//        Connection conn = null;
+//
+//        try {
+//            conn = MySQLConnect.getConnection();
+//            conn.setAutoCommit(false);
+//
+//            BigDecimal grossTotal = getCartGrandTotal();
+//            BigDecimal vatableSales = computeVatableSales(grossTotal);
+//            BigDecimal vatAmount = computeVatAmount(grossTotal);
+//
+//            BigDecimal cashReceived = showCashDenominationDialog(grossTotal);
+//
+//            if (cashReceived == null) {
+//                return;
+//            }
+//
+//            BigDecimal changeAmount = cashReceived.subtract(grossTotal).setScale(2, RoundingMode.HALF_UP);
+//            lblChangeValue.setText(String.format("₱%.2f", changeAmount));
+//            
+//            String saleSql = "INSERT INTO sales (subtotal, total, vatable_sales, vat_amount, cash_received, change_amount, cashier_name, notes) " +
+//                    "VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
+//
+//            int saleId = 0;
+//
+//            String firstName = getLoggedInCashierFirstName();
+//
+//            try (PreparedStatement pstSale = conn.prepareStatement(saleSql, PreparedStatement.RETURN_GENERATED_KEYS)) {
+//                pstSale.setBigDecimal(1, grossTotal);
+//                pstSale.setBigDecimal(2, grossTotal);
+//                pstSale.setBigDecimal(3, vatableSales);
+//                pstSale.setBigDecimal(4, vatAmount);
+//                pstSale.setBigDecimal(5, cashReceived);
+//                pstSale.setBigDecimal(6, changeAmount);
+//                pstSale.setString(7, firstName);
+//                pstSale.setString(8, "VAT Sale");
+//                pstSale.executeUpdate();
+//
+//                try (ResultSet rs = pstSale.getGeneratedKeys()) {
+//                    if (rs.next()) {
+//                        saleId = rs.getInt(1);
+//                    }
+//                }
+//            }
+//
+//            for (int i = 0; i < cartModel.getRowCount(); i++) {
+//                String productName = cartModel.getValueAt(i, 0).toString();
+//                double qty = parseCartQty(cartModel.getValueAt(i, 2).toString());
+//                double price = Double.parseDouble(cartModel.getValueAt(i, 4).toString().replace("₱", "").trim());
+//                double lineTotal = Double.parseDouble(cartModel.getValueAt(i, 5).toString().replace("₱", "").trim());
+//
+//                int productId = getProductIdByName(conn, productName);
+//
+//                String saleItemSql = "INSERT INTO sale_items (sale_id, product_id, quantity, price, line_total) VALUES (?, ?, ?, ?, ?)";
+//                try (PreparedStatement pstItem = conn.prepareStatement(saleItemSql)) {
+//                    pstItem.setInt(1, saleId);
+//                    pstItem.setInt(2, productId);
+//                    pstItem.setBigDecimal(3, BigDecimal.valueOf(qty));
+//                    pstItem.setBigDecimal(4, BigDecimal.valueOf(price));
+//                    pstItem.setBigDecimal(5, BigDecimal.valueOf(lineTotal));
+//                    pstItem.executeUpdate();
+//                }
+//
+//                BigDecimal soldQty = BigDecimal.valueOf(qty);
+//                BigDecimal previousStock = getCurrentStockByProductId(conn, productId);
+//                BigDecimal newStock = previousStock.subtract(soldQty);
+//                String unitLabel = getUnitLabelByProductId(conn, productId);
+//
+//                String updateStockSql = "UPDATE stocks SET quantity = quantity - ?, stock_date = CURDATE(), stock_time = CURTIME() WHERE product_id = ?";
+//                try (PreparedStatement pstStock = conn.prepareStatement(updateStockSql)) {
+//                    pstStock.setBigDecimal(1, soldQty);
+//                    pstStock.setInt(2, productId);
+//                    pstStock.executeUpdate();
+//                }
+//
+//                logSoldStockMovement(
+//                    conn,
+//                    productId,
+//                    soldQty,
+//                    unitLabel,
+//                    previousStock,
+//                    newStock,
+//                    "Sold - Sale ID " + saleId
+//                );
+//                updateProductAverageUsageAndReorderLevel(conn, productId);
+//            }
+//
+//            conn.commit();
+//
+//            String receipt = buildReceipt(
+//                saleId,
+//                vatableSales,
+//                vatAmount,
+//                grossTotal,
+//                cashReceived,
+//                changeAmount
+//            );
+//
+//            JTextArea area = new JTextArea(receipt, 20, 30);
+//            area.setEditable(false);
+//            JOptionPane.showMessageDialog(this, new javax.swing.JScrollPane(area), "Receipt", JOptionPane.INFORMATION_MESSAGE);
+//
+//            clearCart();
+//            loadProducts();
+//
+//        } catch (Exception e) {
+//            try {
+//                if (conn != null) {
+//                    conn.rollback();
+//                }
+//            } catch (SQLException ex) {
+//                JOptionPane.showMessageDialog(this, "Rollback error: " + ex.getMessage());
+//            }
+//
+//            JOptionPane.showMessageDialog(this, "Pay error: " + e.getMessage());
+//        } finally {
+//            try {
+//                if (conn != null) {
+//                    conn.setAutoCommit(true);
+//                    conn.close();
+//                }
+//            } catch (SQLException ex) {
+//                JOptionPane.showMessageDialog(this, "Close error: " + ex.getMessage());
+//            }
+//        }
+
         DefaultTableModel cartModel = (DefaultTableModel) tblCart.getModel();
 
         if (cartModel.getRowCount() == 0) {
             JOptionPane.showMessageDialog(this, "Cart is empty.");
+            return;
+        }
+
+        String paymentType = showPaymentTypeDialog();
+
+        if (paymentType == null) {
             return;
         }
 
@@ -1239,20 +1472,41 @@ public class salesPanel extends javax.swing.JPanel {
             BigDecimal vatableSales = computeVatableSales(grossTotal);
             BigDecimal vatAmount = computeVatAmount(grossTotal);
 
-            BigDecimal cashReceived = showCashDenominationDialog(grossTotal);
+            BigDecimal cashReceived;
+            BigDecimal changeAmount;
 
-            if (cashReceived == null) {
-                return;
+            int customerId = -1;
+
+            if (paymentType.equals("CASH")) {
+                cashReceived = showCashDenominationDialog(grossTotal);
+
+                if (cashReceived == null) {
+                    conn.rollback();
+                    return;
+                }
+
+                changeAmount = cashReceived.subtract(grossTotal).setScale(2, RoundingMode.HALF_UP);
+                lblChangeValue.setText(String.format("₱%.2f", changeAmount));
+
+            } else {
+                customerId = showCreditCustomerDialog(conn);
+
+                if (customerId == -1) {
+                    conn.rollback();
+                    return;
+                }
+
+                cashReceived = BigDecimal.ZERO;
+                changeAmount = BigDecimal.ZERO;
+                lblChangeValue.setText("₱0.00");
             }
 
-            BigDecimal changeAmount = cashReceived.subtract(grossTotal).setScale(2, RoundingMode.HALF_UP);
-            lblChangeValue.setText(String.format("₱%.2f", changeAmount));
-            
-            String saleSql = "INSERT INTO sales (subtotal, total, vatable_sales, vat_amount, cash_received, change_amount, cashier_name, notes) " +
-                    "VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
+            String saleSql =
+                "INSERT INTO sales " +
+                "(subtotal, total, vatable_sales, vat_amount, cash_received, change_amount, cashier_name, notes) " +
+                "VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
 
             int saleId = 0;
-
             String firstName = getLoggedInCashierFirstName();
 
             try (PreparedStatement pstSale = conn.prepareStatement(saleSql, PreparedStatement.RETURN_GENERATED_KEYS)) {
@@ -1263,7 +1517,8 @@ public class salesPanel extends javax.swing.JPanel {
                 pstSale.setBigDecimal(5, cashReceived);
                 pstSale.setBigDecimal(6, changeAmount);
                 pstSale.setString(7, firstName);
-                pstSale.setString(8, "VAT Sale");
+                pstSale.setString(8, paymentType.equals("CASH") ? "Cash Sale" : "Credit / Utang Sale");
+
                 pstSale.executeUpdate();
 
                 try (ResultSet rs = pstSale.getGeneratedKeys()) {
@@ -1281,7 +1536,10 @@ public class salesPanel extends javax.swing.JPanel {
 
                 int productId = getProductIdByName(conn, productName);
 
-                String saleItemSql = "INSERT INTO sale_items (sale_id, product_id, quantity, price, line_total) VALUES (?, ?, ?, ?, ?)";
+                String saleItemSql =
+                    "INSERT INTO sale_items (sale_id, product_id, quantity, price, line_total) " +
+                    "VALUES (?, ?, ?, ?, ?)";
+
                 try (PreparedStatement pstItem = conn.prepareStatement(saleItemSql)) {
                     pstItem.setInt(1, saleId);
                     pstItem.setInt(2, productId);
@@ -1296,7 +1554,10 @@ public class salesPanel extends javax.swing.JPanel {
                 BigDecimal newStock = previousStock.subtract(soldQty);
                 String unitLabel = getUnitLabelByProductId(conn, productId);
 
-                String updateStockSql = "UPDATE stocks SET quantity = quantity - ?, stock_date = CURDATE(), stock_time = CURTIME() WHERE product_id = ?";
+                String updateStockSql =
+                    "UPDATE stocks SET quantity = quantity - ?, stock_date = CURDATE(), stock_time = CURTIME() " +
+                    "WHERE product_id = ?";
+
                 try (PreparedStatement pstStock = conn.prepareStatement(updateStockSql)) {
                     pstStock.setBigDecimal(1, soldQty);
                     pstStock.setInt(2, productId);
@@ -1310,25 +1571,46 @@ public class salesPanel extends javax.swing.JPanel {
                     unitLabel,
                     previousStock,
                     newStock,
-                    "Sold - Sale ID " + saleId
+                    "Sold - Sale ID " + saleId + " (" + paymentType + ")"
                 );
+
                 updateProductAverageUsageAndReorderLevel(conn, productId);
+            }
+
+            if (paymentType.equals("CREDIT")) {
+                String utangSql =
+                    "INSERT INTO utang " +
+                    "(customer_id, sale_id, utang_date, total_amount, amount_paid, remaining_balance, status, remarks) " +
+                    "VALUES (?, ?, NOW(), ?, 0.00, ?, 'UNPAID', ?)";
+
+                try (PreparedStatement pstUtang = conn.prepareStatement(utangSql)) {
+                    pstUtang.setInt(1, customerId);
+                    pstUtang.setInt(2, saleId);
+                    pstUtang.setBigDecimal(3, grossTotal);
+                    pstUtang.setBigDecimal(4, grossTotal);
+                    pstUtang.setString(5, "Created from credit checkout. Sale ID: " + saleId);
+                    pstUtang.executeUpdate();
+                }
             }
 
             conn.commit();
 
-            String receipt = buildReceipt(
-                saleId,
-                vatableSales,
-                vatAmount,
-                grossTotal,
-                cashReceived,
-                changeAmount
-            );
+            if (paymentType.equals("CASH")) {
+                String receipt = buildReceipt(
+                    saleId,
+                    vatableSales,
+                    vatAmount,
+                    grossTotal,
+                    cashReceived,
+                    changeAmount
+                );
 
-            JTextArea area = new JTextArea(receipt, 20, 30);
-            area.setEditable(false);
-            JOptionPane.showMessageDialog(this, new javax.swing.JScrollPane(area), "Receipt", JOptionPane.INFORMATION_MESSAGE);
+                JTextArea area = new JTextArea(receipt, 20, 30);
+                area.setEditable(false);
+                JOptionPane.showMessageDialog(this, new javax.swing.JScrollPane(area), "Receipt", JOptionPane.INFORMATION_MESSAGE);
+            } else {
+                JOptionPane.showMessageDialog(this, "Credit sale saved and added to customer debt.");
+            }
 
             clearCart();
             loadProducts();
@@ -1342,15 +1624,16 @@ public class salesPanel extends javax.swing.JPanel {
                 JOptionPane.showMessageDialog(this, "Rollback error: " + ex.getMessage());
             }
 
-            JOptionPane.showMessageDialog(this, "Pay error: " + e.getMessage());
+            JOptionPane.showMessageDialog(this, "Checkout error: " + e.getMessage());
+
         } finally {
             try {
                 if (conn != null) {
                     conn.setAutoCommit(true);
                     conn.close();
                 }
-            } catch (SQLException ex) {
-                JOptionPane.showMessageDialog(this, "Close error: " + ex.getMessage());
+            } catch (SQLException e) {
+                JOptionPane.showMessageDialog(this, "Close connection error: " + e.getMessage());
             }
         }
     }//GEN-LAST:event_btnPayActionPerformed

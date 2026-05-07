@@ -255,7 +255,7 @@ public class transactionRecords extends javax.swing.JPanel {
         btnReturn.setBackground(new java.awt.Color(72, 92, 13));
         btnReturn.setFont(new java.awt.Font("Segoe UI", 1, 14)); // NOI18N
         btnReturn.setForeground(new java.awt.Color(255, 255, 255));
-        btnReturn.setText("Return");
+        btnReturn.setText("Close");
         btnReturn.setBorder(null);
         btnReturn.setFocusPainted(false);
         btnReturn.addActionListener(this::btnReturnActionPerformed);

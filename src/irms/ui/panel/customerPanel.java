@@ -491,13 +491,44 @@ public class customerPanel extends javax.swing.JPanel {
                         details.append("Remaining Balance: ₱").append(rs.getBigDecimal("remaining_balance")).append("\n");
                         details.append("Status: ").append(rs.getString("status")).append("\n");
                         details.append("Remarks: ").append(rs.getString("remarks")).append("\n\n");
-                        details.append("----- Payment History -----\n");
+                        details.append("----- Products Bought on Credit -----\n");
                     } else {
                         JOptionPane.showMessageDialog(this, "Debt record not found.");
                         return;
                     }
                 }
             }
+            
+            String itemSql =
+                "SELECT p.product_name, si.quantity, si.price, si.line_total " +
+                "FROM utang u " +
+                "INNER JOIN sale_items si ON u.sale_id = si.sale_id " +
+                "INNER JOIN products p ON si.product_id = p.product_id " +
+                "WHERE u.utang_id = ?";
+
+            boolean hasItems = false;
+
+            try (PreparedStatement pst = conn.prepareStatement(itemSql)) {
+                pst.setInt(1, utangId);
+
+                try (ResultSet rs = pst.executeQuery()) {
+                    while (rs.next()) {
+                        hasItems = true;
+
+                        details.append(rs.getString("product_name"))
+                               .append(" | Qty: ").append(rs.getBigDecimal("quantity"))
+                               .append(" | Price: ₱").append(rs.getBigDecimal("price"))
+                               .append(" | Total: ₱").append(rs.getBigDecimal("line_total"))
+                               .append("\n");
+                    }
+                }
+            }
+
+            if (!hasItems) {
+                details.append("No product details found. This may be a manually added debt.\n");
+            }
+
+            details.append("\n----- Payment History -----\n");
 
             String paymentSql =
                 "SELECT payment_date, payment_amount, COALESCE(remarks, '') AS remarks " +

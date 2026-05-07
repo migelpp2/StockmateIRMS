@@ -545,6 +545,7 @@ public class stockPanel extends javax.swing.JPanel {
 
         cmbCategory = new javax.swing.JComboBox<>();
         btnStockMovement = new irms.ui.components.RoundedButtons();
+        btnStockMovement1 = new irms.ui.components.RoundedButtons();
         jLabel1 = new javax.swing.JLabel();
         jLabel3 = new javax.swing.JLabel();
         btnAdd = new irms.ui.components.RoundedButtons();
@@ -571,7 +572,15 @@ public class stockPanel extends javax.swing.JPanel {
         btnStockMovement.setText("Stock Movement");
         btnStockMovement.setFocusPainted(false);
         btnStockMovement.addActionListener(this::btnStockMovementActionPerformed);
-        add(btnStockMovement, new org.netbeans.lib.awtextra.AbsoluteConstraints(930, 700, 150, 40));
+        add(btnStockMovement, new org.netbeans.lib.awtextra.AbsoluteConstraints(770, 700, 150, 40));
+
+        btnStockMovement1.setBackground(new java.awt.Color(154, 151, 33));
+        btnStockMovement1.setFont(new java.awt.Font("Segoe UI", 1, 14)); // NOI18N
+        btnStockMovement1.setForeground(new java.awt.Color(255, 255, 255));
+        btnStockMovement1.setText("Restock Records");
+        btnStockMovement1.setFocusPainted(false);
+        btnStockMovement1.addActionListener(this::btnStockMovement1ActionPerformed);
+        add(btnStockMovement1, new org.netbeans.lib.awtextra.AbsoluteConstraints(930, 700, 150, 40));
 
         jLabel1.setFont(new java.awt.Font("Segoe UI", 0, 14)); // NOI18N
         jLabel1.setText("Category:");
@@ -584,10 +593,10 @@ public class stockPanel extends javax.swing.JPanel {
         btnAdd.setBackground(new java.awt.Color(72, 92, 13));
         btnAdd.setFont(new java.awt.Font("Segoe UI", 1, 14)); // NOI18N
         btnAdd.setForeground(new java.awt.Color(255, 255, 255));
-        btnAdd.setText("Add");
+        btnAdd.setText("Restock");
         btnAdd.setFocusPainted(false);
         btnAdd.addActionListener(this::btnAddActionPerformed);
-        add(btnAdd, new org.netbeans.lib.awtextra.AbsoluteConstraints(620, 160, 100, 40));
+        add(btnAdd, new org.netbeans.lib.awtextra.AbsoluteConstraints(720, 160, 120, 40));
 
         btnDelete.setBackground(new java.awt.Color(154, 151, 33));
         btnDelete.setFont(new java.awt.Font("Segoe UI", 1, 14)); // NOI18N
@@ -595,7 +604,7 @@ public class stockPanel extends javax.swing.JPanel {
         btnDelete.setText("Delete");
         btnDelete.setFocusPainted(false);
         btnDelete.addActionListener(this::btnDeleteActionPerformed);
-        add(btnDelete, new org.netbeans.lib.awtextra.AbsoluteConstraints(730, 160, 100, 40));
+        add(btnDelete, new org.netbeans.lib.awtextra.AbsoluteConstraints(980, 160, 100, 40));
 
         btnStockOut.setBackground(new java.awt.Color(72, 92, 13));
         btnStockOut.setFont(new java.awt.Font("Segoe UI", 1, 14)); // NOI18N
@@ -603,7 +612,7 @@ public class stockPanel extends javax.swing.JPanel {
         btnStockOut.setText("Stock Out");
         btnStockOut.setFocusPainted(false);
         btnStockOut.addActionListener(this::btnStockOutActionPerformed);
-        add(btnStockOut, new org.netbeans.lib.awtextra.AbsoluteConstraints(960, 160, 120, 40));
+        add(btnStockOut, new org.netbeans.lib.awtextra.AbsoluteConstraints(850, 160, 120, 40));
 
         tblStocks.setModel(new javax.swing.table.DefaultTableModel(
             new Object [][] {
@@ -1081,11 +1090,17 @@ public class stockPanel extends javax.swing.JPanel {
         // TODO add your handling code here:
     }//GEN-LAST:event_searchbarActionPerformed
 
+    private void btnStockMovement1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnStockMovement1ActionPerformed
+        // TODO add your handling code here:
+        openPanel(new restockRecords());
+    }//GEN-LAST:event_btnStockMovement1ActionPerformed
+
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton btnAdd;
     private javax.swing.JButton btnDelete;
     private javax.swing.JButton btnStockMovement;
+    private javax.swing.JButton btnStockMovement1;
     private javax.swing.JButton btnStockOut;
     private javax.swing.JComboBox<String> cmbCategory;
     private javax.swing.JLabel jLabel1;

@@ -27,25 +27,24 @@ public class reportsPanel extends javax.swing.JPanel {
      */
     public reportsPanel() {
         initComponents();
+
         lblBackground.setIcon(new javax.swing.ImageIcon(
             getClass().getResource("/irms/resources/background/Reports.png")
         ));
+
         jLabel1.setText("VAT Collected");
-        cmbReportType.setModel(new javax.swing.DefaultComboBoxModel<>(
-                new String[]{"Daily", "Weekly", "Monthly"}
-        ));
+        jLabel3.setText("Sales Report");
 
         jDateChooser1.setDate(new Date());
-        jDateChooser1.setDateFormatString("yyyy-MM-dd");
+        jDateChooser2.setDate(new Date());
 
-        jLabel3.setText("Daily Sales");
+        jDateChooser1.setDateFormatString("yyyy-MM-dd");
+        jDateChooser2.setDateFormatString("yyyy-MM-dd");
+
         jLabel4.setText("₱0.00");
         jLabel2.setText("₱0.00");
         jLabel6.setText("0");
         lblTotalRevenueValue.setText("₱0.00");
-
-        btnGenerate.addActionListener(e -> generateReport());
-        btnRefresh.addActionListener(e -> refreshReport());
 
         refreshReport();
         styleTable();
@@ -56,54 +55,52 @@ public class reportsPanel extends javax.swing.JPanel {
     }
 
     private void generateReport() {
-        String reportType = cmbReportType.getSelectedItem().toString();
-        Date selectedDate = jDateChooser1.getDate();
+        Date fromDate = jDateChooser1.getDate();
+        Date toDate = jDateChooser2.getDate();
 
-        if (selectedDate == null) {
-            JOptionPane.showMessageDialog(this, "Date is required.");
+        if (fromDate == null || toDate == null) {
+            JOptionPane.showMessageDialog(this, "Please select both Date From and Date To.");
+            return;
+        }
+
+        if (fromDate.after(toDate)) {
+            JOptionPane.showMessageDialog(this, "Date From cannot be later than Date To.");
             return;
         }
 
         SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
-        String dateText = sdf.format(selectedDate);
 
-        loadReportData(reportType, dateText);
+        String fromDateText = sdf.format(fromDate);
+        String toDateText = sdf.format(toDate);
+
+        loadReportData(fromDateText, toDateText);
     }
 
-    private void loadReportData(String reportType, String dateText) {
+    private void loadReportData(String fromDateText, String toDateText) {
         DefaultTableModel model = (DefaultTableModel) jTable1.getModel();
         model.setRowCount(0);
 
-        String filterCondition;
-
-        if (reportType.equalsIgnoreCase("Daily")) {
-            filterCondition = "DATE(sale_date) = ?";
-            jLabel3.setText("Daily Sales");
-        } else if (reportType.equalsIgnoreCase("Weekly")) {
-            filterCondition = "YEARWEEK(sale_date, 1) = YEARWEEK(?, 1)";
-            jLabel3.setText("Weekly Sales");
-        } else {
-            filterCondition = "DATE_FORMAT(sale_date, '%Y-%m') = DATE_FORMAT(?, '%Y-%m')";
-            jLabel3.setText("Monthly Sales");
-        }
+        jLabel3.setText("Sales Report");
 
         String detailSql =
-                "SELECT sale_id, DATE(sale_date) AS report_date, vatable_sales, vat_amount, total, cash_received, change_amount " +
-                "FROM sales " +
-                "WHERE " + filterCondition + " " +
-                "ORDER BY sale_date DESC";
+            "SELECT sale_id, DATE(sale_date) AS report_date, " +
+            "vatable_sales, vat_amount, total, cash_received, change_amount " +
+            "FROM sales " +
+            "WHERE DATE(sale_date) BETWEEN ? AND ? " +
+            "ORDER BY sale_date DESC";
 
         String summarySql =
-                "SELECT COUNT(*) AS transactions, " +
-                "       COALESCE(SUM(total), 0) AS revenue, " +
-                "       COALESCE(SUM(vat_amount), 0) AS total_vat " +
-                "FROM sales " +
-                "WHERE " + filterCondition;
+            "SELECT COUNT(*) AS transactions, " +
+            "COALESCE(SUM(total), 0) AS revenue, " +
+            "COALESCE(SUM(vat_amount), 0) AS total_vat " +
+            "FROM sales " +
+            "WHERE DATE(sale_date) BETWEEN ? AND ?";
 
         try (Connection conn = MySQLConnect.getConnection()) {
 
             try (PreparedStatement pst = conn.prepareStatement(detailSql)) {
-                pst.setString(1, dateText);
+                pst.setString(1, fromDateText);
+                pst.setString(2, toDateText);
 
                 try (ResultSet rs = pst.executeQuery()) {
                     while (rs.next()) {
@@ -133,7 +130,8 @@ public class reportsPanel extends javax.swing.JPanel {
             double totalVat = 0.0;
 
             try (PreparedStatement pst = conn.prepareStatement(summarySql)) {
-                pst.setString(1, dateText);
+                pst.setString(1, fromDateText);
+                pst.setString(2, toDateText);
 
                 try (ResultSet rs = pst.executeQuery()) {
                     if (rs.next()) {
@@ -189,7 +187,6 @@ public class reportsPanel extends javax.swing.JPanel {
     private void initComponents() {
 
         lblDate = new javax.swing.JLabel();
-        cmbReportType = new javax.swing.JComboBox<>();
         pnlRevenue = new irms.ui.components.RoundedPanel();
         jLabel1 = new javax.swing.JLabel();
         jLabel2 = new javax.swing.JLabel();
@@ -209,18 +206,15 @@ public class reportsPanel extends javax.swing.JPanel {
         lblTotalRevenueValue = new javax.swing.JLabel();
         lblTotalRevenueText = new javax.swing.JLabel();
         jDateChooser1 = new com.toedter.calendar.JDateChooser();
+        jDateChooser2 = new com.toedter.calendar.JDateChooser();
         lblBackground = new javax.swing.JLabel();
 
         setBackground(new java.awt.Color(200, 212, 222));
         setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
 
         lblDate.setFont(new java.awt.Font("Segoe UI", 0, 14)); // NOI18N
-        lblDate.setText("Date:");
-        add(lblDate, new org.netbeans.lib.awtextra.AbsoluteConstraints(370, 170, -1, 40));
-
-        cmbReportType.setFont(new java.awt.Font("Segoe UI", 0, 14)); // NOI18N
-        cmbReportType.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "Item 1", "Item 2", "Item 3", "Item 4" }));
-        add(cmbReportType, new org.netbeans.lib.awtextra.AbsoluteConstraints(110, 170, 250, 40));
+        lblDate.setText("Date to:");
+        add(lblDate, new org.netbeans.lib.awtextra.AbsoluteConstraints(360, 170, -1, 40));
 
         pnlRevenue.setBackground(new java.awt.Color(154, 151, 33));
         pnlRevenue.setBorder(new javax.swing.border.LineBorder(new java.awt.Color(204, 204, 204), 1, true));
@@ -307,8 +301,8 @@ public class reportsPanel extends javax.swing.JPanel {
         add(pnlTransactions, new org.netbeans.lib.awtextra.AbsoluteConstraints(720, 220, 340, 120));
 
         lblReportType.setFont(new java.awt.Font("Segoe UI", 0, 14)); // NOI18N
-        lblReportType.setText("Report Type:");
-        add(lblReportType, new org.netbeans.lib.awtextra.AbsoluteConstraints(20, 170, -1, 40));
+        lblReportType.setText("Date from:");
+        add(lblReportType, new org.netbeans.lib.awtextra.AbsoluteConstraints(30, 170, -1, 40));
 
         btnRefresh.setBackground(new java.awt.Color(154, 151, 33));
         btnRefresh.setFont(new java.awt.Font("Segoe UI", 1, 14)); // NOI18N
@@ -323,6 +317,7 @@ public class reportsPanel extends javax.swing.JPanel {
         btnGenerate.setForeground(new java.awt.Color(255, 255, 255));
         btnGenerate.setText("Generate");
         btnGenerate.setBorder(new javax.swing.border.SoftBevelBorder(javax.swing.border.BevelBorder.RAISED));
+        btnGenerate.addActionListener(this::btnGenerateActionPerformed);
         add(btnGenerate, new org.netbeans.lib.awtextra.AbsoluteConstraints(710, 160, 110, 50));
 
         jTable1.setBackground(new java.awt.Color(245, 245, 245));
@@ -387,7 +382,8 @@ public class reportsPanel extends javax.swing.JPanel {
         );
 
         add(jPanel1, new org.netbeans.lib.awtextra.AbsoluteConstraints(20, 680, 1040, 50));
-        add(jDateChooser1, new org.netbeans.lib.awtextra.AbsoluteConstraints(410, 170, 250, 40));
+        add(jDateChooser1, new org.netbeans.lib.awtextra.AbsoluteConstraints(100, 170, 250, 40));
+        add(jDateChooser2, new org.netbeans.lib.awtextra.AbsoluteConstraints(410, 170, 250, 40));
 
         lblBackground.setIcon(new javax.swing.ImageIcon(getClass().getResource("/irms/resources/background/Reports.png"))); // NOI18N
         add(lblBackground, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 0, -1, -1));
@@ -395,6 +391,7 @@ public class reportsPanel extends javax.swing.JPanel {
 
     private void btnRefreshActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnRefreshActionPerformed
         // TODO add your handling code here:
+            refreshReport();
     }//GEN-LAST:event_btnRefreshActionPerformed
 
     private void btnRecordsActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnRecordsActionPerformed
@@ -402,13 +399,18 @@ public class reportsPanel extends javax.swing.JPanel {
         openPanel(new transactionRecords());
     }//GEN-LAST:event_btnRecordsActionPerformed
 
+    private void btnGenerateActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnGenerateActionPerformed
+        // TODO add your handling code here:
+        generateReport();
+    }//GEN-LAST:event_btnGenerateActionPerformed
+
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton btnGenerate;
     private javax.swing.JButton btnRecords;
     private javax.swing.JButton btnRefresh;
-    private javax.swing.JComboBox<String> cmbReportType;
     private com.toedter.calendar.JDateChooser jDateChooser1;
+    private com.toedter.calendar.JDateChooser jDateChooser2;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel2;
     private javax.swing.JLabel jLabel3;

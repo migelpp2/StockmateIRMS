@@ -258,7 +258,7 @@ public class MainFrame extends javax.swing.JFrame {
             .addGap(0, 800, Short.MAX_VALUE)
         );
 
-        getContentPane().add(mainContentPanel, new org.netbeans.lib.awtextra.AbsoluteConstraints(240, 0, -1, 800));
+        getContentPane().add(mainContentPanel, new org.netbeans.lib.awtextra.AbsoluteConstraints(250, 0, -1, 800));
 
         pnlBackground.setBackground(new java.awt.Color(200, 212, 222));
         pnlBackground.setPreferredSize(new java.awt.Dimension(1366, 768));
